@@ -28,8 +28,8 @@ mv .env.example .env.local
 ```
 Add the token from Storyblok and a password/any string for the preview-mode (and the webhook):
 ```
-STORYBLOK_TOKEN=<your-new-token>
-SECRET=<your-token-or-password>
+NEXT_PUBLIC_STORYBLOK_TOKEN=<your-new-token>
+API_SECRET=<your-token-or-password>
 ```
 
 ### 4. Run your project
