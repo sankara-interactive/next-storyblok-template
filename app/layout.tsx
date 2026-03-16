@@ -1,6 +1,6 @@
 import { ReactElement } from 'react'
 import StoryblokProvider from '../components/StoryblokProvider'
-import '../styles/globals.scss'
+import '../styles/globals.css'
 
 type RootLayoutProps = {
   children: ReactElement

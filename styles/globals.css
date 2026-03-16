@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Satoshi", "sans-serif";
+
+  --color-primary: #4f46e5;
+}
+
+@utility container {
+  @apply mx-auto max-w-7xl p-5 md:p-8;
+}
