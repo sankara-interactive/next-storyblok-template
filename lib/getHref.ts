@@ -1,13 +1,21 @@
 import { StoryblokMultilink } from '../.storyblok/types/storyblok'
 
-export function getHref(link: StoryblokMultilink) {
-  if (link.linktype === 'story' && link.story && 'full_slug' in link.story) {
-    return `/${link.story.full_slug}`
-  }
+export function getHref(link: StoryblokMultilink): string {
+  switch (link.linktype) {
+    case 'story':
+      if (!link.story || !('full_slug' in link.story)) {
+        return `/${link.cached_url}`
+      }
 
-  if (link.linktype === 'url') {
-    return link.url
+      return `/${link.story.full_slug}`
+    case 'url':
+      return link.url
+    case 'asset':
+      return link.url
+    case 'email':
+      return `mailto:${link.email}`
+    default:
+      console.warn(`Unknown link type: ${link.linktype}`)
+      return ''
   }
-
-  return link.cached_url
 }

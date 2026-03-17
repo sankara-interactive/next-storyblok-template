@@ -10,7 +10,7 @@
     "create-component": "node ./generators/copy.js",
     "pull-components": "storyblok components pull",
     "generate-sb-types": "storyblok types generate --type-suffix Storyblok --strict --custom-fields-parser ./lib/customFieldTypesParser.mjs",
-    "generate-components": "node generators/cli.js ../components.202685.json"
+    "generate-components": "node generators/cli.js .storyblok/components/202685/components.json"
   },
   "dependencies": {
     "@storyblok/react": "^5.4.22",
