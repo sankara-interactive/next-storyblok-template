@@ -1,5 +1,5 @@
 import { SbBlokData, storyblokEditable, StoryblokServerComponent } from '@storyblok/react/rsc'
-import { GridStoryblok } from '../../types/component-types-sb'
+import { GridStoryblok } from '../../.storyblok/types/202685/storyblok-components'
 
 export default function Grid({ blok }: { blok: GridStoryblok }) {
   return (

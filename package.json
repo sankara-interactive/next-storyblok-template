@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "create-component": "node ./generators/copy.js",
-    "pull-components": "storyblok pull-components --space=202685",
-    "generate-sb-types": "storyblok generate-typescript-typedefs --source ./components.202685.json --target ./types/component-types-sb.d.ts --compilerOptions ./lib/json2ts.json --customTypeParser ./lib/customFieldTypesParser.mjs",
+    "pull-components": "storyblok components pull",
+    "generate-sb-types": "storyblok types generate --type-suffix Storyblok --strict --custom-fields-parser ./lib/customFieldTypesParser.mjs",
     "generate-components": "node generators/cli.js ../components.202685.json"
   },
   "dependencies": {
@@ -27,6 +27,7 @@
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.1.6",
     "postcss": "^8.5.8",
+    "storyblok": "^4.16.2",
     "tailwindcss": "^4.2.1",
     "typescript": "^5.9.3"
   },

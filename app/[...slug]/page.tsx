@@ -5,7 +5,7 @@ import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 import Logo from '../../components/layout/Logo'
 import { getStoryblokApi } from '../../lib/storyblok'
-import { PageStoryblok } from '../../types/component-types-sb'
+import { PageStoryblok } from '../../.storyblok/types/202685/storyblok-components'
 
 export type ContentType = PageStoryblok // add more content types if needed
 

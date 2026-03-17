@@ -1,12 +1,8 @@
-import { ReactElement } from 'react'
+import { ReactNode } from 'react'
 import StoryblokProvider from '../components/StoryblokProvider'
 import '../styles/globals.css'
 
-type RootLayoutProps = {
-  children: ReactElement
-}
-
-export default function RootLayout({ children }: RootLayoutProps) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <StoryblokProvider>
       <html lang="de-CH">

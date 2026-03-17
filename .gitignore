@@ -54,6 +54,5 @@ test-timings.json
 # Secrets
 .env.local
 
-# Misc
-components.*
-presets.*
+# Storyblok
+.storyblok/logs

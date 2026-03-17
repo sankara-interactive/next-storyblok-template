@@ -1,7 +1,8 @@
 import { SbBlokData, storyblokEditable } from '@storyblok/react/rsc'
 import Image from 'next/image'
-import { TeaserStoryblok } from '../../types/component-types-sb'
+import { TeaserStoryblok } from '../../.storyblok/types/202685/storyblok-components'
 import Link from 'next/link'
+import { getHref } from '../../lib/getHref'
 
 export default function Teaser({ blok }: { blok: TeaserStoryblok }) {
   return (
@@ -13,23 +14,14 @@ export default function Teaser({ blok }: { blok: TeaserStoryblok }) {
           </h1>
           {blok.lead && <h2 className="text-lg font-medium mb-6">{blok.lead}</h2>}
           <div className="flex flex-col sm:block py-4">
-            {blok.button_link.linktype === 'story' ? (
-              <Link
-                href={`/${blok.button_link.story?.full_slug}`}
-                className="inline-block font-medium shadow uppercase rounded hover:shadow-md sm:mr-4 py-3 px-6 text-base mb-4 primary"
-              >
-                {blok.button_label}
-              </Link>
-            ) : (
-              <a
-                href={blok.button_link.url}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-block font-medium shadow uppercase rounded hover:shadow-md sm:mr-4 py-3 px-6 text-base mb-4 primary"
-              >
-                {blok.button_label}
-              </a>
-            )}
+            <Link
+              href={getHref(blok.button_link)}
+              target={blok.button_link.target}
+              rel={blok.button_link.target === '_blank' ? 'noopener' : undefined}
+              className="inline-block font-medium shadow uppercase rounded hover:shadow-md sm:mr-4 py-3 px-6 text-base mb-4 primary"
+            >
+              {blok.button_label}
+            </Link>
           </div>
         </div>
         <div className="hidden lg:block lg:w-5/12">

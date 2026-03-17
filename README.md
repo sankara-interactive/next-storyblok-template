@@ -22,15 +22,20 @@ yarn # or npm install
 
 ### 3. Adding the Access token
 
-Create a new empty space and copy the Preview Token. Create your `.env.local` from  `.env.example`:
+Create a new empty space and copy the preview token. Create your `.env.local` from `.env.example`:
+
 ```sh
 mv .env.example .env.local
 ```
+
 Add the token from Storyblok and a password/any string for the preview-mode (and the webhook):
+
+```sh
+NEXT_PUBLIC_STORYBLOK_TOKEN=<your-public-token>
+STORYBLOK_PREVIEW_TOKEN=<your-preview-token>
 ```
-NEXT_PUBLIC_STORYBLOK_TOKEN=<your-new-token>
-API_SECRET=<your-token-or-password>
-```
+
+In development it's recommended to use the preview token which allows you to see unpublished (draft) data. In production, use the public token for NEXT_PUBLIC_STORYBLOK_TOKEN.
 
 ### 4. Run your project
 
@@ -92,5 +97,3 @@ Don't forger to add the secret token as env-variable.
 - [Next.js docs](https://nextjs.org/docs/#setup)
 - [Storyblok Tutorial](https://www.storyblok.com/tp/add-a-headless-cms-to-next-js-in-5-minutes)
 - [Preview Mode](https://nextjs.org/docs/advanced-features/preview-mode)
-
-
