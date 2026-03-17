@@ -1271,13 +1271,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storyblok/js@npm:3.3.0":
-  version: 3.3.0
-  resolution: "@storyblok/js@npm:3.3.0"
+"@storyblok/js@npm:4.4.5":
+  version: 4.4.5
+  resolution: "@storyblok/js@npm:4.4.5"
   dependencies:
-    "@storyblok/richtext": "npm:3.1.0"
-    storyblok-js-client: "npm:6.10.10"
-  checksum: 10c0/c03b1cb59983538bbc4f8f6a858cf81f4ba4f7d9767c2803cd596510add10d0e37dad8f260ee6949c5a6355b7f9a6a42c7385c8ba5c5a47b9fb4a83eb1af3ec3
+    "@storyblok/richtext": "npm:3.8.2"
+    storyblok-js-client: "npm:7.2.3"
+  checksum: 10c0/f7a63c5ffb7ebc8ec74f0b63c9cf8e216bd6f6093ad153e56b121bb501407772779a28154d7943b31e385087a5e0b2b2f1a1da0af9727c954084c0fe30723577
   languageName: node
   linkType: hard
 
@@ -1300,16 +1300,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storyblok/react@npm:^4.5.2":
-  version: 4.5.2
-  resolution: "@storyblok/react@npm:4.5.2"
+"@storyblok/react@npm:^5.4.22":
+  version: 5.4.22
+  resolution: "@storyblok/react@npm:5.4.22"
   dependencies:
-    "@storyblok/js": "npm:3.3.0"
+    "@storyblok/js": "npm:4.4.5"
   peerDependencies:
-    next: ^13 || ^14 || ^15
+    next: ^13 || ^14 || ^15 || ^16
     react: ^17 || ^18 || ^19
     react-dom: ^17 || ^18 || ^19
-  checksum: 10c0/d8b7cbdbb37547634330b24c5b641660239fb56b05115800dd25120ffa4eee928722ab553619d5cd03ff5c49e76fae5b5d8d52527bc4891a256678895ef1fa52
+  peerDependenciesMeta:
+    next:
+      optional: true
+  checksum: 10c0/ba262556815c045dea1db2a2dbeee7582ff9906f69235328b4d8ea9cc49bfaa1f18d4cf6f0390edca6af4187d03b6558f5e56056bb2a417fe10d86d72a38cb6a
   languageName: node
   linkType: hard
 
@@ -1320,10 +1323,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storyblok/richtext@npm:3.1.0":
-  version: 3.1.0
-  resolution: "@storyblok/richtext@npm:3.1.0"
-  checksum: 10c0/a3bb0b9468b99178f78716616549c30553ee0630d7216eb3c842184128849e9b2e63c64b509430d0452221dabf2adc61e37a67e98e0d32d7854f1d7cf8a31598
+"@storyblok/richtext@npm:3.8.2":
+  version: 3.8.2
+  resolution: "@storyblok/richtext@npm:3.8.2"
+  dependencies:
+    markdown-it: "npm:^14.1.0"
+    markdown-it-github: "npm:^0.5.0"
+    node-html-parser: "npm:^7.0.1"
+  checksum: 10c0/483bb8b7e5202549f8d74a719ef797b6d784a78221b0836a5cde77a4310add6fbc768824146365a3738764235d14b980753c946d9e1eb097acb63f705ad7f74a
   languageName: node
   linkType: hard
 
@@ -2332,6 +2339,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"boolbase@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "boolbase@npm:1.0.0"
+  checksum: 10c0/e4b53deb4f2b85c52be0e21a273f2045c7b6a6ea002b0e139c744cb6f95e9ec044439a52883b0d74dedd1ff3da55ed140cfdddfed7fb0cccbed373de5dce1bcf
+  languageName: node
+  linkType: hard
+
 "bottleneck@npm:^2.15.3":
   version: 2.19.5
   resolution: "bottleneck@npm:2.19.5"
@@ -2622,6 +2636,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"css-select@npm:^5.1.0":
+  version: 5.2.2
+  resolution: "css-select@npm:5.2.2"
+  dependencies:
+    boolbase: "npm:^1.0.0"
+    css-what: "npm:^6.1.0"
+    domhandler: "npm:^5.0.2"
+    domutils: "npm:^3.0.1"
+    nth-check: "npm:^2.0.1"
+  checksum: 10c0/d79fffa97106007f2802589f3ed17b8c903f1c961c0fc28aa8a051eee0cbad394d8446223862efd4c1b40445a6034f626bb639cf2035b0bfc468544177593c99
+  languageName: node
+  linkType: hard
+
+"css-what@npm:^6.1.0":
+  version: 6.2.2
+  resolution: "css-what@npm:6.2.2"
+  checksum: 10c0/91e24c26fb977b4ccef30d7007d2668c1c10ac0154cc3f42f7304410e9594fb772aea4f30c832d2993b132ca8d99338050866476210316345ec2e7d47b248a56
+  languageName: node
+  linkType: hard
+
 "csstype@npm:^3.2.2":
   version: 3.2.3
   resolution: "csstype@npm:3.2.3"
@@ -2818,6 +2852,44 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dom-serializer@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "dom-serializer@npm:2.0.0"
+  dependencies:
+    domelementtype: "npm:^2.3.0"
+    domhandler: "npm:^5.0.2"
+    entities: "npm:^4.2.0"
+  checksum: 10c0/d5ae2b7110ca3746b3643d3ef60ef823f5f078667baf530cec096433f1627ec4b6fa8c072f09d079d7cda915fd2c7bc1b7b935681e9b09e591e1e15f4040b8e2
+  languageName: node
+  linkType: hard
+
+"domelementtype@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "domelementtype@npm:2.3.0"
+  checksum: 10c0/686f5a9ef0fff078c1412c05db73a0dce096190036f33e400a07e2a4518e9f56b1e324f5c576a0a747ef0e75b5d985c040b0d51945ce780c0dd3c625a18cd8c9
+  languageName: node
+  linkType: hard
+
+"domhandler@npm:^5.0.2, domhandler@npm:^5.0.3":
+  version: 5.0.3
+  resolution: "domhandler@npm:5.0.3"
+  dependencies:
+    domelementtype: "npm:^2.3.0"
+  checksum: 10c0/bba1e5932b3e196ad6862286d76adc89a0dbf0c773e5ced1eb01f9af930c50093a084eff14b8de5ea60b895c56a04d5de8bbc4930c5543d029091916770b2d2a
+  languageName: node
+  linkType: hard
+
+"domutils@npm:^3.0.1":
+  version: 3.2.2
+  resolution: "domutils@npm:3.2.2"
+  dependencies:
+    dom-serializer: "npm:^2.0.0"
+    domelementtype: "npm:^2.3.0"
+    domhandler: "npm:^5.0.3"
+  checksum: 10c0/47938f473b987ea71cd59e59626eb8666d3aa8feba5266e45527f3b636c7883cca7e582d901531961f742c519d7514636b7973353b648762b2e3bedbf235fada
+  languageName: node
+  linkType: hard
+
 "dotenv@npm:^16.5.0":
   version: 16.6.1
   resolution: "dotenv@npm:16.6.1"
@@ -2900,7 +2972,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"entities@npm:^4.4.0":
+"entities@npm:^4.2.0, entities@npm:^4.4.0":
   version: 4.5.0
   resolution: "entities@npm:4.5.0"
   checksum: 10c0/5b039739f7621f5d1ad996715e53d964035f75ad3b9a4d38c6b3804bb226e282ffeae2443624d8fdd9c47d8e926ae9ac009c54671243f0c3294c26af7cc85250
@@ -3814,6 +3886,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"github-slugger@npm:^1.2.1":
+  version: 1.5.0
+  resolution: "github-slugger@npm:1.5.0"
+  checksum: 10c0/116f99732925f939cbfd6f2e57db1aa7e111a460db0d103e3b3f2fce6909d44311663d4542350706cad806345b9892358cc3b153674f88eeae77f43380b3bfca
+  languageName: node
+  linkType: hard
+
 "glob-parent@npm:^5.1.2":
   version: 5.1.2
   resolution: "glob-parent@npm:5.1.2"
@@ -3942,6 +4021,15 @@ __metadata:
   dependencies:
     function-bind: "npm:^1.1.2"
   checksum: 10c0/3769d434703b8ac66b209a4cca0737519925bbdb61dd887f93a16372b14694c63ff4e797686d87c90f08168e81082248b9b028bad60d4da9e0d1148766f56eb9
+  languageName: node
+  linkType: hard
+
+"he@npm:1.2.0":
+  version: 1.2.0
+  resolution: "he@npm:1.2.0"
+  bin:
+    he: bin/he
+  checksum: 10c0/a27d478befe3c8192f006cdd0639a66798979dfa6e2125c6ac582a19a5ebfec62ad83e8382e6036170d873f46e4536a7e795bf8b95bf7c247f4cc0825ccc8c17
   languageName: node
   linkType: hard
 
@@ -4790,6 +4878,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"markdown-it-github@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "markdown-it-github@npm:0.5.0"
+  dependencies:
+    github-slugger: "npm:^1.2.1"
+    markdown-it-theme: "npm:^0.2.0"
+  checksum: 10c0/b20839bca44a69ba08118f1a7e0d176aa094fa41033e37663df816a510fe1ded4f658ff91edd4ed9541551bc316660bb79aa33bf2ca310c06b6d951ebcba7a11
+  languageName: node
+  linkType: hard
+
+"markdown-it-theme@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "markdown-it-theme@npm:0.2.0"
+  checksum: 10c0/d19ea94aaaf5ca05b0ab04c15b9825278561db0776d9065741586cd21d903e50e19f6630ba78d1c076d6ca4f3e7b99e3b50c12bf8dca94c0fe5f906a1453afc5
+  languageName: node
+  linkType: hard
+
 "markdown-it@npm:^14.1.0":
   version: 14.1.1
   resolution: "markdown-it@npm:14.1.1"
@@ -4919,7 +5024,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "next-storyblok@workspace:."
   dependencies:
-    "@storyblok/react": "npm:^4.5.2"
+    "@storyblok/react": "npm:^5.4.22"
     "@tailwindcss/postcss": "npm:^4.2.1"
     "@types/node": "npm:^22.13.13"
     "@types/react": "npm:^19.2.14"
@@ -5004,6 +5109,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"node-html-parser@npm:^7.0.1":
+  version: 7.1.0
+  resolution: "node-html-parser@npm:7.1.0"
+  dependencies:
+    css-select: "npm:^5.1.0"
+    he: "npm:1.2.0"
+  checksum: 10c0/8bee2616de374bb6f43b62cc8523f6d923cd199b2b7a42c6cf2ca503f1e89c32fb44195bd5af17d6fde1b992ad62c24465b29437213ae25f7770261fc9819173
+  languageName: node
+  linkType: hard
+
 "node-releases@npm:^2.0.27":
   version: 2.0.36
   resolution: "node-releases@npm:2.0.36"
@@ -5019,6 +5134,15 @@ __metadata:
     semver: "npm:^7.3.5"
     validate-npm-package-license: "npm:^3.0.4"
   checksum: 10c0/7e32174e7f5575ede6d3d449593247183880122b4967d4ae6edb28cea5769ca025defda54fc91ec0e3c972fdb5ab11f9284606ba278826171b264cb16a9311ef
+  languageName: node
+  linkType: hard
+
+"nth-check@npm:^2.0.1":
+  version: 2.1.1
+  resolution: "nth-check@npm:2.1.1"
+  dependencies:
+    boolbase: "npm:^1.0.0"
+  checksum: 10c0/5fee7ff309727763689cfad844d979aedd2204a817fbaaf0e1603794a7c20db28548d7b024692f953557df6ce4a0ee4ae46cd8ebd9b36cfb300b9226b567c479
   languageName: node
   linkType: hard
 
@@ -5957,10 +6081,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"storyblok-js-client@npm:6.10.10":
-  version: 6.10.10
-  resolution: "storyblok-js-client@npm:6.10.10"
-  checksum: 10c0/e8cb536cbce55a13796b56cb4e7ead01e9bf5a127665c3f2e4318ab1cf2a7307f49853fcc751e8c0a998c23ec49519d3a3e5f15598d4e7da00f830557b86634c
+"storyblok-js-client@npm:7.2.3":
+  version: 7.2.3
+  resolution: "storyblok-js-client@npm:7.2.3"
+  checksum: 10c0/f18ed69828c0f68255f97ad63be283111e40509985c70b5cfa3351f821cad42859864bfb7ae554c909a79187e243200bf5d3cdd8c020cf7e07fa8f92798d6c59
   languageName: node
   linkType: hard
 

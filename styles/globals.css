@@ -1,11 +1,19 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --font-display: "Satoshi", "sans-serif";
+  --font-display: 'Satoshi', 'sans-serif';
 
-  --color-primary: #4f46e5;
+  --color-primary: #09b3af;
 }
 
 @utility container {
   @apply mx-auto max-w-7xl p-5 md:p-8;
+}
+
+@layer base {
+  p {
+    a {
+      @apply text-primary hover:underline;
+    }
+  }
 }
