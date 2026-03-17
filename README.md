@@ -55,7 +55,11 @@ yarn build # or npm run build
 
 ### 5. Generate boilerplate components and TypeScript types
 
-First, make sure you have the [Storyblok CLI](https://github.com/storyblok/storyblok-cli) installed and set up with your account. Next, replace `SPACE_ID` in `package.json` with your space ID e.g. `123456`.
+First, make sure you have the [Storyblok CLI](https://github.com/storyblok/storyblok-cli) set up with your account. Next, replace space ID in `tsconfig.json` paths config with your space ID e.g. `123456`.
+
+```json
+"@storyblok-component-types": ["./.storyblok/types/<your-space-id>/storyblok-components"]
+```
 
 ```sh
 # get current component definition

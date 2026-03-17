@@ -1,6 +1,6 @@
 import { SbBlokData, storyblokEditable } from '@storyblok/react/rsc'
 import Image from 'next/image'
-import { TeaserStoryblok } from '../../.storyblok/types/202685/storyblok-components'
+import { TeaserStoryblok } from '@storyblok-component-types'
 import Link from 'next/link'
 import { getHref } from '../../lib/getHref'
 

@@ -1,5 +1,5 @@
 import { SbBlokData, storyblokEditable } from '@storyblok/react/rsc'
-import { FeatureStoryblok } from '../../.storyblok/types/202685/storyblok-components'
+import { FeatureStoryblok } from '@storyblok-component-types'
 import { RichTextRenderer } from '../helpers/RichTextRenderer'
 
 export default function Feature({ blok }: { blok: FeatureStoryblok }) {
