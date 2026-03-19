@@ -10,7 +10,7 @@
     "create-component": "node ./generators/copy.js",
     "pull-components": "storyblok components pull",
     "generate-types": "storyblok components pull && storyblok types generate",
-    "generate-components": "node generators/cli.js .storyblok/components/202685/components.json"
+    "generate-components": "node generators/cli.js .storyblok/components/<your-space-id>/components.json"
   },
   "dependencies": {
     "@storyblok/react": "^5.4.22",

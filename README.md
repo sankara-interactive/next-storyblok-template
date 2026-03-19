@@ -75,7 +75,7 @@ Whenever your component definitions have changes, you can update your types:
 
 ```sh
 # generate types from component definition
-yarn generate-sb-types
+yarn generate-types
 ```
 
 ### 6. Setup preview mode
