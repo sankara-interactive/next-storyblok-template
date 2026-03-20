@@ -1,8 +1,7 @@
+import { TeaserStoryblok } from '@storyblok-component-types'
 import { SbBlokData, storyblokEditable } from '@storyblok/react/rsc'
 import Image from 'next/image'
-import { TeaserStoryblok } from '@storyblok-component-types'
-import Link from 'next/link'
-import { getHref } from '../../lib/getHref'
+import { SbLink } from '../helpers/SbLink'
 
 export default function Teaser({ blok }: { blok: TeaserStoryblok }) {
   return (
@@ -14,14 +13,12 @@ export default function Teaser({ blok }: { blok: TeaserStoryblok }) {
           </h1>
           {blok.lead && <h2 className="text-lg font-medium mb-6">{blok.lead}</h2>}
           <div className="flex flex-col sm:block py-4">
-            <Link
-              href={getHref(blok.button_link)}
-              target={blok.button_link.target}
-              rel={blok.button_link.target === '_blank' ? 'noopener' : undefined}
+            <SbLink
+              link={blok.button_link}
               className="inline-block font-medium shadow uppercase rounded hover:shadow-md sm:mr-4 py-3 px-6 text-base mb-4 primary"
             >
               {blok.button_label}
-            </Link>
+            </SbLink>
           </div>
         </div>
         <div className="hidden lg:block lg:w-5/12">
