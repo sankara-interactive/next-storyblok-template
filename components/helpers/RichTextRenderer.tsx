@@ -1,7 +1,7 @@
 import {
   BlockTypes,
   MarkTypes,
-  StoryblokRichText,
+  StoryblokServerRichText,
   StoryblokServerComponent,
   type StoryblokRichTextNode,
 } from '@storyblok/react/rsc'
@@ -28,5 +28,5 @@ export function RichTextRenderer({ text }: { text: any }) {
     },
   }
 
-  return <StoryblokRichText doc={text} resolvers={resolvers} />
+  return <StoryblokServerRichText doc={text} resolvers={resolvers} />
 }

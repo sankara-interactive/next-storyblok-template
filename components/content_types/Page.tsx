@@ -1,5 +1,5 @@
 import { SbBlokData, storyblokEditable, StoryblokServerComponent } from '@storyblok/react/rsc'
-import { PageStoryblok } from '../../types/component-types-sb'
+import { PageStoryblok } from '@storyblok-component-types'
 
 export default function Page({ blok }: { blok: PageStoryblok }) {
   return (

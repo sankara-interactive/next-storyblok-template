@@ -7,7 +7,7 @@ import grid from '../components/nestables/Grid'
 import teaser from '../components/nestables/Teaser'
 
 export const getStoryblokApi = storyblokInit({
-  accessToken: process.env.STORYBLOK_TOKEN,
+  accessToken: process.env.NEXT_PUBLIC_STORYBLOK_TOKEN,
   use: [apiPlugin],
   components: {
     page,

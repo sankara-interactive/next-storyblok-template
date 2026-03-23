@@ -8,27 +8,28 @@
     "start": "next start",
     "lint": "next lint",
     "create-component": "node ./generators/copy.js",
-    "pull-components": "storyblok pull-components --space=202685",
-    "generate-sb-types": "storyblok generate-typescript-typedefs --source ./components.202685.json --target ./types/component-types-sb.d.ts --compilerOptions ./lib/json2ts.json --customTypeParser ./lib/customFieldTypesParser.mjs",
-    "generate-components": "node generators/cli.js ../components.202685.json"
+    "pull-components": "storyblok components pull",
+    "generate-types": "storyblok components pull && storyblok types generate",
+    "generate-components": "node generators/cli.js .storyblok/components/<your-space-id>/components.json"
   },
   "dependencies": {
-    "@storyblok/react": "^4.5.2",
+    "@storyblok/react": "^5.4.22",
     "clsx": "^2.1.1",
-    "next": "^15.2.4",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "next": "^16.1.6",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.1",
     "@types/node": "^22.13.13",
-    "@types/react": "^19.0.12",
-    "autoprefixer": "^10.4.21",
-    "eslint": "^9.23.0",
-    "eslint-config-next": "^15.2.4",
-    "postcss": "^8.5.3",
-    "sass": "^1.86.0",
-    "tailwindcss": "^3.4.17",
-    "typescript": "^5.8.2"
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^10.0.3",
+    "eslint-config-next": "^16.1.6",
+    "postcss": "^8.5.8",
+    "storyblok": "^4.16.2",
+    "tailwindcss": "^4.2.1",
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": "^22.14.0"
