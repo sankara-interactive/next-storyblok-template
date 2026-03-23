@@ -22,10 +22,10 @@ yarn # or npm install
 
 ### 3. Adding the Access token
 
-Create a new empty space and copy the preview token. Create your `.env.local` from `.env.example`:
+Create a new empty space and copy the preview token. Create your `.env` from `.env.example`:
 
 ```sh
-mv .env.example .env.local
+mv .env.example .env
 ```
 
 Add the tokens and space ID from Storyblok and the API secret as environment variables:

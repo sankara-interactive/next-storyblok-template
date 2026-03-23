@@ -52,7 +52,8 @@ test-timings.json
 *.tsbuildinfo
 
 # Secrets
-.env.local
+.env
+.env.*
 
 # Storyblok
 .storyblok/logs
