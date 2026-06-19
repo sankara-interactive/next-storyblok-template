@@ -11,7 +11,7 @@ export default function StoryblokProvider({
 }) {
   useEffect(() => {
     if (!bridge) return
-    import('../lib/storyblok').then(({ getStoryblokApi }) => {
+    import('@/lib/storyblok').then(({ getStoryblokApi }) => {
       getStoryblokApi()
     })
   }, [bridge])

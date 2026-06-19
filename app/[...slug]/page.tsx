@@ -1,10 +1,10 @@
 import { ISbStoryData, StoryblokStory } from '@storyblok/react/rsc'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import Logo from '../../components/layout/Logo'
-import { SITE_NAME, SITE_URL, isPreview } from '../../lib/config'
-import { getAllLinks, getStory } from '../../lib/storyblok-api'
-import { isDataRoute } from '../../lib/storyblok-routes'
+import Logo from '@/components/layout/Logo'
+import { SITE_NAME, SITE_URL, isPreview } from '@/lib/config'
+import { getAllLinks, getStory } from '@/lib/storyblok-api'
+import { isDataRoute } from '@/lib/storyblok-routes'
 import { PageStoryblok } from '@storyblok-component-types'
 
 export type ContentType = PageStoryblok // add more content types if needed

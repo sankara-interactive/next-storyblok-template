@@ -1,6 +1,6 @@
 import { revalidateTag } from 'next/cache'
-import { STORYBLOK_CACHE_TAG } from '../../../lib/config'
-import { verifyWebhookSignature } from '../../../lib/webhook'
+import { STORYBLOK_CACHE_TAG } from '@/lib/config'
+import { verifyWebhookSignature } from '@/lib/webhook'
 
 export async function POST(req: Request) {
   const raw = await req.text()
