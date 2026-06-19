@@ -1,13 +1,15 @@
+import { draftMode } from 'next/headers'
 import { ReactNode } from 'react'
 import StoryblokProvider from '../components/StoryblokProvider'
 import '../styles/globals.css'
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const { isEnabled: bridge } = await draftMode()
   return (
-    <StoryblokProvider>
-      <html lang="de-CH">
-        <body>{children}</body>
-      </html>
-    </StoryblokProvider>
+    <html lang="de-CH">
+      <body>
+        <StoryblokProvider bridge={bridge}>{children}</StoryblokProvider>
+      </body>
+    </html>
   )
 }
