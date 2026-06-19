@@ -1258,7 +1258,142 @@ git commit -m "docs: add storyblok conventions skill, reviewer agent, hooks, CLA
 
 ---
 
-### Task 14: Full test + build gate
+### Task 14: Analytics & consent primitives (Pirsch + PrivacyBee)
+
+House-standard reusable primitives. **Pirsch** is cookieless → loads always.
+**PrivacyBee** is the CMP → gates cookie-setting tags. Both env-driven; render
+nothing if their env var is unset (so the template is safe with no config).
+
+**Files:**
+- Create: `lib/analytics.ts`
+- Create: `lib/analytics.test.ts`
+- Create: `components/analytics/Pirsch.tsx`
+- Create: `components/analytics/ConsentManager.tsx`
+- Modify: `app/layout.tsx`
+- Modify: `.env.example`
+
+**Interfaces:**
+- Produces: `pirschAttributes(code?: string): { id: string; src: string; 'data-code': string } | null`.
+
+- [ ] **Step 1: Write the failing test `lib/analytics.test.ts`**
+
+```ts
+import { describe, expect, it } from 'vitest'
+import { pirschAttributes } from './analytics'
+
+describe('pirschAttributes', () => {
+  it('returns script attributes when a code is set', () => {
+    expect(pirschAttributes('ABC123')).toEqual({
+      id: 'pianjs',
+      src: 'https://api.pirsch.io/pa.js',
+      'data-code': 'ABC123',
+    })
+  })
+  it('returns null when no code', () => {
+    expect(pirschAttributes(undefined)).toBeNull()
+    expect(pirschAttributes('')).toBeNull()
+  })
+})
+```
+
+- [ ] **Step 2: Run the test to verify it fails**
+
+Run: `yarn test lib/analytics.test.ts`
+Expected: FAIL — cannot find module `./analytics`.
+
+- [ ] **Step 3: Create `lib/analytics.ts`**
+
+```ts
+export function pirschAttributes(
+  code?: string,
+): { id: string; src: string; 'data-code': string } | null {
+  if (!code) return null
+  return { id: 'pianjs', src: 'https://api.pirsch.io/pa.js', 'data-code': code }
+}
+```
+
+- [ ] **Step 4: Run the test to verify it passes**
+
+Run: `yarn test lib/analytics.test.ts`
+Expected: PASS (2 tests).
+
+- [ ] **Step 5: Create `components/analytics/Pirsch.tsx`**
+
+```tsx
+import Script from 'next/script'
+import { pirschAttributes } from '../../lib/analytics'
+
+/** Cookieless analytics — safe to load without consent. */
+export default function Pirsch() {
+  const attrs = pirschAttributes(process.env.NEXT_PUBLIC_PIRSCH_CODE)
+  if (!attrs) return null
+  return <Script strategy="afterInteractive" defer {...attrs} />
+}
+```
+
+- [ ] **Step 6: Create `components/analytics/ConsentManager.tsx`**
+
+```tsx
+import Script from 'next/script'
+
+/**
+ * Loads the PrivacyBee CMP, which manages consent for any cookie-setting tags
+ * (GTM, ad pixels). Those tags must be registered with PrivacyBee and load only
+ * after consent — never render them unconditionally here.
+ *
+ * VERIFY-AT-BUILD: confirm the exact PrivacyBee embed URL/attributes and the
+ * consent-state API from current PrivacyBee docs before wiring gated tags.
+ */
+export default function ConsentManager() {
+  const src = process.env.NEXT_PUBLIC_PRIVACYBEE_SRC
+  if (!src) return null
+  return <Script strategy="afterInteractive" src={src} />
+}
+```
+
+- [ ] **Step 7: Add both to `app/layout.tsx`**
+
+Add imports:
+
+```tsx
+import ConsentManager from '../components/analytics/ConsentManager'
+import Pirsch from '../components/analytics/Pirsch'
+```
+
+Render them inside `<body>`, after `{children}`'s provider:
+
+```tsx
+      <body>
+        <StoryblokProvider bridge={bridge}>{children}</StoryblokProvider>
+        <Pirsch />
+        <ConsentManager />
+      </body>
+```
+
+- [ ] **Step 8: Append to `.env.example`**
+
+```bash
+
+# Analytics & consent
+NEXT_PUBLIC_PIRSCH_CODE=<your-pirsch-code>
+NEXT_PUBLIC_PRIVACYBEE_SRC=<privacybee-embed-src>
+```
+
+- [ ] **Step 9: Verify test + build**
+
+Run: `yarn test lib/analytics.test.ts && yarn build`
+Expected: tests pass; build compiles (both components render null without env, so no crash).
+
+- [ ] **Step 10: Commit**
+
+```bash
+git add lib/analytics.ts lib/analytics.test.ts components/analytics app/layout.tsx .env.example
+git commit -m "feat: pirsch (cookieless) + privacybee consent primitives, env-driven"
+```
+
+---
+
+### Task 15: Full test + build gate
 
 - [ ] **Step 1: Run the whole unit suite**
 

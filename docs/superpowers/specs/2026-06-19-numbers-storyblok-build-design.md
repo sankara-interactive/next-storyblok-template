@@ -190,11 +190,18 @@ architectural (consent-gated script loading, **no tracking before consent**,
 server vs client boundary). External forms still need conversion events +
 consent integration.
 
-**Stack (decided):** **GTM + GA4** behind a **CMP** (Usercentrics/Cookiebot)
-with **Google Consent Mode v2**. Ad pixels (Meta/LinkedIn) load **only after
-consent**. Architecture: a single consent-gated script slot (e.g. `next/script`
-+ CMP gating), no tags fire pre-consent, GTM as the single tag container so
-numbers can manage pixels without code changes.
+**Stack (decided — house standard, used in almost all projects):**
+- **Pirsch Analytics** — cookieless, privacy-first. Loads **always**, no consent
+  gate required. The default analytics for every site. Env-driven code
+  (`NEXT_PUBLIC_PIRSCH_CODE`); conversions via Pirsch events where needed.
+- **PrivacyBee** — the CMP. Gates anything that sets cookies / personal data
+  (GTM, Meta/LinkedIn ad pixels) — those load **only after consent**.
+- **Optional consent-gated slot** for ad/GTM tags, used only when a campaign
+  needs pixel-based conversion tracking (forms are external, so often not
+  needed).
+- These are **template-level reusable primitives** (Pirsch component + PrivacyBee
+  loader + a consent-gated `<Script>` slot), env-driven so each instance just
+  sets its codes. (Supersedes the earlier GTM+GA4+Consent-Mode default.)
 
 ## 7. Conventions (the reusable IP)
 
@@ -312,10 +319,14 @@ multiple repos actually hurts. No distribution infra built speculatively.
 - [ ] Accessibility minimums verified (headings, focus, reduced-motion, contrast).
 
 ## 11. Open Questions (need input)
-- **Webflow URL inventory** for the redirect map. _(awaiting)_
-- Does the brand use **more than one font** (beyond Gabarito)? _(awaiting)_
-- Which **CMP** specifically (Usercentrics vs Cookiebot) — analytics approach
-  otherwise decided: GTM + GA4 + Consent Mode v2.
+- **Webflow URL inventory** _(resolved — from public sitemap)_: `/`,
+  `/kompetenzen`, `/karriere`, `/kontakt`, `/jobs/digital-marketing-expert`,
+  `/loesungen/{agenturen,corporate,kmu,startups,venture-capitalists}`. If the new
+  site keeps these slugs, redirects are mostly identity — map only changed slugs.
+- Does the brand use **more than one font** beyond Gabarito? The style guide
+  shows Gabarito for Hero/Heading/Body (looks single-font) — _confirm no second
+  face._
+- Analytics/CMP _(resolved)_: Pirsch (cookieless, always on) + PrivacyBee (CMP).
 
 ## 12. Verify-at-build Items
 - Exact Storyblok field-whitelisting mechanism (component groups vs tags) in the
