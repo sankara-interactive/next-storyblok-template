@@ -53,30 +53,11 @@ yarn dev # or npm run dev
 yarn build # or npm run build
 ```
 
-### 5. Generate boilerplate components and TypeScript types
+### 5. Storyblok sync
 
-First, make sure you have the [Storyblok CLI](https://github.com/storyblok/storyblok-cli) set up with your account. Next, replace space ID in `tsconfig.json` paths config with your space ID e.g. `123456`.
-
-```json
-"@storyblok-component-types": ["./.storyblok/types/<your-space-id>/storyblok-components"]
-```
-
-```sh
-# get current component definition
-yarn pull-components
-```
-
-```sh
-# generate boilerplate components
-yarn generate-components
-```
-
-Whenever your component definitions have changes, you can update your types:
-
-```sh
-# generate types from component definition
-yarn generate-types
-```
+- `yarn sync` — pull component schemas from Storyblok and regenerate TS types.
+- `yarn scaffold` — generate code stubs for any components missing a file
+  (run deliberately; not part of `sync`). Requires `STORYBLOK_SPACE_ID` in env.
 
 ### 6. Setup preview mode
 
