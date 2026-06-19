@@ -5,5 +5,5 @@ import { pirschAttributes } from '../../lib/analytics'
 export default function Pirsch() {
   const attrs = pirschAttributes(process.env.NEXT_PUBLIC_PIRSCH_CODE)
   if (!attrs) return null
-  return <Script strategy="afterInteractive" defer {...attrs} />
+  return <Script strategy="afterInteractive" {...attrs} />
 }
