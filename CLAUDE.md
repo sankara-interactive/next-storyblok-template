@@ -18,6 +18,9 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   PrivacyBee is a **blok** (registry key `privacyBee`) that renders `<privacybee-widget>`
   from `https://www.privacybee.ch/widget.js`; it is placed in page content, not the
   layout. Its `website_id` comes from the blok field — there is no global env var for it.
+- **SEO**: structured data (Organization + WebSite JSON-LD) is emitted sitewide from
+  `components/seo/JsonLd.tsx`; root `metadata` in `app/layout.tsx` provides title-template
+  + OG defaults; per-page metadata in `app/[...slug]/page.tsx` overrides title/description/canonical/images.
 
 ## Conventions
 - Registry key = EXACT camelCase technical name (mismatch = silent no-render).

@@ -2,7 +2,7 @@ import { ISbStoryData, StoryblokStory } from '@storyblok/react/rsc'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Logo from '@/components/layout/Logo'
-import { SITE_NAME, SITE_URL, isPreview } from '@/lib/config'
+import { isPreview } from '@/lib/config'
 import { getAllLinks, getStory } from '@/lib/storyblok-api'
 import { isDataRoute } from '@/lib/storyblok-routes'
 import { PageStoryblok } from '@storyblok-component-types'
@@ -45,8 +45,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const ogImage = seo.og_image || undefined
 
   return {
-    metadataBase: new URL(SITE_URL),
-    title: `${title} · ${SITE_NAME}`,
+    title,
     description,
     alternates: { canonical: canonicalPath },
     robots: isPreview
@@ -56,7 +55,6 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
       title: seo.og_title || title,
       description: seo.og_description || description,
       url: canonicalPath,
-      siteName: SITE_NAME,
       images: ogImage ? [{ url: ogImage }] : undefined,
     },
     twitter: {
