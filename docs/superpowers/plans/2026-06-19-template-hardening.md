@@ -383,11 +383,16 @@ The bridge currently loads for every visitor via `StoryblokProvider` in the root
 
 - [ ] **Step 1: Rewrite `components/StoryblokProvider.tsx`**
 
+The Storyblok bridge code (and `@storyblok/react`'s embedded bridge-script URL)
+must be **code-split out of the initial client bundle**. A static
+`import { getStoryblokApi } from '../lib/storyblok'` would pull that code into the
+provider's chunk for every visitor. Use a **dynamic import inside the gated
+effect** so the bridge chunk loads only in preview:
+
 ```tsx
 'use client'
 
 import { useEffect } from 'react'
-import { getStoryblokApi } from '../lib/storyblok'
 
 export default function StoryblokProvider({
   bridge,
@@ -397,7 +402,10 @@ export default function StoryblokProvider({
   children: React.ReactNode
 }) {
   useEffect(() => {
-    if (bridge) getStoryblokApi()
+    if (!bridge) return
+    import('../lib/storyblok').then(({ getStoryblokApi }) => {
+      getStoryblokApi()
+    })
   }, [bridge])
   return children
 }
@@ -423,10 +431,19 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 }
 ```
 
-- [ ] **Step 3: Verify the bridge is absent from the production client bundle**
+- [ ] **Step 3: Verify the bridge is code-split out of the initial bundle**
 
-Run: `yarn build && grep -rl "storyblok-js-bridge\|app.storyblok.com/f/storyblok-v2-latest" .next/static 2>/dev/null; echo "exit=$?"`
-Expected: no file matches (grep prints nothing). The bridge script is only injected by `getStoryblokApi()` at runtime when `bridge` is true.
+Run: `yarn build`
+Expected: compiles. Then confirm the bridge code lives in a **separate async chunk**, not the main/page entry:
+
+Run: `grep -rl "storyblok-v2-latest" .next/static/chunks 2>/dev/null | head`
+Interpretation (report the result, don't treat presence as failure): the bridge
+URL string MAY appear in a chunk because `@storyblok/react` embeds it — what
+matters is that it is in a **dynamically-imported chunk** (from the `import('../lib/storyblok')`),
+NOT in the app/layout or page entry chunk loaded on first paint. Confirm by
+checking the matching file is a numbered async chunk, not `app/layout-*` or the
+main entry. The decisive guarantee is in the code: `getStoryblokApi()` is reached
+ONLY via the dynamic import inside the `bridge`-gated effect.
 
 - [ ] **Step 4: Commit**
 
@@ -1195,7 +1212,7 @@ Check, and report any failures with file:line:
         "hooks": [
           {
             "type": "command",
-            "command": "f=$(jq -r '.tool_input.file_path // empty'); case \"$f\" in *.env|*.env.*) echo 'Refusing to edit .env files' >&2; exit 2;; esac"
+            "command": "f=$(jq -r '.tool_input.file_path // empty'); case \"$f\" in *.env.example|*.env.sample) exit 0;; *.env|*.env.*) echo 'Refusing to edit real .env files (use .env.example)' >&2; exit 2;; esac"
           }
         ]
       },
@@ -1405,10 +1422,10 @@ Expected: all tests pass (routes, api, webhook, draft, sitemap, redirects).
 Run: `yarn build`
 Expected: clean build; routes include `/[...slug]`, `/api/revalidate`, `/api/draft`, `/sitemap.xml`, `/robots.txt`, `/_not-found`.
 
-- [ ] **Step 3: Confirm bridge absent from production bundle**
+- [ ] **Step 3: Confirm bridge is code-split (not in the first-paint bundle)**
 
-Run: `grep -rl "storyblok-v2-latest" .next/static 2>/dev/null; echo "exit=$?"`
-Expected: no matches.
+Run: `grep -rl "storyblok-v2-latest" .next/static/chunks 2>/dev/null`
+Expected: matches only a dynamically-imported async chunk (the `import('../lib/storyblok')` split), NOT the app/layout or main page entry chunk. The code guarantee (Task 4) is that `getStoryblokApi()` is reached only via the bridge-gated dynamic import.
 
 - [ ] **Step 4: Commit any lockfile/config drift**
 
