@@ -1,8 +1,9 @@
 import 'server-only'
 import { ISbStoryData } from '@storyblok/react/rsc'
+import StoryblokClient from 'storyblok-js-client'
 import { unstable_cache } from 'next/cache'
 import { draftMode } from 'next/headers'
-import { STORYBLOK_CACHE_TAG } from './config'
+import { isPreview, STORYBLOK_CACHE_TAG } from './config'
 import { getStoryblokApi } from './storyblok'
 
 export type SbLink = { slug: string; is_folder: boolean }
@@ -10,7 +11,15 @@ export type SbLink = { slug: string; is_folder: boolean }
 const isDev = process.env.NODE_ENV === 'development'
 
 export function resolveVersion(isDraft: boolean): 'draft' | 'published' {
-  return isDev || isDraft ? 'draft' : 'published'
+  return isDev || isPreview || isDraft ? 'draft' : 'published'
+}
+
+let previewClient: StoryblokClient | null = null
+function getPreviewClient(): StoryblokClient {
+  if (!previewClient) {
+    previewClient = new StoryblokClient({ accessToken: process.env.STORYBLOK_PREVIEW_TOKEN })
+  }
+  return previewClient
 }
 
 const fetchPublishedStory = unstable_cache(
@@ -31,7 +40,7 @@ export async function getStory<T>(slug: string): Promise<ISbStoryData<T> | null>
   const version = resolveVersion(isDraft)
   try {
     if (version === 'draft') {
-      const api = getStoryblokApi()
+      const api = getPreviewClient()
       const { data } = await api.get(`cdn/stories/${slug}`, {
         version: 'draft',
         resolve_links: 'url',

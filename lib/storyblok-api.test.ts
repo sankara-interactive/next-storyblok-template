@@ -21,3 +21,18 @@ describe('resolveVersion NODE_ENV override', () => {
     vi.resetModules()
   })
 })
+
+describe('resolveVersion MODE=preview override', () => {
+  it('forces draft when MODE=preview regardless of isDraft', async () => {
+    vi.resetModules()
+    const prevMode = process.env.MODE
+    const prevNode = process.env.NODE_ENV
+    process.env.NODE_ENV = 'production'
+    process.env.MODE = 'preview'
+    const mod = await import('./storyblok-api')
+    expect(mod.resolveVersion(false)).toBe('draft')
+    process.env.MODE = prevMode
+    process.env.NODE_ENV = prevNode
+    vi.resetModules()
+  })
+})

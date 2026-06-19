@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     return new Response('Invalid body', { status: 400 })
   }
 
-  // @ts-ignore - revalidateTag takes a single tag argument
+  // @ts-expect-error Expected 2 arguments, but got 1
   await revalidateTag(STORYBLOK_CACHE_TAG)
   return new Response('Revalidated', { status: 200 })
 }
