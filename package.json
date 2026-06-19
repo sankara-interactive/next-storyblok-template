@@ -7,10 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "create-component": "node ./generators/copy.js",
-    "pull-components": "storyblok components pull",
-    "generate-types": "storyblok components pull && storyblok types generate",
-    "generate-components": "node generators/cli.js .storyblok/components/<your-space-id>/components.json"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "sync": "storyblok components pull && storyblok types generate",
+    "scaffold": "node generators/cli.js .storyblok/components/$STORYBLOK_SPACE_ID/components.json"
   },
   "dependencies": {
     "@storyblok/react": "^5.4.22",
@@ -29,7 +29,8 @@
     "postcss": "^8.5.8",
     "storyblok": "^4.16.2",
     "tailwindcss": "^4.2.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.0.0"
   },
   "engines": {
     "node": "^22.14.0"
