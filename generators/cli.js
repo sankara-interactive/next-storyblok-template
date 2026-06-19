@@ -2,9 +2,36 @@
 const fs = require('fs');
 const path = require('path');
 
-const fileName = process.argv[2];
+const repoRoot = path.resolve(__dirname, '..');
 
-const schema = JSON.parse(fs.readFileSync(path.resolve(__dirname, fileName), 'utf8'));
+// Resolve the components.json: use an explicit arg, otherwise auto-detect the
+// single pulled component set under .storyblok/components/<space>/components.json
+// (so `yarn scaffold` works without needing $STORYBLOK_SPACE_ID in the shell).
+function resolveSchemaPath() {
+  const arg = process.argv[2];
+  if (arg) return path.resolve(repoRoot, arg);
+
+  const base = path.join(repoRoot, '.storyblok', 'components');
+  const matches = fs.existsSync(base)
+    ? fs
+        .readdirSync(base)
+        .map(dir => path.join(base, dir, 'components.json'))
+        .filter(p => fs.existsSync(p))
+    : [];
+
+  if (matches.length === 0) {
+    console.error(
+      'No .storyblok/components/<space>/components.json found. Run `yarn sync` first.'
+    );
+    process.exit(1);
+  }
+  if (matches.length > 1) {
+    console.warn(`Multiple component sets found; using ${matches[0]}`);
+  }
+  return matches[0];
+}
+
+const schema = JSON.parse(fs.readFileSync(resolveSchemaPath(), 'utf8'));
 
 const generateContent = (schema) => {
   let result = Object.keys(schema.schema).map(key => ({

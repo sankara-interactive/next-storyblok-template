@@ -57,7 +57,8 @@ yarn build # or npm run build
 
 - `yarn sync` — pull component schemas from Storyblok and regenerate TS types.
 - `yarn scaffold` — generate code stubs for any components missing a file
-  (run deliberately; not part of `sync`). Requires `STORYBLOK_SPACE_ID` in env.
+  (run after `yarn sync`; not part of it). Auto-detects the pulled component set
+  under `.storyblok/components/` — no env var needed.
 
 ### 6. Setup preview mode
 
@@ -74,10 +75,13 @@ It might be helpful for the end user to set the preview URL as default.
 
 ### 7. Webhook for revalidation
 
-To revalidate pages after publishing in Storyblok, you have to set up the following Webhook URL:
-`https://<my-url>/api/story-published?secret=<API_SECRET>`
+To revalidate pages after publishing in Storyblok, set up a Webhook pointing to:
+`https://<my-url>/api/revalidate`
 
-Don't forget to add the same `API_SECRET` value as the `secret` query parameter in your Webhook configuration.
+The endpoint verifies Storyblok's `webhook-signature` header (HMAC-SHA1). In the
+Storyblok webhook settings, set the webhook secret to the same value as
+`STORYBLOK_WEBHOOK_SECRET` in your env. Requests without a valid signature are
+rejected (and the single `storyblok` cache tag is flushed on a valid one).
 
 ## Conventions
 
