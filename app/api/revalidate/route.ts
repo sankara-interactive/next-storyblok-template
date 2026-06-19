@@ -17,7 +17,8 @@ export async function POST(req: Request) {
     return new Response('Invalid body', { status: 400 })
   }
 
-  // @ts-expect-error Expected 2 arguments, but got 1
-  await revalidateTag(STORYBLOK_CACHE_TAG)
+  // Next 16: revalidateTag requires a cacheLife profile; 'max' is the
+  // documented drop-in for on-demand purge (single-arg form is deprecated).
+  revalidateTag(STORYBLOK_CACHE_TAG, 'max')
   return new Response('Revalidated', { status: 200 })
 }
