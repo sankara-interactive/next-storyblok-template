@@ -1,69 +1,39 @@
-import { ISbStoriesParams } from '@storyblok/react'
 import { ISbStoryData, StoryblokStory } from '@storyblok/react/rsc'
 import { Metadata } from 'next'
-import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 import Logo from '../../components/layout/Logo'
-import { getStoryblokApi } from '../../lib/storyblok'
+import { getAllLinks, getStory } from '../../lib/storyblok-api'
+import { isDataRoute } from '../../lib/storyblok-routes'
 import { PageStoryblok } from '@storyblok-component-types'
 
 export type ContentType = PageStoryblok // add more content types if needed
 
-const isDev = process.env.NODE_ENV === 'development'
 export const revalidate = 3600
+export const dynamicParams = true
 
-async function fetchData(slug: string) {
-  const { isEnabled: isDraft } = await draftMode()
-  const sbParams: ISbStoriesParams = {
-    resolve_links: 'url',
-    version: isDev || isDraft ? 'draft' : 'published',
-    cv: isDev || isDraft ? Date.now() : undefined,
-  }
-
-  const storyblokApi = getStoryblokApi()
-
-  try {
-    const { data } = await storyblokApi.get(`cdn/stories/${slug}`, sbParams)
-    return { story: data.story as ISbStoryData<ContentType> }
-  } catch (error) {
-    return { story: null }
-  }
+type Props = {
+  params: Promise<{ slug?: string[] }>
 }
 
-// Return a list of `params` to populate the [slug] dynamic segment
+function slugFromParams(slug?: string[]): string {
+  return slug && slug.length ? slug.join('/') : 'home'
+}
+
 export async function generateStaticParams() {
-  const storyblokApi = getStoryblokApi()
-  const { data } = await storyblokApi.get('cdn/links/', {
-    version: 'published',
-  })
-
+  const links = await getAllLinks()
   const paths: { slug: string[] }[] = []
-  // create a route for every link
-  Object.keys(data.links).forEach(linkKey => {
-    // do not create a route for folders and home
-    if (
-      data.links[linkKey].is_folder ||
-      data.links[linkKey].slug === 'home' ||
-      data.links[linkKey].slug === 'global'
-    ) {
-      return
-    }
-
-    // get array for slug because of catch all
-    const slug = data.links[linkKey].slug
-    let splittedSlug = slug.split('/')
-
-    // creates all the routes
-    paths.push({ slug: splittedSlug })
+  Object.values(links).forEach(link => {
+    if (link.is_folder || link.slug === 'home' || isDataRoute(link.slug)) return
+    paths.push({ slug: link.slug.split('/') })
   })
-
   return paths
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
-  const slug = params.slug ? params.slug.join('/') : 'home'
-  const { story } = await fetchData(slug)
+  const slug = slugFromParams(params.slug)
+  if (isDataRoute(slug)) return {}
+  const story = await getStory<ContentType>(slug)
 
   if (!story) {
     return {}
@@ -92,18 +62,13 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   }
 }
 
-type Props = {
-  params: Promise<{ slug?: string[] }>
-}
-
 export default async function Home(props: Props) {
   const params = await props.params
-  const slug = params.slug ? params.slug.join('/') : 'home'
-  const { story } = await fetchData(slug)
+  const slug = slugFromParams(params.slug)
+  if (isDataRoute(slug)) notFound()
 
-  if (!story) {
-    return notFound()
-  }
+  const story = await getStory<ContentType>(slug)
+  if (!story) notFound()
 
   return (
     <>
@@ -112,9 +77,7 @@ export default async function Home(props: Props) {
           <Logo />
         </div>
       </nav>
-
-      <StoryblokStory story={story} />
-
+      <StoryblokStory story={story as ISbStoryData} />
       <footer className="p-4">Your Footer</footer>
     </>
   )
