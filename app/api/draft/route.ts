@@ -1,8 +1,8 @@
 import { draftMode } from 'next/headers'
 import { redirect } from 'next/navigation'
 import StoryblokClient from 'storyblok-js-client'
-import { bridgeParams } from '../../../lib/draft'
-import { isDataRoute } from '../../../lib/storyblok-routes'
+import { bridgeParams } from '@/lib/draft'
+import { isDataRoute } from '@/lib/storyblok-routes'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)

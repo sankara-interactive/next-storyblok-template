@@ -79,6 +79,43 @@ To revalidate pages after publishing in Storyblok, you have to set up the follow
 
 Don't forget to add the same `API_SECRET` value as the `secret` query parameter in your Webhook configuration.
 
+## Conventions
+
+These rules keep the codebase predictable across components and contributors.
+
+**Component registry**
+- The registry key in `lib/storyblok.ts` must be the **exact camelCase technical name** from Storyblok (e.g. `privacyBee`, `heroSection`). A one-character mismatch means the blok silently renders nothing.
+
+**Component hierarchy**
+- Pages are built as: `page` → `*Section` → `*Card`/`*Item`.
+- One file per blok, PascalCase filename, under `components/nestables/` or `components/content_types/`.
+
+**Whitelisting child bloks**
+- Filter allowed child bloks by Storyblok **tag** (`section`, `shared`, `richtext`) — never by an enumerated list of names. Tag-based filtering stays correct as new bloks are added.
+
+**Field-name vocabulary**
+Use these field names consistently across bloks:
+- `headline` — heading text
+- `eyebrow` — small label above the headline
+- `lead` / `text` — richtext intro or body copy
+- `body` / `items` — nested blok arrays
+- `image` / `images` — single or multiple asset fields
+- `link` / `links` — CTA or navigation links
+- `label` — button/link label
+- `variant` / `theme` — option fields for visual variants
+- `is*` / `has*` — boolean toggles (e.g. `isFullWidth`, `hasBackground`)
+
+**Globals and routing**
+- Stories under `data/` are non-routable (excluded from sitemap and static params). They are fetched as globals (nav, footer, settings) via `lib/storyblok-api.ts`.
+
+**Preview and live modes**
+- `MODE=preview` enables draft content, `noindex` meta, and the Storyblok bridge.
+- `MODE=live` serves published content, enables indexing, and omits the bridge.
+
+**Analytics**
+- **Pirsch** (cookieless, no consent required) loads globally in the root layout via `<Pirsch />`. It uses `pirsch.js` with `id="pirschjs"`. In development it is skipped entirely.
+- **PrivacyBee** is a Storyblok **blok** (registry key `privacyBee`), not a global script. Editors place it on the pages that need the consent widget. It renders the `<privacybee-widget>` custom element via `widget.js`; the `website_id` comes from the blok's own field.
+
 ## Resources
 
 - [Next.js docs](https://nextjs.org/docs/#setup)

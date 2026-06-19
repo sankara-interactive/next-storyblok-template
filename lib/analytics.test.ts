@@ -4,8 +4,8 @@ import { pirschAttributes } from './analytics'
 describe('pirschAttributes', () => {
   it('returns script attributes when a code is set', () => {
     expect(pirschAttributes('ABC123')).toEqual({
-      id: 'pianjs',
-      src: 'https://api.pirsch.io/pa.js',
+      id: 'pirschjs',
+      src: 'https://api.pirsch.io/pirsch.js',
       'data-code': 'ABC123',
     })
   })

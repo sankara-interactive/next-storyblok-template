@@ -13,6 +13,11 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
 - **Globals** live under `data/` and are non-routable (rejected by the page
   loader and excluded from sitemap/static params).
 - **MODE** (`preview`|`live`) gates draft content, `noindex`, and the bridge.
+- **Analytics**: Pirsch (cookieless, `pirsch.js` / `id="pirschjs"`) loads globally
+  in the layout via `<Pirsch />` — skipped in development (`NODE_ENV === 'development'`).
+  PrivacyBee is a **blok** (registry key `privacyBee`) that renders `<privacybee-widget>`
+  from `https://www.privacybee.ch/widget.js`; it is placed in page content, not the
+  layout. Its `website_id` comes from the blok field — there is no global env var for it.
 
 ## Conventions
 - Registry key = EXACT camelCase technical name (mismatch = silent no-render).
