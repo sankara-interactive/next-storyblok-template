@@ -61,46 +61,74 @@ into the template.
 - **SSG + ISR.** `generateStaticParams()` pre-renders all published routes;
   `revalidate` per the preview/live split (below). Static HTML → near-zero TTFB
   for ad landing pages.
-- Catch-all `app/[...slug]/page.tsx`. **The `data/` prefix is excluded from
-  `generateStaticParams`** so global stories never become public pages.
-- Draft/preview requests render dynamically.
+- **`dynamicParams = true`** — a route published after the last build renders
+  on-demand (ISR) on first request, then is cached until the next webhook flush.
+  No 404 for freshly published pages.
+- Catch-all `app/[...slug]/page.tsx`. **The `data/` prefix must be rejected by
+  the page loader *before* fetching** — excluding it from `generateStaticParams`
+  is not enough; a direct request to `/data/menu` would otherwise resolve
+  dynamically. Reject prefix → `notFound()`.
 
 ### Data fetching
 - Server-only Storyblok API module (`'server-only'` directive) so CMS fetching
   can never leak into a client bundle.
 - `version: draft|published` selected by preview/live mode.
+- **A single fetch helper** owns all reads (`getStory` / `getStories`): applies
+  `resolve_relations` + `resolve_links`, pagination, and — critically — **the
+  cache tag** (see Revalidation). Components never call the SDK directly, so no
+  component invents its own fetching/tagging behaviour.
 
 ### Preview / draft mode
-- Native `draftMode()` API via `/api/draft` + `/api/exit-draft` (already in
-  template).
-- A **MODE (preview vs live)** env gate controls: `revalidate` TTL, `noindex`
-  robots meta in preview, and whether the Storyblok bridge loads.
+- Native `draftMode()` API via `/api/draft` + `/api/exit-draft`.
+- **Security (harden the template):** the draft route must **strip `secret` from
+  the redirect URL** (template currently forwards it), normalize/validate the
+  slug, and **reject `data/` routes**. `noindex` is driven by actual
+  `draftMode()` / deployment environment, not only a loose `MODE` string.
 
 ### Revalidation
 - **Standardize on the blunt-but-robust pattern** (ported from desinfecta):
-  one global Storyblok cache tag, `revalidateTag(...)` flush-all on any publish.
-  Avoids fragile slug→route mapping; correct for a low-update site. (Template
-  currently does per-path `revalidatePath`; switch to tag-flush.)
+  one global Storyblok cache tag, `revalidateTag(STORYBLOK_TAG)` flush-all on any
+  publish. Avoids fragile slug→route mapping; correct for a low-update site.
+  (Template currently does per-path `revalidatePath`; switch to tag-flush.)
+- **Correctness dependency (the main risk):** tag-flush only works if **every**
+  Storyblok fetch is tagged. The fetch helper above must attach
+  `{ next: { tags: [STORYBLOK_TAG] } }` to all requests (incl. the
+  `@storyblok/react`/`apiPlugin` fetches). Untagged fetch = stale forever.
+- **Webhook security (harden the template):** `/api/revalidate` is **POST-only**,
+  validates the Storyblok webhook signature with **constant-time/HMAC** compare
+  (template currently uses a `?secret=` query param), hardens JSON parsing, and
+  **awaits revalidation before returning 200** (template returns early).
 
 ### Performance hardening (the gap to close for ads)
 1. **Gate the Storyblok bridge to preview/draft only.** Today
    `StoryblokProvider` loads the bridge unconditionally → ~50–100 KB of editor
-   JS shipped to every ad visitor. Biggest single win.
-2. **Self-host Gabarito via `next/font`** (no CLS, no external request).
-3. **Storyblok image service**: AVIF/WebP + responsive `sizes`; `priority` only
-   on the hero, lazy elsewhere.
+   JS shipped to every ad visitor. Biggest single win. Requirement, restated:
+   **no global client provider in the production bundle**; client islands only
+   where interaction demands it.
+2. **Self-host Gabarito via `next/font`** — explicit subset + only the weights
+   actually used, `display: swap`, fallback metrics. (Confirm whether the brand
+   uses more than one font.)
+3. **Images**: Storyblok image service via a small URL helper (AVIF/WebP, quality
+   default, explicit SVG handling). Every image needs intrinsic dimensions /
+   aspect ratio (from Storyblok asset metadata) to avoid CLS; **per-component
+   `sizes`**; `priority`/preload on the **single** LCP image only.
 4. Keep client JS to small islands (decorative animations/modals) only.
 
-Target: demonstrably beat the current Webflow site on CWV.
+Target & budgets: demonstrably beat the current Webflow site on CWV; enforce a
+JS-bundle budget and verify the bridge is absent from the production bundle (see
+Launch checklist).
 
 ## 5. Content Model
 
 ### Hierarchy: Page → Section → Component
 - **Content type:** `page` (+ aliases like `landingPage`), trivial — renders a
   `body` of section bloks recursively via `StoryblokComponent`.
-- **Sections** (`*Section`): map 1:1 from the Figma — `heroSection`,
+- **Sections** (`*Section`): derived from the Figma — `heroSection`,
   `clientsSection`, `frameworkSection`, `strategySection`, `performanceSection`,
-  `teamSection`, `resourcesSection`, `faqSection`, plus footer/nav.
+  `teamSection`, `resourcesSection`, `faqSection`, plus footer/nav. **Model by
+  content semantics, not 1:1 with Figma frames** — where frames differ only in
+  layout/colour, collapse them into one blok with a `variant`/`theme` field
+  rather than spawning near-duplicate sections (avoids CMS bloat).
 - **Leaf components** (`*Card` / `*Item`): `clientCard`, `faqItem`, `teamMember`,
   `resourceCard`, etc., used inside their section's `items` field.
 
@@ -119,7 +147,50 @@ For grouping content (team members, resources, future blog), use Storyblok
 **tags + `filter_query`/by-tag** rather than deep folders. Flat folders for
 *routing*, tags for *grouping*.
 
-## 6. Conventions (the reusable IP)
+## 6. Site-Level Concerns
+
+### SEO & metadata (architecture, not an afterthought)
+- Every `page` carries SEO fields: `metaTitle`, `metaDescription`, `canonical`
+  (override), `ogTitle`/`ogDescription`/`ogImage`, `robots` (override).
+- `generateMetadata` reads them with **sane fallbacks** (page headline →
+  metaTitle, site name from config, default OG image). Replace the template's
+  hardcoded `your-brand.ch` / `Your Brand` placeholders with config.
+- **`app/sitemap.ts`** — built from published Storyblok links; excludes `data/`,
+  folders, redirects, and `noindex` pages; emits canonical paths.
+- **`app/robots.ts`** — production allows indexing; preview/staging fully
+  disallow (ties to the preview/live gate).
+- JSON-LD structured data only where it earns its keep (e.g. Organization);
+  not speculative.
+
+### Redirects (Webflow migration — critical)
+- Old Webflow URLs must 301 to new paths or traffic/SEO is lost.
+- Strategy: **build-time `next.config.js redirects()` generated from the
+  `data/redirects` story**, so editors manage them in Storyblok. Cover 301 vs
+  302, trailing-slash normalization, and query preservation.
+- **Needs input:** the inventory of existing Webflow URLs to map. (See open
+  questions.)
+
+### 404 & not-found
+- `app/not-found.tsx` (optionally backed by a Storyblok `404` story).
+- Missing stories → `notFound()`. `data/` stories are never reachable as public
+  pages even on a direct request (loader rejection, above).
+
+### Accessibility (minimum gates)
+- Headings render semantically; the CMS must not let editors break heading order
+  (constrain `headline` level per section, don't expose a free heading-level
+  picker).
+- Alt text required on content images (schema-enforced where possible).
+- Modals/menus: focus trap, ESC, restore focus, visible focus rings.
+- Respect `prefers-reduced-motion` for the decorative animations.
+- Colour contrast on the violet-on-dark palette verified against WCAG AA.
+
+### Analytics & consent
+Paid-ads traffic ⇒ conversion tracking + CH/EU consent is in scope and is
+architectural (consent-gated script loading, **no tracking before consent**,
+server vs client boundary). External forms still need conversion events +
+consent integration. **Stack TBD — see open questions.**
+
+## 7. Conventions (the reusable IP)
 
 ### Component registry discipline
 All bloks map through a single registry. **Registry key = the exact camelCase
@@ -168,13 +239,15 @@ Consistent field names let the generator infer the right JSX from name + type.
 | `variant` / `theme` / `alignment` / `layout` | option / datasource | — | className map |
 | `is*` / `has*` / `show*` | boolean | — | conditional |
 
-## 7. Tooling & Schema Workflow
+## 8. Tooling & Schema Workflow
 
 ### Combined sync task
 One `yarn sync` that: pulls `components.json` → generates TS types
-(`{Name}Storyblok` discriminated unions) → scaffolds missing component stubs via
-`generators/cli.js`. Types always in lockstep with the schema. (Template
-currently splits `pull-components` and `generate-types`.)
+(`{Name}Storyblok` discriminated unions). Types always in lockstep with the
+schema. (Template currently splits `pull-components` and `generate-types`.)
+**Scaffolding is a *separate, explicit* command** (`yarn scaffold` /
+`generators/cli.js`), not part of `sync` — auto-stubbing every missing component
+on each pull causes noisy stubs and registry churn (per Codex review).
 
 ### Schema-as-code, fitted to a mixed team
 The team edits schemas in three ways: the user authors in code; Oli edits
@@ -197,7 +270,8 @@ fragile — **do not build it.** Instead:
 For agent-driven schema/content work (create/update component schemas, seed the
 `data/` folder, datasources, redirects), use the **Storyblok Management API**
 (OAuth token + space ID), **not the Storyblok MCP** — the Management API is more
-reliable and capable.
+reliable and capable. Scope it to **bootstrap/schema tasks where it saves time**,
+not as part of the normal content-editing workflow (that stays in the UI).
 
 ### `.claude/` assets to port (trimmed for numbers)
 Port from `../frontend-desinfecta` into the **template**, dropping what numbers
@@ -213,21 +287,41 @@ self-hosted pipeline):
   naming, tag-based whitelisting, field-name vocabulary, `data/` globals,
   preview/revalidate model, perf rules.
 
-## 8. Plugin — Deferred
+## 9. Plugin — Deferred
 
 Skills are plain files living in the template; every clone inherits them.
 Promote to a distributable plugin only once maintaining the same skills across
 multiple repos actually hurts. No distribution infra built speculatively.
 
-## 9. Verify-at-build Items
+## 10. Launch Acceptance Checklist (numbers.ch)
+- [ ] Lighthouse/CWV budget met; JS-bundle budget met.
+- [ ] **Storyblok bridge absent from the production bundle**; preview still works
+      after the bridge gating.
+- [ ] `sitemap.ts` + `robots.ts` validated (preview disallowed, `data/` excluded).
+- [ ] All Webflow redirects tested (301, trailing slash, query).
+- [ ] Draft route security tested (no `secret` leak, `data/` rejected).
+- [ ] Webhook revalidation tested end-to-end (publish → live within TTL).
+- [ ] 404 path tested; `data/` not reachable as a public page.
+- [ ] Consent/tracking tested (no tracking before consent).
+- [ ] Accessibility minimums verified (headings, focus, reduced-motion, contrast).
+
+## 11. Open Questions (need input)
+- **Analytics/consent stack:** which CMP + tracking (GTM + GA4? Meta/LinkedIn
+  ads pixels? consent mode v2?). Drives consent-gated loading architecture.
+- **Webflow URL inventory** for the redirect map.
+- Does the brand use **more than one font** (beyond Gabarito)?
+
+## 12. Verify-at-build Items
 - Exact Storyblok field-whitelisting mechanism (component groups vs tags) in the
   current Storyblok version.
 - Exact CLI command for pushing component schemas (`storyblok push-components`
   vs Management-API script).
+- How `@storyblok/react`/`apiPlugin` fetches receive Next cache tags (confirm the
+  hook for `next: { tags }`), since tag-flush revalidation depends on it.
 - Whether the template's `generators/cli.js` already handles the
   `nestables/sections` vs `nestables/components` split, or needs a tweak.
 
-## 10. Out of Scope (YAGNI)
+## 13. Out of Scope (YAGNI)
 - i18n / multi-language (DE-only).
 - On-site forms (external tool) and email relay.
 - Authentication / personalization / per-request rendering.
