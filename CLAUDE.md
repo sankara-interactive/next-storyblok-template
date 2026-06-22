@@ -8,11 +8,15 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   from a component.
 - **Revalidation**: `/api/revalidate` verifies the webhook signature and flushes
   the single `storyblok` tag. Tag-flush only works because every read is tagged.
-- **Bridge** loads only in preview (`StoryblokProvider` gated on draft mode). It
-  must never ship in the production bundle.
+- **Bridge** is handled by the SDK: `<StoryblokStory>` (in `app/[...slug]/page.tsx`)
+  renders `StoryblokLiveEditing`, which self-gates on `isVisualEditor()` and
+  dynamically loads the bridge only inside the Storyblok editor iframe — so it
+  never ships in the production bundle. There is no `StoryblokProvider`; the SDK
+  exports none, and one isn't needed (all bloks are server components).
 - **Globals** live under `data/` and are non-routable (rejected by the page
   loader and excluded from sitemap/static params).
-- **MODE** (`preview`|`live`) gates draft content, `noindex`, and the bridge.
+- **MODE** (`preview`|`live`) gates draft content and `noindex`. (The bridge is
+  gated separately by the SDK's `isVisualEditor()` — see Bridge above.)
 - **Analytics**: Pirsch (cookieless, `pirsch.js` / `id="pirschjs"`) loads globally
   in the layout via `<Pirsch />` — skipped in development (`NODE_ENV === 'development'`).
   PrivacyBee is a **blok** (registry key `privacyBee`) that renders `<privacybee-widget>`
