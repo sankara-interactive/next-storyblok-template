@@ -7,6 +7,15 @@ const path = require('path')
 
 const repoRoot = path.resolve(__dirname, '..')
 
+// snake_case (or kebab) technical name -> PascalCase component/type name, matching
+// how Storyblok's type generator names `<Name>Storyblok` (e.g. hero_section -> HeroSection).
+const toPascalCase = name =>
+  name
+    .split(/[_-]/)
+    .filter(Boolean)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('')
+
 // Resolve the components.json: use an explicit arg, otherwise auto-detect the
 // single pulled component set under .storyblok/components/<space>/components.json
 // (so `yarn scaffold` works without needing $STORYBLOK_SPACE_ID in the shell).
@@ -86,8 +95,7 @@ const generateContent = (schema) => {
 
 }
 schema.forEach((componentSchema) => {
-  let componentName = componentSchema.name
-  componentName = componentName.charAt(0).toUpperCase() + componentName.slice(1)
+  let componentName = toPascalCase(componentSchema.name)
 
   let className = componentName+'Props'
 

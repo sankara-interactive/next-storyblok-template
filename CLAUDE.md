@@ -4,10 +4,15 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
 
 ## Architecture
 - **All Storyblok reads** go through `lib/storyblok-api.ts` (`server-only`). Live
-  reads are cache-tagged with `STORYBLOK_CACHE_TAG`; never call the SDK directly
+  reads carry the global `STORYBLOK_CACHE_TAG`; each published story also carries a
+  per-story tag (`storyTag(slug)` → `storyblok:<slug>`). Never call the SDK directly
   from a component.
-- **Revalidation**: `/api/revalidate` verifies the webhook signature and flushes
-  the single `storyblok` tag. Tag-flush only works because every read is tagged.
+- **Revalidation**: `/api/revalidate` verifies the webhook signature, then flushes
+  surgically (`revalidationTag` in `lib/storyblok-routes.ts`): a plain content
+  `published` busts only `storyblok:<full_slug>`; a `data/` global, a structural
+  action (unpublish/move/delete), or a missing slug flushes the whole `storyblok`
+  tag (nav/sitemap/links are global-tagged). Tag-flush only works because every
+  read is tagged.
 - **Bridge** is handled by the SDK: `<StoryblokStory>` (in `app/[...slug]/page.tsx`)
   renders `StoryblokLiveEditing`, which self-gates on `isVisualEditor()` and
   dynamically loads the bridge only inside the Storyblok editor iframe — so it
@@ -24,7 +29,7 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   Bridge above.)
 - **Analytics**: Pirsch (cookieless, `pirsch.js` / `id="pirschjs"`) loads globally
   in the layout via `<Pirsch />` — skipped in development (`NODE_ENV === 'development'`).
-  PrivacyBee is a **blok** (registry key `privacyBee`) that renders `<privacybee-widget>`
+  PrivacyBee is a **blok** (registry key `privacy_bee`) that renders `<privacybee-widget>`
   from `https://www.privacybee.ch/widget.js`; it is placed in page content, not the
   layout. Its `website_id` comes from the blok field — there is no global env var for it.
 - **SEO**: structured data (Organization + WebSite JSON-LD) is emitted sitewide from
@@ -32,7 +37,9 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   + OG defaults; per-page metadata in `app/[...slug]/page.tsx` overrides title/description/canonical/images.
 
 ## Conventions
-- Registry key = EXACT camelCase technical name (mismatch = silent no-render).
+- Registry key = EXACT snake_case technical name (mismatch = silent no-render).
+  snake_case keeps blok names consistent with Storyblok-native fields (`is_folder`,
+  link/asset internals). Generated types stay PascalCase (`HeroSectionStoryblok`).
 - Hierarchy: `page` → `*Section` → `*Card`/`*Item`. PascalCase files 1:1.
 - Whitelist child bloks by tag (`section`/`shared`/`richtext`), never enumerate.
 - Field-name vocabulary (rules of thumb): `headline` (heading), `eyebrow`,

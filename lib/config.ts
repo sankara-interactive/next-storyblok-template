@@ -18,8 +18,11 @@ export const isPreview = MODE === 'preview'
 export const SITE_URL = process.env.SITE_URL ?? 'http://localhost:3000'
 export const SITE_NAME = process.env.SITE_NAME ?? 'Site'
 
-/** Single cache tag for every Storyblok read; flushed on publish. */
+/** Global cache tag on every Storyblok read; flushed for globals/structural changes. */
 export const STORYBLOK_CACHE_TAG = 'storyblok'
+
+/** Per-story cache tag, so a single content publish busts only that story. */
+export const storyTag = (slug: string) => `${STORYBLOK_CACHE_TAG}:${slug}`
 
 /** Top-level Storyblok folder holding non-routable global stories. */
 export const DATA_PREFIX = 'data'

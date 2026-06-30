@@ -6,7 +6,7 @@ tools: Read, Grep, Glob
 
 Check, and report any failures with file:line:
 
-1. Registry: a `lib/storyblok.ts` entry exists; key is EXACT camelCase technical name.
+1. Registry: a `lib/storyblok.ts` entry exists; key is EXACT snake_case technical name.
 2. Editable: `storyblokEditable(blok)` spread on the component root.
 3. Server/client: component is a server component unless it needs interaction
    (then a minimal `'use client'` island only).

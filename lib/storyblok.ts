@@ -4,7 +4,7 @@ import page from '@/components/content_types/Page'
 // nestables
 import feature from '@/components/nestables/Feature'
 import grid from '@/components/nestables/Grid'
-import privacyBee from '@/components/nestables/PrivacyBee'
+import privacy_bee from '@/components/nestables/PrivacyBee'
 import teaser from '@/components/nestables/Teaser'
 
 export const getStoryblokApi = storyblokInit({
@@ -15,6 +15,6 @@ export const getStoryblokApi = storyblokInit({
     feature,
     grid,
     teaser,
-    privacyBee,
+    privacy_bee,
   },
 })

@@ -88,7 +88,7 @@ rejected (and the single `storyblok` cache tag is flushed on a valid one).
 These rules keep the codebase predictable across components and contributors.
 
 **Component registry**
-- The registry key in `lib/storyblok.ts` must be the **exact camelCase technical name** from Storyblok (e.g. `privacyBee`, `heroSection`). A one-character mismatch means the blok silently renders nothing.
+- The registry key in `lib/storyblok.ts` must be the **exact snake_case technical name** from Storyblok (e.g. `privacy_bee`, `hero_section`). A one-character mismatch means the blok silently renders nothing.
 
 **Component hierarchy**
 - Pages are built as: `page` → `*Section` → `*Card`/`*Item`.
@@ -118,7 +118,7 @@ Use these field names consistently across bloks:
 
 **Analytics**
 - **Pirsch** (cookieless, no consent required) loads globally in the root layout via `<Pirsch />`. It uses `pirsch.js` with `id="pirschjs"`. In development it is skipped entirely.
-- **PrivacyBee** is a Storyblok **blok** (registry key `privacyBee`), not a global script. Editors place it on the pages that need the consent widget. It renders the `<privacybee-widget>` custom element via `widget.js`; the `website_id` comes from the blok's own field.
+- **PrivacyBee** is a Storyblok **blok** (registry key `privacy_bee`), not a global script. Editors place it on the pages that need the consent widget. It renders the `<privacybee-widget>` custom element via `widget.js`; the `website_id` comes from the blok's own field.
 
 **SEO**
 - Root `metadata` in `app/layout.tsx` sets the title template (`%s · Site`) and OpenGraph defaults; per-page `generateMetadata` in `app/[...slug]/page.tsx` overrides title, description, canonical, and images per story. `JsonLd` (`components/seo/JsonLd.tsx`) emits Organization + WebSite structured data sitewide.
