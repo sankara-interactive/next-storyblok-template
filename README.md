@@ -81,7 +81,10 @@ To revalidate pages after publishing in Storyblok, set up a Webhook pointing to:
 The endpoint verifies Storyblok's `webhook-signature` header (HMAC-SHA1). In the
 Storyblok webhook settings, set the webhook secret to the same value as
 `STORYBLOK_WEBHOOK_SECRET` in your env. Requests without a valid signature are
-rejected (and the single `storyblok` cache tag is flushed on a valid one).
+rejected. On a valid webhook the cache is flushed surgically: a content publish
+busts only that story's tag, while a `data/` global, a structural change
+(move/delete/unpublish), or a missing slug flushes the whole `storyblok` tag
+(which also covers nav, sitemap, and links).
 
 ## Conventions
 
@@ -95,7 +98,7 @@ These rules keep the codebase predictable across components and contributors.
 - One file per blok, PascalCase filename, under `components/nestables/` or `components/content_types/`.
 
 **Whitelisting child bloks**
-- Filter allowed child bloks by Storyblok **tag** (`section`, `shared`, `richtext`) — never by an enumerated list of names. Tag-based filtering stays correct as new bloks are added.
+- Filter shared/reusable child bloks by Storyblok **tag** (`section`, `shared`, `richtext`) — tag-based filtering stays correct as new bloks are added. Enumerate parent-specific children explicitly (a one-off tag per parent isn't worth it).
 
 **Field-name vocabulary**
 Use these field names consistently across bloks:
@@ -107,14 +110,14 @@ Use these field names consistently across bloks:
 - `link` / `links` — CTA or navigation links
 - `label` — button/link label
 - `variant` / `theme` — option fields for visual variants
-- `is*` / `has*` — boolean toggles (e.g. `isFullWidth`, `hasBackground`)
+- `is*` / `has*` — boolean toggles (e.g. `is_full_width`, `has_background`)
 
 **Globals and routing**
 - Stories under `data/` are non-routable (excluded from sitemap and static params). They are fetched as globals (nav, footer, settings) via `lib/storyblok-api.ts`.
 
 **Preview and live modes**
-- `MODE=preview` enables draft content, `noindex` meta, and the Storyblok bridge.
-- `MODE=live` serves published content, enables indexing, and omits the bridge.
+- `MODE` (`preview` | `live`) gates draft content and `noindex`. It's derived from `VERCEL_ENV` by default (non-prod Vercel deploys → `preview`; production / non-Vercel → `live`); set the `MODE` env var to override (e.g. a draft-on-prod review site). Local `next dev` always reads drafts regardless of `MODE`.
+- The Storyblok bridge (live editing) is gated separately by the SDK (`isVisualEditor()`), **not** by `MODE` — it loads only inside the Storyblok editor iframe and never ships to the production bundle.
 
 **Analytics**
 - **Pirsch** (cookieless, no consent required) loads globally in the root layout via `<Pirsch />`. It uses `pirsch.js` with `id="pirschjs"`. In development it is skipped entirely.
