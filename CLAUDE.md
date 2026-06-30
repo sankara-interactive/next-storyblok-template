@@ -15,8 +15,13 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   exports none, and one isn't needed (all bloks are server components).
 - **Globals** live under `data/` and are non-routable (rejected by the page
   loader and excluded from sitemap/static params).
-- **MODE** (`preview`|`live`) gates draft content and `noindex`. (The bridge is
-  gated separately by the SDK's `isVisualEditor()` — see Bridge above.)
+- **MODE** (`preview`|`live`) gates draft content and `noindex`. Derived from
+  `VERCEL_ENV` by default (non-prod Vercel deploys → `preview`; prod / non-Vercel →
+  `live`); set the `MODE` env var explicitly to override (e.g. a draft-on-prod
+  review site). Local `next dev` always reads drafts regardless of MODE (the
+  `isDev` short-circuit in `resolveVersion`), so MODE only matters for deployed
+  hosts. (The bridge is gated separately by the SDK's `isVisualEditor()` — see
+  Bridge above.)
 - **Analytics**: Pirsch (cookieless, `pirsch.js` / `id="pirschjs"`) loads globally
   in the layout via `<Pirsch />` — skipped in development (`NODE_ENV === 'development'`).
   PrivacyBee is a **blok** (registry key `privacyBee`) that renders `<privacybee-widget>`

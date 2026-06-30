@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { resolveVersion } from './storyblok-api'
 
 describe('resolveVersion', () => {
@@ -10,29 +10,24 @@ describe('resolveVersion', () => {
   })
 })
 
-describe('resolveVersion NODE_ENV override', () => {
-  it('forces draft in development regardless of isDraft', async () => {
-    vi.resetModules()
-    const prev = process.env.NODE_ENV
-    process.env.NODE_ENV = 'development'
-    const mod = await import('./storyblok-api')
-    expect(mod.resolveVersion(false)).toBe('draft')
-    process.env.NODE_ENV = prev
+describe('resolveVersion env overrides', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs()
     vi.resetModules()
   })
-})
 
-describe('resolveVersion MODE=preview override', () => {
-  it('forces draft when MODE=preview regardless of isDraft', async () => {
+  it('forces draft in development regardless of isDraft', async () => {
     vi.resetModules()
-    const prevMode = process.env.MODE
-    const prevNode = process.env.NODE_ENV
-    process.env.NODE_ENV = 'production'
-    process.env.MODE = 'preview'
+    vi.stubEnv('NODE_ENV', 'development')
     const mod = await import('./storyblok-api')
     expect(mod.resolveVersion(false)).toBe('draft')
-    process.env.MODE = prevMode
-    process.env.NODE_ENV = prevNode
+  })
+
+  it('forces draft when MODE=preview regardless of isDraft', async () => {
     vi.resetModules()
+    vi.stubEnv('NODE_ENV', 'production')
+    vi.stubEnv('MODE', 'preview')
+    const mod = await import('./storyblok-api')
+    expect(mod.resolveVersion(false)).toBe('draft')
   })
 })

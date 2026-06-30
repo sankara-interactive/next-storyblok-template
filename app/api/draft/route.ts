@@ -1,7 +1,6 @@
 import { draftMode } from 'next/headers'
 import { redirect } from 'next/navigation'
 import StoryblokClient from 'storyblok-js-client'
-import { bridgeParams } from '@/lib/draft'
 import { isDataRoute } from '@/lib/storyblok-routes'
 
 export async function GET(request: Request) {
@@ -32,7 +31,11 @@ export async function GET(request: Request) {
   const draft = await draftMode()
   draft.enable()
 
-  // Forward ONLY the bridge params; never the secret.
-  const bridge = bridgeParams(searchParams)
-  redirect(`/${fullSlug}${bridge ? `?${bridge}` : ''}`)
+  // Forward ONLY the Storyblok bridge params; never the secret.
+  const bridge = new URLSearchParams()
+  for (const [key, value] of searchParams.entries()) {
+    if (key.startsWith('_storyblok')) bridge.append(key, value)
+  }
+  const qs = bridge.toString()
+  redirect(`/${fullSlug}${qs ? `?${qs}` : ''}`)
 }

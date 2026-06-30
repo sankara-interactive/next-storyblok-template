@@ -1,4 +1,4 @@
-import { ISbStoryData, StoryblokStory } from '@storyblok/react/rsc'
+import { StoryblokStory } from '@storyblok/react/rsc'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Logo from '@/components/layout/Logo'
@@ -10,7 +10,6 @@ import { PageStoryblok } from '@storyblok-component-types'
 export type ContentType = PageStoryblok // add more content types if needed
 
 export const revalidate = 3600
-export const dynamicParams = true
 
 type Props = {
   params: Promise<{ slug?: string[] }>
@@ -81,7 +80,7 @@ export default async function Home(props: Props) {
           <Logo />
         </div>
       </nav>
-      <StoryblokStory story={story as ISbStoryData} />
+      <StoryblokStory story={story} />
       <footer className="p-4">Your Footer</footer>
     </>
   )

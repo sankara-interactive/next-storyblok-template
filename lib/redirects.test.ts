@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-// @ts-expect-error - plain JS module
 import { toNextRedirects } from './redirects.mjs'
 
 describe('toNextRedirects', () => {
