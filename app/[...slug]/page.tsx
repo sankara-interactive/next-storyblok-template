@@ -37,7 +37,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const story = await getStory<ContentType>(slug)
   if (!story) return {}
 
-  const seo = (story.content as { seo?: Record<string, string> }).seo ?? {}
+  const seo = story.content.seo ?? {}
   const title = seo.title || story.name
   const description = seo.description || undefined
   const canonicalPath = slug === 'home' ? '/' : `/${slug}`
