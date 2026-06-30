@@ -18,8 +18,14 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   dynamically loads the bridge only inside the Storyblok editor iframe — so it
   never ships in the production bundle. There is no `StoryblokProvider`; the SDK
   exports none, and one isn't needed (all bloks are server components).
+  `<EditorGuard>` (in the layout) swallows link/form interactions inside the
+  Visual Editor so editing doesn't navigate the iframe away.
 - **Globals** live under `data/` and are non-routable (rejected by the page
-  loader and excluded from sitemap/static params).
+  loader and excluded from sitemap/static params). `Header`/`Footer`
+  (`components/layout/`) read `data/header`/`data/footer` via `getStory` with
+  hardcoded fallbacks, so they render before those stories are authored.
+- **Links**: resolve Storyblok link fields with `getHref` / `<SbLink>`
+  (`lib/getHref.ts`, `components/helpers/SbLink.tsx`) — never hand-build hrefs.
 - **MODE** (`preview`|`live`) gates draft content and `noindex`. Derived from
   `VERCEL_ENV` by default (non-prod Vercel deploys → `preview`; prod / non-Vercel →
   `live`); set the `MODE` env var explicitly to override (e.g. a draft-on-prod

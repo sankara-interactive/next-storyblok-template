@@ -1,7 +1,8 @@
 import { StoryblokStory } from '@storyblok/react/rsc'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import Logo from '@/components/layout/Logo'
+import Footer from '@/components/layout/Footer'
+import Header from '@/components/layout/Header'
 import { isPreview } from '@/lib/config'
 import { getAllLinks, getStory } from '@/lib/storyblok-api'
 import { isDataRoute } from '@/lib/storyblok-routes'
@@ -75,13 +76,9 @@ export default async function Home(props: Props) {
 
   return (
     <>
-      <nav className="container w-full mx-auto p-4">
-        <div className="flex justify-center">
-          <Logo />
-        </div>
-      </nav>
+      <Header />
       <StoryblokStory story={story} />
-      <footer className="p-4">Your Footer</footer>
+      <Footer />
     </>
   )
 }
