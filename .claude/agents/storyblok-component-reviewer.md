@@ -13,6 +13,6 @@ Check, and report any failures with file:line:
 4. Types: props use the generated Storyblok type — the component's PascalCase
    name + `Storyblok` suffix (e.g. `HeroSectionStoryblok`); no `any`.
 5. Naming: PascalCase file 1:1 with technical name; correct folder
-   (content_types / nestables/sections / nestables/components).
+   (content_types / nestables/sections / nestables/blocks).
 6. Field names follow the CLAUDE.md vocabulary.
-7. Child whitelisting is by tag, not enumeration.
+7. Child whitelisting: shared components by tag, parent-specific children by enumeration.

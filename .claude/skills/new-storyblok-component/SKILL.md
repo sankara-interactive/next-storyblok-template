@@ -9,7 +9,7 @@ A blok renders ONLY if all wiring steps are done. A missing/mismatched registry
 key fails SILENTLY (no error, just no render).
 
 1. **File**: `components/nestables/sections/<Name>.tsx` (a `*Section`) or
-   `components/nestables/components/<Name>.tsx` (a leaf `*Card`/`*Item`).
+   `components/nestables/blocks/<Name>.tsx` (a leaf `*Card`/`*Item`).
    Content types go in `components/content_types/`.
 2. **Component**: PascalCase, props `{ blok: <Name>Storyblok }`, spread
    `storyblokEditable(blok)` on the root element. Map `body`/`items` with
@@ -20,5 +20,5 @@ key fails SILENTLY (no error, just no render).
 
 Naming: technical name = snake_case role-suffixed (`hero_section`, `client_card`);
 field names follow the vocabulary in CLAUDE.md (`headline`, `text`, `body`,
-`items`, `image`…). Whitelist child bloks by tag (`section`/`shared`/`richtext`),
-never by enumerating.
+`items`, `image`…). Whitelist shared/reusable child bloks by tag
+(`section`/`shared`/`richtext`); enumerate parent-specific children explicitly.

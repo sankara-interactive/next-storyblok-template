@@ -41,7 +41,9 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   snake_case keeps blok names consistent with Storyblok-native fields (`is_folder`,
   link/asset internals). Generated types stay PascalCase (`HeroSectionStoryblok`).
 - Hierarchy: `page` → `*Section` → `*Card`/`*Item`. PascalCase files 1:1.
-- Whitelist child bloks by tag (`section`/`shared`/`richtext`), never enumerate.
+- Whitelist shared/reusable child bloks by tag (`section`/`shared`/`richtext`);
+  enumerate parent-specific children explicitly (a one-off tag per parent isn't
+  worth it).
 - Field-name vocabulary (rules of thumb): `headline` (heading), `eyebrow`,
   `lead`/`text` (richtext), `body`/`items` (nested bloks), `image`/`images`,
   `link`/`links`, `label`, `variant`/`theme` (options), `is*`/`has*` (booleans).
