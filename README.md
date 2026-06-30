@@ -103,7 +103,7 @@ These rules keep the codebase predictable across components and contributors.
 **Field-name vocabulary**
 Use these field names consistently across bloks:
 - `headline` — heading text
-- `eyebrow` — small label above the headline
+- `eyebrow` — small label above the headline (a.k.a. kicker)
 - `lead` / `text` — richtext intro or body copy
 - `body` / `items` — nested blok arrays
 - `image` / `images` — single or multiple asset fields

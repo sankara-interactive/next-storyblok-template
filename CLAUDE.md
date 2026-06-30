@@ -44,7 +44,7 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
 - Whitelist shared/reusable child bloks by tag (`section`/`shared`/`richtext`);
   enumerate parent-specific children explicitly (a one-off tag per parent isn't
   worth it).
-- Field-name vocabulary (rules of thumb): `headline` (heading), `eyebrow`,
+- Field-name vocabulary (rules of thumb): `headline` (heading), `eyebrow` (kicker),
   `lead`/`text` (richtext), `body`/`items` (nested bloks), `image`/`images`,
   `link`/`links`, `label`, `variant`/`theme` (options), `is*`/`has*` (booleans).
 
