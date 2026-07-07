@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-import { ISbSchema, SbBlokKeyDataTypes } from "@storyblok/react"
-
 const fs = require('fs')
 const path = require('path')
 
@@ -69,7 +67,7 @@ const generateContent = (schema) => {
           return `
           {blok.` + blok.name + `${blok.required ? '' : '?'}.filename &&
             <div className="relative aspect-square">
-              <Image src={blok.` + blok.name + `.filename} alt={blok.` + blok.name + `.alt} />}
+              <Image src={blok.` + blok.name + `.filename} alt={blok.` + blok.name + `.alt} />
             </div>
           }`
         } else if (blok.filetypes?.includes('videos')) {
@@ -85,6 +83,8 @@ const generateContent = (schema) => {
       case 'bloks':
         return `
         {blok.`+blok.name+` && blok.` + blok.name + `.map(nestedBlok => <StoryblokServerComponent blok={nestedBlok} key={nestedBlok._uid} />)}`
+      case 'tab':
+        return null
       default:
         if (blok.required) {
           return `{blok.` + blok.name + ` && <div>{blok.` + blok.name + `}</div>}`
