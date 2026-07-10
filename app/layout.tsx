@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { ReactNode } from 'react'
 import Pirsch from '@/components/analytics/Pirsch'
-import EditorGuard from '@/components/helpers/EditorGuard'
 import JsonLd from '@/components/seo/JsonLd'
 import { SITE_NAME, SITE_URL } from '@/lib/config'
 import '@/styles/globals.css'
@@ -19,7 +18,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="de-CH">
       <body>
         {children}
-        <EditorGuard />
         <Pirsch />
         <JsonLd />
       </body>
