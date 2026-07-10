@@ -1,0 +1,24 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=$(jq -r '.tool_input.file_path // empty'); case \"$f\" in *.env.example|*.env.sample) exit 0;; *.env|*.env.*) echo 'Refusing to edit real .env files (use .env.example)' >&2; exit 2;; esac"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "c=$(jq -r '.tool_input.command // empty'); echo \"$c\" | grep -Eq 'git +commit' && git rev-parse --abbrev-ref HEAD | grep -Eqx 'main|master' && { echo 'Refusing to commit on main; use a feature branch' >&2; exit 2; }; exit 0"
+          }
+        ]
+      }
+    ]
+  }
+}

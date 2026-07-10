@@ -1,7 +1,7 @@
 import { TeaserStoryblok } from '@storyblok-component-types'
 import { SbBlokData, storyblokEditable } from '@storyblok/react/rsc'
 import Image from 'next/image'
-import { SbLink } from '../helpers/SbLink'
+import { SbLink } from '@/components/helpers/SbLink'
 
 export default function Teaser({ blok }: { blok: TeaserStoryblok }) {
   return (

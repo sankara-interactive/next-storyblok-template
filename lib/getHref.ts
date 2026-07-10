@@ -1,4 +1,4 @@
-import { StoryblokMultilink } from '../.storyblok/types/storyblok'
+import { StoryblokMultilink } from '@/.storyblok/types/storyblok'
 
 export function getHref(link: StoryblokMultilink): string {
   const anchor = link.anchor ? `#${link.anchor}` : ''

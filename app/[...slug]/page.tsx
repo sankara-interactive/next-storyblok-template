@@ -1,109 +1,77 @@
-import { ISbStoriesParams } from '@storyblok/react'
-import { ISbStoryData, StoryblokStory } from '@storyblok/react/rsc'
+import { StoryblokStory } from '@storyblok/react/rsc'
 import { Metadata } from 'next'
-import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
-import Logo from '../../components/layout/Logo'
-import { getStoryblokApi } from '../../lib/storyblok'
+import Logo from '@/components/layout/Logo'
+import { isPreview } from '@/lib/config'
+import { getAllLinks, getStory } from '@/lib/storyblok-api'
+import { isDataRoute } from '@/lib/storyblok-routes'
 import { PageStoryblok } from '@storyblok-component-types'
 
 export type ContentType = PageStoryblok // add more content types if needed
 
-const isDev = process.env.NODE_ENV === 'development'
 export const revalidate = 3600
-
-async function fetchData(slug: string) {
-  const { isEnabled: isDraft } = await draftMode()
-  const sbParams: ISbStoriesParams = {
-    resolve_links: 'url',
-    version: isDev || isDraft ? 'draft' : 'published',
-    cv: isDev || isDraft ? Date.now() : undefined,
-  }
-
-  const storyblokApi = getStoryblokApi()
-
-  try {
-    const { data } = await storyblokApi.get(`cdn/stories/${slug}`, sbParams)
-    return { story: data.story as ISbStoryData<ContentType> }
-  } catch (error) {
-    return { story: null }
-  }
-}
-
-// Return a list of `params` to populate the [slug] dynamic segment
-export async function generateStaticParams() {
-  const storyblokApi = getStoryblokApi()
-  const { data } = await storyblokApi.get('cdn/links/', {
-    version: 'published',
-  })
-
-  const paths: { slug: string[] }[] = []
-  // create a route for every link
-  Object.keys(data.links).forEach(linkKey => {
-    // do not create a route for folders and home
-    if (
-      data.links[linkKey].is_folder ||
-      data.links[linkKey].slug === 'home' ||
-      data.links[linkKey].slug === 'global'
-    ) {
-      return
-    }
-
-    // get array for slug because of catch all
-    const slug = data.links[linkKey].slug
-    let splittedSlug = slug.split('/')
-
-    // creates all the routes
-    paths.push({ slug: splittedSlug })
-  })
-
-  return paths
-}
-
-export async function generateMetadata(props: Props): Promise<Metadata> {
-  const params = await props.params
-  const slug = params.slug ? params.slug.join('/') : 'home'
-  const { story } = await fetchData(slug)
-
-  if (!story) {
-    return {}
-  }
-
-  const title = story.content?.seo?.title || story.name
-  const description = story.content?.seo?.description
-  return {
-    metadataBase: new URL('https://your-brand.ch'),
-    title: `${title} · Your Brand`,
-    description: description,
-    robots: {
-      index: true,
-      follow: true,
-    },
-    openGraph: {
-      title: title,
-      description: description,
-      url: `/${story.slug}`,
-    },
-    twitter: {
-      card: 'summary',
-      title: title,
-      description: description,
-    },
-  }
-}
 
 type Props = {
   params: Promise<{ slug?: string[] }>
 }
 
+function slugFromParams(slug?: string[]): string {
+  return slug && slug.length ? slug.join('/') : 'home'
+}
+
+export async function generateStaticParams() {
+  const links = await getAllLinks()
+  const paths: { slug: string[] }[] = []
+  Object.values(links).forEach(link => {
+    if (link.is_folder || link.slug === 'home' || isDataRoute(link.slug)) return
+    paths.push({ slug: link.slug.split('/') })
+  })
+  return paths
+}
+
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params
+  const slug = slugFromParams(params.slug)
+  if (isDataRoute(slug)) return { robots: { index: false, follow: false } }
+
+  const story = await getStory<ContentType>(slug)
+  if (!story) return {}
+
+  const seo = (story.content as { seo?: Record<string, string> }).seo ?? {}
+  const title = seo.title || story.name
+  const description = seo.description || undefined
+  const canonicalPath = slug === 'home' ? '/' : `/${slug}`
+  const ogImage = seo.og_image || undefined
+
+  return {
+    title,
+    description,
+    alternates: { canonical: canonicalPath },
+    robots: isPreview
+      ? { index: false, follow: false }
+      : { index: true, follow: true },
+    openGraph: {
+      title: seo.og_title || title,
+      description: seo.og_description || description,
+      url: canonicalPath,
+      images: ogImage ? [{ url: ogImage }] : undefined,
+    },
+    twitter: {
+      card: ogImage ? 'summary_large_image' : 'summary',
+      title: seo.og_title || title,
+      description: seo.og_description || description,
+      images: ogImage ? [ogImage] : undefined,
+    },
+  }
+}
+
 export default async function Home(props: Props) {
   const params = await props.params
-  const slug = params.slug ? params.slug.join('/') : 'home'
-  const { story } = await fetchData(slug)
+  const slug = slugFromParams(params.slug)
+  if (isDataRoute(slug)) notFound()
 
-  if (!story) {
-    return notFound()
-  }
+  const story = await getStory<ContentType>(slug)
+  if (!story) notFound()
 
   return (
     <>
@@ -112,9 +80,7 @@ export default async function Home(props: Props) {
           <Logo />
         </div>
       </nav>
-
       <StoryblokStory story={story} />
-
       <footer className="p-4">Your Footer</footer>
     </>
   )
