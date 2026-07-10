@@ -3,11 +3,16 @@ import { ISbStoryData } from '@storyblok/react/rsc'
 import StoryblokClient from 'storyblok-js-client'
 import { unstable_cache } from 'next/cache'
 import { draftMode } from 'next/headers'
+import { z } from 'zod'
 import { isPreview, STORYBLOK_CACHE_TAG, storyTag } from './config'
-import { env, isContentFetchDisabled, requireEnv } from './env'
+import { env, isContentFetchDisabled } from './env'
 import { getStoryblokApi } from './storyblok'
 
 export type SbLink = { slug: string; is_folder: boolean }
+
+const previewEnvSchema = z.object({
+  STORYBLOK_PREVIEW_TOKEN: z.string().min(1),
+})
 
 const isDev = env.NODE_ENV === 'development'
 
@@ -18,8 +23,9 @@ export function resolveVersion(isDraft: boolean): 'draft' | 'published' {
 let previewClient: StoryblokClient | null = null
 function getPreviewClient(): StoryblokClient {
   if (!previewClient) {
+    const previewEnv = previewEnvSchema.parse(env)
     previewClient = new StoryblokClient({
-      accessToken: requireEnv('STORYBLOK_PREVIEW_TOKEN', env.STORYBLOK_PREVIEW_TOKEN),
+      accessToken: previewEnv.STORYBLOK_PREVIEW_TOKEN,
     })
   }
   return previewClient
