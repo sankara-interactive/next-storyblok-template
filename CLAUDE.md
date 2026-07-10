@@ -24,6 +24,12 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   loader and excluded from sitemap/static params). `Header`/`Footer`
   (`components/layout/`) read `data/header`/`data/footer` via `getStory` with
   hardcoded fallbacks, so they render before those stories are authored.
+- **Starter UI implementations**: the current `Button`, `Header`, and `Footer`
+  establish working CMS and rendering patterns, but their hand-written content
+  types, component APIs, and styling are provisional. The enhancement roadmap
+  replaces them with generated schemas and thin Storyblok adapters around the
+  future Sankara UI package. Do not treat their current visual API as the shared
+  design-system contract.
 - **Links**: resolve Storyblok link fields with `getHref` / `<SbLink>`
   (`lib/getHref.ts`, `components/helpers/SbLink.tsx`) — never hand-build hrefs.
 - **MODE** (`preview`|`live`) gates draft content and `noindex`. Derived from

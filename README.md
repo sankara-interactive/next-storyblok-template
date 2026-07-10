@@ -96,6 +96,10 @@ These rules keep the codebase predictable across components and contributors.
 **Component hierarchy**
 - Pages are built as: `page` → `*Section` → `*Card`/`*Item`.
 - One file per blok, PascalCase filename, under `components/nestables/` or `components/content_types/`.
+- The included `Button`, `Header`, and `Footer` are starter implementations. Their
+  current styling and hand-written content shapes are provisional; see
+  [`docs/enhancement-roadmap.md`](docs/enhancement-roadmap.md) for the planned
+  shared UI and typed Storyblok adapter architecture.
 
 **Whitelisting child bloks**
 - Filter shared/reusable child bloks by Storyblok **tag** (`section`, `shared`, `richtext`) — tag-based filtering stays correct as new bloks are added. Enumerate parent-specific children explicitly (a one-off tag per parent isn't worth it).
