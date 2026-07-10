@@ -78,11 +78,11 @@ const generateContent = (schema) => {
             </video>
           }`
         }
-      case 'link':
+      case 'multilink':
         return `<SbLink link={blok.` + blok.name + `}></SbLink>`
       case 'bloks':
         return `
-        {blok.`+blok.name+` && blok.` + blok.name + `.map(nestedBlok => <StoryblokServerComponent blok={nestedBlok} key={nestedBlok._uid} />)}`
+        {blok.` + blok.name + `?.map(nestedBlok => <StoryblokServerComponent blok={nestedBlok} key={nestedBlok._uid} />)}`
       case 'tab':
         return null
       default:
@@ -114,14 +114,15 @@ schema.forEach((componentSchema) => {
   }
 
   const component = `
-    import { StoryblokServerComponent, storyblokEditable } from '@storyblok/react/rsc'
+    import { SbBlokData, StoryblokServerComponent, storyblokEditable } from '@storyblok/react/rsc'
     import { ${componentName}Storyblok } from '@storyblok-component-types'
     ${Object.values(componentSchema.schema).find(schema => schema.type === 'richtext') ? `import { RichTextRenderer } from '@/components/helpers/RichTextRenderer'` : ''}
-    ${Object.values(componentSchema.schema).find(schema => schema.type === 'image') ? `import Image from 'next/image'` : ''}
-    
+    ${Object.values(componentSchema.schema).find(schema => schema.type === 'asset') ? `import Image from 'next/image'` : ''}
+    ${Object.values(componentSchema.schema).find(schema => schema.type === 'multilink') ? `import { SbLink } from '@/components/helpers/SbLink'` : ''}
+
     export default function ${componentName}({ blok }: { blok: ${componentName}Storyblok }) {
       return (
-        <section {...storyblokEditable(blok)}>
+        <section {...storyblokEditable(blok as SbBlokData)}>
           <div>
             ` + generateContent(componentSchema).join('\n') +`
           </div>
