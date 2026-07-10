@@ -15,12 +15,12 @@ describe('storyblokImageDimensions', () => {
 describe('storyblokImageLoader', () => {
   it('builds a resized webp url', () => {
     expect(storyblokImageLoader({ src: url, width: 800, quality: 70 })).toBe(
-      `${url}/m/800x0/filters:format(webp):quality(70)`,
+      `${url}/m/800x0/filters:format(webp):quality(70)`
     )
   })
   it('defaults quality to 75', () => {
     expect(storyblokImageLoader({ src: url, width: 400 })).toBe(
-      `${url}/m/400x0/filters:format(webp):quality(75)`,
+      `${url}/m/400x0/filters:format(webp):quality(75)`
     )
   })
 })

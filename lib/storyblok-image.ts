@@ -1,6 +1,4 @@
-export function storyblokImageDimensions(
-  url: string,
-): { width: number; height: number } | null {
+export function storyblokImageDimensions(url: string): { width: number; height: number } | null {
   const match = url.match(/\/(\d+)x(\d+)\//)
   if (!match) return null
   return { width: Number(match[1]), height: Number(match[2]) }

@@ -30,9 +30,7 @@ function resolveSchemaPath() {
     : []
 
   if (matches.length === 0) {
-    console.error(
-      'No .storyblok/components/<space>/components.json found. Run `yarn sync` first.'
-    )
+    console.error('No .storyblok/components/<space>/components.json found. Run `yarn sync` first.')
     process.exit(1)
   }
   if (matches.length > 1) {
@@ -50,47 +48,49 @@ const generateContent = componentSchema => {
     required: !!value.required,
     filetypes: value.filetypes,
   }))
-  return fields.map(field => {
-    const f = `blok.${field.name}`
-    switch (field.type) {
-      case 'text':
-      case 'textarea':
-        return field.required ? `<p>{${f}}</p>` : `{${f} && <p>{${f}}</p>}`
-      case 'richtext':
-        return `{${f} && (
+  return fields
+    .map(field => {
+      const f = `blok.${field.name}`
+      switch (field.type) {
+        case 'text':
+        case 'textarea':
+          return field.required ? `<p>{${f}}</p>` : `{${f} && <p>{${f}}</p>}`
+        case 'richtext':
+          return `{${f} && (
             <div className="richtext">
               <RichTextRenderer text={${f}} />
             </div>
           )}`
-      case 'asset':
-        if (field.filetypes?.includes('videos')) {
-          return `{${f}?.filename && (
+        case 'asset':
+          if (field.filetypes?.includes('videos')) {
+            return `{${f}?.filename && (
             <video controls>
               <source src={${f}.filename} type="video/mp4" />
             </video>
           )}`
-        }
-        // ponytail: unrestricted assets render as images, adjust by hand if not
-        return `{${f}?.filename && (
+          }
+          // ponytail: unrestricted assets render as images, adjust by hand if not
+          return `{${f}?.filename && (
             <div className="relative aspect-square">
               <Image src={${f}.filename} alt={${f}.alt ?? ''} fill className="object-cover" />
             </div>
           )}`
-      case 'multilink':
-      case 'link':
-        return `{${f} && <SbLink link={${f}}>{/* label */}</SbLink>}`
-      case 'bloks':
-        return `{${f}?.map(nestedBlok => (
+        case 'multilink':
+        case 'link':
+          return `{${f} && <SbLink link={${f}}>{/* label */}</SbLink>}`
+        case 'bloks':
+          return `{${f}?.map(nestedBlok => (
             <StoryblokServerComponent blok={nestedBlok} key={nestedBlok._uid} />
           ))}`
-      case 'tab':
-      case 'section':
-      case 'custom':
-        return null // UI grouping / plugin fields — nothing to render
-      default:
-        return field.required ? `<div>{${f}}</div>` : `{${f} && <div>{${f}}</div>}`
-    }
-  }).filter(Boolean)
+        case 'tab':
+        case 'section':
+        case 'custom':
+          return null // UI grouping / plugin fields — nothing to render
+        default:
+          return field.required ? `<div>{${f}}</div>` : `{${f} && <div>{${f}}</div>}`
+      }
+    })
+    .filter(Boolean)
 }
 schema.forEach(componentSchema => {
   const componentName = toPascalCase(componentSchema.name)
@@ -118,7 +118,8 @@ schema.forEach(componentSchema => {
     `import { SbBlokData, ${fieldTypes.has('bloks') ? 'StoryblokServerComponent, ' : ''}storyblokEditable } from '@storyblok/react/rsc'`,
     `import { ${componentName}Storyblok } from '@storyblok-component-types'`,
     hasImage && `import Image from 'next/image'`,
-    fieldTypes.has('richtext') && `import { RichTextRenderer } from '@/components/helpers/RichTextRenderer'`,
+    fieldTypes.has('richtext') &&
+      `import { RichTextRenderer } from '@/components/helpers/RichTextRenderer'`,
     (fieldTypes.has('multilink') || fieldTypes.has('link')) &&
       `import { SbLink } from '@/components/helpers/SbLink'`,
   ].filter(Boolean)

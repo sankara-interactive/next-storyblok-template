@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { resolveVersion } from './storyblok-api'
+import { isStoryblokNotFound, resolveVersion } from './storyblok-api'
 
 describe('resolveVersion', () => {
   it('returns draft when draft mode is on', () => {
@@ -7,6 +7,19 @@ describe('resolveVersion', () => {
   })
   it('returns published otherwise', () => {
     expect(resolveVersion(false)).toBe('published')
+  })
+})
+
+describe('isStoryblokNotFound', () => {
+  it('recognizes direct and response status codes', () => {
+    expect(isStoryblokNotFound({ status: 404 })).toBe(true)
+    expect(isStoryblokNotFound({ response: { status: 404 } })).toBe(true)
+  })
+
+  it('does not hide operational or unknown failures', () => {
+    expect(isStoryblokNotFound({ status: 401 })).toBe(false)
+    expect(isStoryblokNotFound(new Error('network unavailable'))).toBe(false)
+    expect(isStoryblokNotFound(null)).toBe(false)
   })
 })
 
