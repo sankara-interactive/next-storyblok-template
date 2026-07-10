@@ -2,7 +2,7 @@ import { StoryblokMultilink } from '@/.storyblok/types/storyblok'
 
 export function getHref(link: StoryblokMultilink): string {
   const anchor = link.anchor ? `#${link.anchor}` : ''
-  
+
   switch (link.linktype) {
     case 'story':
       if (!link.story || !('full_slug' in link.story)) {
@@ -11,7 +11,7 @@ export function getHref(link: StoryblokMultilink): string {
 
       return `/${link.story.full_slug}${anchor}`
     case 'url':
-      return `${link.url}${anchor}`
+      return anchor ? `${link.url.split('#', 1)[0]}${anchor}` : link.url
     case 'asset':
       return link.url
     case 'email':

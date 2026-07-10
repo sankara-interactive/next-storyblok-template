@@ -136,4 +136,3 @@ export default function ${componentName}({ blok }: { blok: ${componentName}Story
   fs.writeFileSync(filePath, component)
   console.log(`✅ File ${componentName}.tsx created at ${filePath}`)
 })
-

@@ -2,7 +2,6 @@ import { apiPlugin, storyblokInit } from '@storyblok/react/rsc'
 // content types
 import page from '@/components/content_types/Page'
 // nestables
-import button from '@/components/nestables/Button'
 import feature from '@/components/nestables/Feature'
 import grid from '@/components/nestables/Grid'
 import privacy_bee from '@/components/nestables/PrivacyBee'
@@ -13,7 +12,6 @@ export const getStoryblokApi = storyblokInit({
   use: [apiPlugin],
   components: {
     page,
-    button,
     feature,
     grid,
     teaser,
