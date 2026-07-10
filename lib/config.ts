@@ -1,3 +1,5 @@
+import { readSiteEnv } from './env'
+
 type Mode = 'preview' | 'live'
 
 // Explicit MODE wins; otherwise derive from Vercel's deploy env. Non-prod Vercel
@@ -15,8 +17,9 @@ export const MODE: Mode =
       : 'live'
 export const isPreview = MODE === 'preview'
 
-export const SITE_URL = process.env.SITE_URL ?? 'http://localhost:3000'
-export const SITE_NAME = process.env.SITE_NAME ?? 'Site'
+const site = readSiteEnv()
+export const SITE_URL = site.siteUrl
+export const SITE_NAME = site.siteName
 
 /** Global cache tag on every Storyblok read; flushed for globals/structural changes. */
 export const STORYBLOK_CACHE_TAG = 'storyblok'

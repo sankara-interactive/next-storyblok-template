@@ -53,20 +53,20 @@ Exit criteria:
 
 ## Phase 1: Baseline Reliability
 
-Status: `[ ]`
+Status: `[x]` Implemented on `feat/template-ci-foundation`
 
 Deliver as an independent PR before expanding the component catalogue.
 
 Tasks:
 
-- [ ] Add GitHub Actions for immutable install, typecheck, lint, tests, and build.
-- [ ] Add `typecheck`, `format:check`, and combined `check` package scripts.
-- [ ] Add server/client environment validation with production-safe failures.
-- [ ] Return `null` only for real Storyblok 404 responses; surface unexpected
+- [x] Add GitHub Actions for immutable install, typecheck, lint, tests, and build.
+- [x] Add `typecheck`, `format:check`, and combined `check` package scripts.
+- [x] Add server/client environment validation with production-safe failures.
+- [x] Return `null` only for real Storyblok 404 responses; surface unexpected
   authentication, network, rate-limit, and server failures.
-- [ ] Make the production build reproducible in CI.
-- [ ] Add generated Storyblok schema/type drift detection.
-- [ ] Configure grouped dependency updates.
+- [x] Make the production build reproducible in CI.
+- [x] Add generated Storyblok schema/type drift detection.
+- [x] Configure grouped dependency updates.
 
 Exit criteria:
 

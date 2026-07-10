@@ -9,9 +9,6 @@ export default function JsonLd() {
   ]
   const json = { '@context': 'https://schema.org', '@graph': graph }
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }}
-    />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }} />
   )
 }

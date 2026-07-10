@@ -46,9 +46,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     title,
     description,
     alternates: { canonical: canonicalPath },
-    robots: isPreview
-      ? { index: false, follow: false }
-      : { index: true, follow: true },
+    robots: isPreview ? { index: false, follow: false } : { index: true, follow: true },
     openGraph: {
       title,
       description,

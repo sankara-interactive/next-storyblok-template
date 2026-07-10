@@ -1,7 +1,4 @@
-import {
-  StoryblokServerRichText,
-  type SbReactRichTextProps,
-} from '@storyblok/react/rsc'
+import { StoryblokServerRichText, type SbReactRichTextProps } from '@storyblok/react/rsc'
 import Link from 'next/link'
 import { ComponentPropsWithoutRef } from 'react'
 
@@ -27,7 +24,5 @@ function RichTextLink({ attrs, children }: SbReactRichTextProps<'link'>) {
 }
 
 export function RichTextRenderer({ text, ...props }: { text: any } & DivProps) {
-  return (
-    <StoryblokServerRichText document={text} components={{ link: RichTextLink }} {...props} />
-  )
+  return <StoryblokServerRichText document={text} components={{ link: RichTextLink }} {...props} />
 }

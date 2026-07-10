@@ -1,4 +1,5 @@
 import { apiPlugin, storyblokInit } from '@storyblok/react/rsc'
+import { readDeliveryToken } from './env'
 // content types
 import page from '@/components/content_types/Page'
 // nestables
@@ -8,7 +9,7 @@ import privacy_bee from '@/components/nestables/PrivacyBee'
 import teaser from '@/components/nestables/Teaser'
 
 export const getStoryblokApi = storyblokInit({
-  accessToken: process.env.NEXT_PUBLIC_STORYBLOK_TOKEN,
+  accessToken: readDeliveryToken(),
   use: [apiPlugin],
   components: {
     page,
