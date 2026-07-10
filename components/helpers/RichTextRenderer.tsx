@@ -3,10 +3,10 @@ import {
   type SbReactRichTextProps,
 } from '@storyblok/react/rsc'
 import Link from 'next/link'
+import { ComponentPropsWithoutRef } from 'react'
 
-// v7 richtext: custom marks/nodes are a component map keyed by element name.
-// Embedded bloks (`blok`) render via the SDK's built-in default, so we only
-// override `link` to route internal story links through next/link.
+type DivProps = Omit<ComponentPropsWithoutRef<'div'>, 'children'>
+
 function RichTextLink({ attrs, children }: SbReactRichTextProps<'link'>) {
   const { href, target, linktype } = attrs ?? {}
   if (linktype === 'story') {
@@ -26,8 +26,8 @@ function RichTextLink({ attrs, children }: SbReactRichTextProps<'link'>) {
   )
 }
 
-export function RichTextRenderer({ text }: { text: any }) {
+export function RichTextRenderer({ text, ...props }: { text: any } & DivProps) {
   return (
-    <StoryblokServerRichText document={text} components={{ link: RichTextLink }} />
+    <StoryblokServerRichText document={text} components={{ link: RichTextLink }} {...props} />
   )
 }
