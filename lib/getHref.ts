@@ -11,7 +11,7 @@ export function getHref(link: StoryblokMultilink): string {
 
       return `/${link.story.full_slug}${anchor}`
     case 'url':
-      return anchor ? `${link.url.split('#', 1)[0]}${anchor}` : link.url
+      return link.url
     case 'asset':
       return link.url
     case 'email':

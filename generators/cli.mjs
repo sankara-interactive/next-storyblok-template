@@ -95,6 +95,8 @@ const generateContent = componentSchema => {
 schema.forEach(componentSchema => {
   const componentName = toPascalCase(componentSchema.name)
   const fieldTypes = new Set(Object.values(componentSchema.schema).map(f => f.type))
+  // Unrestricted asset fields use the image stub too. Checking only for an
+  // explicit `images` filetype would emit <Image> without importing it.
   const hasImage = [...Object.values(componentSchema.schema)].some(
     f => f.type === 'asset' && !f.filetypes?.includes('videos')
   )

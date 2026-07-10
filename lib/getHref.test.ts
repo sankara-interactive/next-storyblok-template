@@ -13,14 +13,8 @@ describe('getHref', () => {
   it('falls back to cached_url when the story is not resolved', () => {
     expect(getHref(link({ linktype: 'story', cached_url: 'about' }))).toBe('/about')
   })
-  it('appends an anchor to story and url links', () => {
+  it('appends an anchor to story links', () => {
     expect(getHref(link({ linktype: 'story', cached_url: 'home', anchor: 'cta' }))).toBe('/home#cta')
-    expect(getHref(link({ linktype: 'url', url: 'https://x.com', anchor: 'top' }))).toBe('https://x.com#top')
-  })
-  it('replaces an existing URL fragment with the configured anchor', () => {
-    expect(
-      getHref(link({ linktype: 'url', url: 'https://x.com/page?q=1#old', anchor: 'new' })),
-    ).toBe('https://x.com/page?q=1#new')
   })
   it('resolves url, asset, and email links', () => {
     expect(getHref(link({ linktype: 'url', url: 'https://x.com' }))).toBe('https://x.com')

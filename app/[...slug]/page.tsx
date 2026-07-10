@@ -41,7 +41,6 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const title = seo.title || story.name
   const description = seo.description || undefined
   const canonicalPath = slug === 'home' ? '/' : `/${slug}`
-  const ogImage = seo.og_image || undefined
 
   return {
     title,
@@ -51,16 +50,14 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
       ? { index: false, follow: false }
       : { index: true, follow: true },
     openGraph: {
-      title: seo.og_title || title,
-      description: seo.og_description || description,
+      title,
+      description,
       url: canonicalPath,
-      images: ogImage ? [{ url: ogImage }] : undefined,
     },
     twitter: {
-      card: ogImage ? 'summary_large_image' : 'summary',
-      title: seo.og_title || title,
-      description: seo.og_description || description,
-      images: ogImage ? [ogImage] : undefined,
+      card: 'summary',
+      title,
+      description,
     },
   }
 }
