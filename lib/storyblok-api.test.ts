@@ -32,6 +32,7 @@ describe('resolveVersion env overrides', () => {
   it('forces draft in development regardless of isDraft', async () => {
     vi.resetModules()
     vi.stubEnv('NODE_ENV', 'development')
+    vi.stubEnv('NEXT_PUBLIC_STORYBLOK_TOKEN', 'test-token')
     const mod = await import('./storyblok-api')
     expect(mod.resolveVersion(false)).toBe('draft')
   })

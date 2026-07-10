@@ -2,6 +2,10 @@ import { createEnv } from '@t3-oss/env-nextjs'
 import { z } from 'zod'
 
 const nonEmpty = z.string().trim().min(1)
+const deliveryToken = z.preprocess(
+  input => input || (process.env.NODE_ENV === 'test' ? 'test-token' : input),
+  nonEmpty
+)
 
 export const siteUrlSchema = (isProduction: boolean) =>
   z.preprocess(
@@ -37,7 +41,7 @@ export const env = createEnv({
     STORYBLOK_SKIP_FETCH: booleanStringSchema,
   },
   client: {
-    NEXT_PUBLIC_STORYBLOK_TOKEN: nonEmpty.optional(),
+    NEXT_PUBLIC_STORYBLOK_TOKEN: deliveryToken,
     NEXT_PUBLIC_PIRSCH_CODE: nonEmpty.optional(),
   },
   runtimeEnv: {
@@ -56,22 +60,5 @@ export const env = createEnv({
   },
   emptyStringAsUndefined: true,
 })
-
-export function requireEnv(name: string, value: string | undefined): string {
-  if (!value) throw new Error(`Missing required environment variable: ${name}`)
-  return value
-}
-
-export function resolveDeliveryToken(
-  nodeEnv: 'development' | 'test' | 'production',
-  token: string | undefined
-): string | undefined {
-  if (nodeEnv === 'test') return token ?? 'test-token'
-  if (nodeEnv === 'production') return requireEnv('NEXT_PUBLIC_STORYBLOK_TOKEN', token)
-  return token
-}
-
-export const readDeliveryToken = () =>
-  resolveDeliveryToken(env.NODE_ENV, env.NEXT_PUBLIC_STORYBLOK_TOKEN)
 
 export const isContentFetchDisabled = () => env.STORYBLOK_SKIP_FETCH

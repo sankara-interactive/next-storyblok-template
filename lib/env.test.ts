@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  booleanStringSchema,
-  requireEnv,
-  resolveDeliveryToken,
-  siteNameSchema,
-  siteUrlSchema,
-} from './env'
+import { booleanStringSchema, siteNameSchema, siteUrlSchema } from './env'
 
 describe('environment validation', () => {
   it('uses local site defaults outside production', () => {
@@ -22,15 +16,6 @@ describe('environment validation', () => {
 
   it('rejects invalid and blank values', () => {
     expect(() => siteUrlSchema(false).parse('not a URL')).toThrow()
-    expect(() => requireEnv('SECRET', undefined)).toThrow('SECRET')
-  })
-
-  it('requires a delivery token only in production', () => {
-    expect(resolveDeliveryToken('development', undefined)).toBeUndefined()
-    expect(resolveDeliveryToken('test', undefined)).toBe('test-token')
-    expect(() => resolveDeliveryToken('production', undefined)).toThrow(
-      'NEXT_PUBLIC_STORYBLOK_TOKEN'
-    )
   })
 
   it('parses explicit boolean strings', () => {
