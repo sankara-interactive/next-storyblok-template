@@ -4,12 +4,12 @@ import StoryblokClient from 'storyblok-js-client'
 import { unstable_cache } from 'next/cache'
 import { draftMode } from 'next/headers'
 import { isPreview, STORYBLOK_CACHE_TAG, storyTag } from './config'
-import { isContentFetchDisabled, requireEnv } from './env'
+import { env, isContentFetchDisabled, requireEnv } from './env'
 import { getStoryblokApi } from './storyblok'
 
 export type SbLink = { slug: string; is_folder: boolean }
 
-const isDev = process.env.NODE_ENV === 'development'
+const isDev = env.NODE_ENV === 'development'
 
 export function resolveVersion(isDraft: boolean): 'draft' | 'published' {
   return isDev || isPreview || isDraft ? 'draft' : 'published'
@@ -18,7 +18,9 @@ export function resolveVersion(isDraft: boolean): 'draft' | 'published' {
 let previewClient: StoryblokClient | null = null
 function getPreviewClient(): StoryblokClient {
   if (!previewClient) {
-    previewClient = new StoryblokClient({ accessToken: requireEnv('STORYBLOK_PREVIEW_TOKEN') })
+    previewClient = new StoryblokClient({
+      accessToken: requireEnv('STORYBLOK_PREVIEW_TOKEN', env.STORYBLOK_PREVIEW_TOKEN),
+    })
   }
   return previewClient
 }

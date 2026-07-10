@@ -1,4 +1,4 @@
-import { readSiteEnv } from './env'
+import { env } from './env'
 
 type Mode = 'preview' | 'live'
 
@@ -8,18 +8,17 @@ type Mode = 'preview' | 'live'
 // Note: this only affects DEPLOYED hosts. Local `next dev` always reads draft
 // content regardless of MODE, via the `isDev` short-circuit in resolveVersion
 // (lib/storyblok-api.ts) — so the `live` fallback never hides drafts on localhost.
-const explicitMode = process.env.MODE
+const explicitMode = env.MODE
 export const MODE: Mode =
   explicitMode === 'preview' || explicitMode === 'live'
     ? explicitMode
-    : process.env.VERCEL_ENV && process.env.VERCEL_ENV !== 'production'
+    : env.VERCEL_ENV && env.VERCEL_ENV !== 'production'
       ? 'preview'
       : 'live'
 export const isPreview = MODE === 'preview'
 
-const site = readSiteEnv()
-export const SITE_URL = site.siteUrl
-export const SITE_NAME = site.siteName
+export const SITE_URL = env.SITE_URL
+export const SITE_NAME = env.SITE_NAME
 
 /** Global cache tag on every Storyblok read; flushed for globals/structural changes. */
 export const STORYBLOK_CACHE_TAG = 'storyblok'
