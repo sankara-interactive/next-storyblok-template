@@ -20,11 +20,19 @@ it holds what our projects have repeatedly needed, and nothing else.
 The catalogue below is derived from three shipped projects, not from a generic
 design-system checklist.
 
-| Project | Components | UI layer | Headless library |
-| --- | --- | --- | --- |
-| numbers.ch | 65 `.tsx` | `components/ui/`, 760 lines (255 of it `icon-data.ts`) | none |
-| fgpfister.ch | 89 `.tsx` | `components/partials/` | `radix-ui` (6 import sites) |
-| fairmed.ch-sb | 112 `.tsx` | `components/forms/`, `components/layout/` | `@headlessui/react` (8), `@radix-ui/react-slider` (1) |
+| Project | Components | UI layer | Headless library | Carousel | Icons |
+| --- | --- | --- | --- | --- | --- |
+| numbers.ch | 65 `.tsx` | `components/ui/`, 760 lines (255 of it `icon-data.ts`) | none | hand-rolled | own `fa-*` data |
+| fgpfister.ch | 89 `.tsx` | `components/partials/` | `radix-ui` (6 import sites) | hand-rolled | FontAwesome |
+| fairmed.ch-sb | 112 `.tsx` | `components/forms/`, `components/layout/` | `@headlessui/react` (8), `@radix-ui/react-slider` (1) | Splide | FontAwesome |
+| nuwa.swiss | 15 `.tsx`/`.js` | `components/helpers/`, `components/layout/` | `@headlessui/react` | Splide | FontAwesome Pro |
+| brillen-werk.ch | 36 `.tsx` | `components/helpers/`, `components/layout/` | `@radix-ui/react-dialog` | hand-rolled | FontAwesome kit |
+
+nuwa.swiss is Pages Router and largely `.js`; treat its evidence as weaker for an
+App Router package.
+
+Headless libraries split evenly — Radix in fgpfister.ch and brillen-werk.ch,
+Headless UI in fairmed.ch-sb and nuwa.swiss — so there is no incumbent.
 
 Headless primitives referenced across fgpfister.ch and fairmed.ch-sb, by
 identifier frequency — indicative of relative demand, not exact call counts:
@@ -141,12 +149,24 @@ job (roadmap phase A3).
 
 Ordered by demonstrated demand.
 
-**Tier 1 — present in all three projects**
+**Tier 1 — present in every project**
 
-- `Carousel` — merges numbers.ch's `CardSlider` and `Gallery`, which are the
-  same scroll-snap-plus-dot-pagination mechanism written twice. Must also cover
-  fgpfister's `SuccessStoriesSlider` and fairmed's `SliderHeader`,
-  `ImpactSlider` and `ProjectCountriesSlider`.
+- `Icon` — FontAwesome is used in four of five projects. numbers.ch is the
+  outlier only because it hand-wrote 255 lines of `icon-data.ts` keyed on
+  `fa-*` names, which is a reimplementation of FontAwesome rather than an
+  alternative. The package wraps FontAwesome behind a stable `<Icon name>` API;
+  numbers.ch's `icon-data.ts` is deleted on migration, not extracted.
+- `Carousel` — every project has one. Must cover numbers.ch's `CardSlider` and
+  `Gallery` (the same scroll-snap mechanism written twice), fgpfister's
+  `SuccessStoriesSlider`, and fairmed's `SliderHeader`, `ImpactSlider` and
+  `ProjectCountriesSlider`.
+
+  **Open: build or wrap.** Three projects hand-rolled roughly 60 lines of
+  scroll-snap; two pay for `@splidejs/react-splide`. Wrapping adds a dependency
+  for three of five consumers; hand-rolling means owning keyboard and
+  screen-reader behaviour that the existing hand-rolled versions do not have.
+  Resolve with a short spike during implementation planning, measuring both
+  against the five real usages above — not in the abstract.
 
 **Tier 2 — present in two of three**
 
@@ -167,10 +187,10 @@ Ordered by demonstrated demand.
 
 **Explicitly out of the first release**
 
-`Icon` and `icon-data`, `Reveal`, `CountUp`, `Glow`, `BgMark`, `Pill`,
-`IconBox`. These appear only in numbers.ch. They are that site's visual
-language, not a shared system, and promoting them would encode one client's
-brand into the package. Revisit when a second project needs one.
+`Reveal`, `CountUp`, `Glow`, `BgMark`, `Pill`, `IconBox`. These appear only in
+numbers.ch. They are that site's visual language, not a shared system, and
+promoting them would encode one client's brand into the package. Revisit when a
+second project needs one.
 
 Each component ships with: a typed documented API, keyboard and accessibility
 coverage, a workbench story, loading/disabled/error/empty states where they

@@ -315,20 +315,20 @@ Exit criteria:
 
 Status: `[ ]`
 
-The catalogue is derived from three shipped projects — numbers.ch (65
-components), fgpfister.ch (89) and fairmed.ch-sb (112) — not from a generic
-design-system checklist. An earlier revision of this document derived it from
-numbers.ch alone and got it substantially wrong; see the design spec for the
-survey.
+The catalogue is derived from five shipped projects — numbers.ch, fgpfister.ch,
+fairmed.ch-sb, nuwa.swiss and brillen-werk.ch — not from a generic design-system
+checklist. An earlier revision derived it from numbers.ch alone and got it
+substantially wrong; see the design spec for the survey.
 
-**Tier 1 — present in all three projects:**
+**Tier 1 — present in every project:**
 
-- [ ] Carousel — merges numbers.ch's `CardSlider` and `Gallery` (the same
-  scroll-snap mechanism written twice), fgpfister's `SuccessStoriesSlider`, and
-  fairmed's `SliderHeader`, `ImpactSlider` and `ProjectCountriesSlider`. No
-  headless library ships one.
+- [ ] Icon — FontAwesome in four of five; numbers.ch's hand-written
+  `icon-data.ts` is a reimplementation of it. Wrap FontAwesome, don't ship icon
+  data.
+- [ ] Carousel — every project has one. Build-or-wrap is open: three hand-rolled
+  scroll-snap, two use Splide. No headless library ships one.
 
-**Tier 2 — present in two of three:**
+**Tier 2 — present in two or more:**
 
 - [ ] Disclosure (numbers.ch `Expandable`, fgpfister `ExpandableTableRows` and
   `ShowMore`), on Base UI Collapsible/Accordion
@@ -342,9 +342,9 @@ survey.
 - [ ] Pagination, Breadcrumbs, mobile navigation, LanguageSwitcher, ShareBar,
   VideoPlayer
 
-**Out of the first release:** `Icon`/`icon-data`, `Reveal`, `CountUp`, `Glow`,
-`BgMark`, `Pill`, `IconBox`. Each appears only in numbers.ch — that site's
-visual language, not a shared system. Revisit when a second project needs one.
+**Out of the first release:** `Reveal`, `CountUp`, `Glow`, `BgMark`, `Pill`,
+`IconBox`. Each appears only in numbers.ch — that site's visual language, not a
+shared system. Revisit when a second project needs one.
 
 Each component must include:
 
