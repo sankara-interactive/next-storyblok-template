@@ -17,7 +17,7 @@ it holds what our projects have repeatedly needed, and nothing else.
 
 ## Evidence base
 
-The catalogue below is derived from three shipped projects, not from a generic
+The catalogue below is derived from five shipped projects, not from a generic
 design-system checklist.
 
 | Project | Components | UI layer | Headless library | Carousel | Icons |
@@ -45,8 +45,9 @@ Two conclusions follow, both of which overturned earlier assumptions:
 1. **Dialog, Popover, Checkbox, RadioGroup and Menu are the most-used
    primitives**, not unused ones. The roadmap previously deferred several of
    them on the strength of a single project that happened not to need them.
-2. **Carousel is the only pattern present in all three projects** — and neither
-   Base UI nor Radix ships one, so it must be built.
+2. **Carousel and Icon are the only patterns present in every project.** No
+   headless library ships a carousel, and FontAwesome already covers icons in
+   four of the five.
 
 ## Decisions
 
@@ -168,7 +169,7 @@ Ordered by demonstrated demand.
   Resolve with a short spike during implementation planning, measuring both
   against the five real usages above — not in the abstract.
 
-**Tier 2 — present in two of three**
+**Tier 2 — present in two or more of the five**
 
 - `Disclosure` — numbers.ch `Expandable`, fgpfister `ExpandableTableRows` and
   `ShowMore`. Built on Base UI Collapsible/Accordion, which supplies the
