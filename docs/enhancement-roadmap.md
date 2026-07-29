@@ -28,6 +28,10 @@ adapt CMS data into stable UI component props.
 
 Record architectural decisions here as they are made, newest last.
 
+- **Track B decisions are recorded in
+  `docs/superpowers/specs/2026-07-29-sankara-ui-design.md`**: Base UI as the
+  headless foundation, a versioned package on public npm, and Tailwind v4
+  classes against a documented `@theme` token contract.
 - **`@sankara/ui` lives in its own repository**, not as `packages/ui/` in this
   template. This template consumes it as a published dependency. Rationale: a
   template is cloned per project, and shipping the design-system source into
@@ -248,44 +252,26 @@ Runs in its own repository. Nothing here depends on Track A until Phase A3.
 
 ## Phase B1: UI Foundation Decision
 
-Status: `[ ]`
+Status: `[x]` Decided — see `docs/superpowers/specs/2026-07-29-sankara-ui-design.md`
 
-Run a focused Base UI versus Radix spike. Base UI is the current preference, but
-default styling is not a deciding factor.
+The planned Base UI versus Radix spike was dropped. It was scoped against
+`Expandable`, `CardSlider`, `Gallery` and `Reveal`, and three of those four have
+no counterpart in either library — Base UI's `Slider` is a range input and its
+`ScrollArea` is a custom-scrollbar container, so neither library ships a
+carousel. The spike would have compared them where they do not compete.
 
-Build the same sample with both foundations. Use components that **already exist**
-in `numbers.ch/components/ui/` rather than an abstract Tabs/Dialog/Select set —
-their interaction requirements are known, which makes the comparison concrete:
+(An earlier revision of this document described `Gallery` as an overlay with a
+focus trap. That was wrong: it is a 50-line scroll-snap slider with dot
+pagination, structurally the same component as `CardSlider`.)
 
-- `Expandable` (disclosure, animated height)
-- `CardSlider` (keyboard and pointer dragging, snap)
-- `Gallery` (overlay, focus trap, escape handling)
-- `Reveal` (scroll-triggered motion, reduced-motion behavior)
-- A server-rendered page containing client-side interaction
+Decisions taken:
 
-Evaluate:
-
-- Accessibility and keyboard behavior
-- API consistency and composability
-- React Server Component boundaries
-- Styling and animation ergonomics
-- Bundle output
-- Test ergonomics
-- Portals and Content Security Policy compatibility
-- Upgrade and maintenance model
-
-Tasks:
-
-- [ ] Build and measure the Base UI sample.
-- [ ] Build and measure the Radix sample.
-- [ ] Record the decision in `docs/architecture/001-ui-foundation.md`.
-- [ ] Decide whether distribution uses a package, a private shadcn-compatible
-  registry, or both.
-
-Exit criteria:
-
-- The chosen foundation and rejected alternatives are documented with evidence.
-- The expected server/client boundary and dependency policy are explicit.
+- [x] Base UI as the headless foundation, used only where a component needs it.
+  No incumbent exists to standardise on — fgpfister.ch runs Radix,
+  fairmed.ch-sb runs Headless UI — so any choice migrates something.
+- [x] Distribution is a versioned package on public npm, not a copy-in registry.
+- [x] Styling ships as Tailwind v4 classes against a documented `@theme` token
+  contract.
 
 ## Phase B2: Foundation and Infrastructure
 
@@ -299,11 +285,13 @@ Structure:
 src/
 ├── components/
 ├── hooks/
-├── styles/
+├── styles/     token contract + base layer
 ├── test/
-├── tokens/
 └── utilities/
 ```
+
+No separate `tokens/` directory: Tailwind v4's `@theme` is the token system, so
+the contract is CSS, not a build step.
 
 Tasks:
 
@@ -327,34 +315,36 @@ Exit criteria:
 
 Status: `[ ]`
 
-The catalogue is derived from what a real site actually needed. Across
-`numbers.ch`'s 65 components, `components/ui/` grew to: `BgMark`, `CardSlider`,
-`CountUp`, `Expandable`, `Gallery`, `Glow`, `Icon`, `IconBox`, `Pill`, `Reveal`.
-Its only form is a nestable with raw inputs — no Field, Input, Select, Dialog or
-Checkbox primitive was ever extracted. Build what demand exists, not a generic
-design system.
+The catalogue is derived from three shipped projects — numbers.ch (65
+components), fgpfister.ch (89) and fairmed.ch-sb (112) — not from a generic
+design-system checklist. An earlier revision of this document derived it from
+numbers.ch alone and got it substantially wrong; see the design spec for the
+survey.
 
-**Tier 1 — extract from numbers.ch, proven by use:**
+**Tier 1 — present in all three projects:**
 
-- [ ] Icon (plus icon-data generation)
-- [ ] Reveal (scroll-triggered motion)
-- [ ] Expandable (disclosure/accordion)
-- [ ] CardSlider
-- [ ] Gallery
-- [ ] CountUp
-- [ ] Pill, IconBox
-- [ ] Glow, BgMark (decorative)
+- [ ] Carousel — merges numbers.ch's `CardSlider` and `Gallery` (the same
+  scroll-snap mechanism written twice), fgpfister's `SuccessStoriesSlider`, and
+  fairmed's `SliderHeader`, `ImpactSlider` and `ProjectCountriesSlider`. No
+  headless library ships one.
 
-**Tier 2 — needed by every site, not yet extracted anywhere:**
+**Tier 2 — present in two of three:**
 
-- [ ] Typography
-- [ ] Container and layout primitives
+- [ ] Disclosure (numbers.ch `Expandable`, fgpfister `ExpandableTableRows` and
+  `ShowMore`), on Base UI Collapsible/Accordion
+- [ ] Field, Input, Textarea, Checkbox, RadioGroup, Select
+- [ ] Dialog, Popover, Menu — the highest-frequency primitives in the survey
+
+**Tier 3 — universal, lower risk:**
+
+- [ ] Typography, Container
 - [ ] Button and Link (shared variant surface)
-- [ ] Field, label, help text, error message
-- [ ] Input and textarea
+- [ ] Pagination, Breadcrumbs, mobile navigation, LanguageSwitcher, ShareBar,
+  VideoPlayer
 
-**Deferred until a project actually needs them:** Dialog, Select, Tabs,
-Checkbox and radio. Revisit at the first real requirement; do not build on spec.
+**Out of the first release:** `Icon`/`icon-data`, `Reveal`, `CountUp`, `Glow`,
+`BgMark`, `Pill`, `IconBox`. Each appears only in numbers.ch — that site's
+visual language, not a shared system. Revisit when a second project needs one.
 
 Each component must include:
 
