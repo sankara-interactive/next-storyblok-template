@@ -5,12 +5,8 @@ export function isDataRoute(slug: string): boolean {
   return slug === DATA_PREFIX || slug.startsWith(`${DATA_PREFIX}/`)
 }
 
-/**
- * Cache tag to flush for a Storyblok webhook. A plain content publish busts only
- * that story; anything else — a `data/` global, a structural action
- * (unpublish/move/delete), or a missing slug — can affect nav/sitemap/links and
- * flushes the global tag.
- */
+/** Webhook flush target: a content publish busts one story, anything else
+ * (data/ global, structural action, missing slug) busts the global tag. */
 export function revalidationTag(action?: string, fullSlug?: string): string {
   return action === 'published' && fullSlug && !isDataRoute(fullSlug)
     ? storyTag(fullSlug)

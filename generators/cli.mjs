@@ -5,8 +5,7 @@ import path from 'node:path'
 
 const repoRoot = path.resolve(import.meta.dirname, '..')
 
-// snake_case (or kebab) technical name -> PascalCase component/type name, matching
-// how Storyblok's type generator names `<Name>Storyblok` (e.g. hero_section -> HeroSection).
+// hero_section -> HeroSection, matching Storyblok's `<Name>Storyblok` type names.
 const toPascalCase = name =>
   name
     .split(/[_-]/)
@@ -14,9 +13,8 @@ const toPascalCase = name =>
     .map(part => part.charAt(0).toUpperCase() + part.slice(1))
     .join('')
 
-// Resolve the components.json: use an explicit arg, otherwise auto-detect the
-// single pulled component set under .storyblok/components/<space>/components.json
-// (so `yarn scaffold` works without needing $STORYBLOK_SPACE_ID in the shell).
+// Explicit arg, else the single pulled set under .storyblok/components/<space>/,
+// so `yarn scaffold` needs no $STORYBLOK_SPACE_ID.
 function resolveSchemaPath() {
   const arg = process.argv[2]
   if (arg) return path.resolve(repoRoot, arg)
@@ -95,8 +93,7 @@ const generateContent = componentSchema => {
 schema.forEach(componentSchema => {
   const componentName = toPascalCase(componentSchema.name)
   const fieldTypes = new Set(Object.values(componentSchema.schema).map(f => f.type))
-  // Unrestricted asset fields use the image stub too. Checking only for an
-  // explicit `images` filetype would emit <Image> without importing it.
+  // Must mirror the asset branch above, or <Image> is emitted without its import.
   const hasImage = [...Object.values(componentSchema.schema)].some(
     f => f.type === 'asset' && !f.filetypes?.includes('videos')
   )

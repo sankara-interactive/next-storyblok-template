@@ -24,8 +24,7 @@ export async function POST(req: Request) {
     return new Response('Invalid body', { status: 400 })
   }
 
-  // Next 16: revalidateTag requires a cacheLife profile; 'max' is the
-  // documented drop-in for on-demand purge (single-arg form is deprecated).
+  // Next 16 requires a cacheLife profile; 'max' is the on-demand-purge drop-in.
   revalidateTag(revalidationTag(payload.action, payload.full_slug), 'max')
   return new Response('Revalidated', { status: 200 })
 }

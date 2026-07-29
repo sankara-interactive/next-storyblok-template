@@ -1,8 +1,6 @@
 import { apiPlugin, storyblokInit } from '@storyblok/react/rsc'
 import { env } from './env'
-// content types
 import page from '@/components/content_types/Page'
-// nestables
 import feature from '@/components/nestables/Feature'
 import grid from '@/components/nestables/Grid'
 import privacy_bee from '@/components/nestables/PrivacyBee'

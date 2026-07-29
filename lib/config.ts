@@ -2,12 +2,8 @@ import { env } from './env'
 
 type Mode = 'preview' | 'live'
 
-// Explicit MODE wins; otherwise derive from Vercel's deploy env. Non-prod Vercel
-// deploys (preview/development) show drafts; production — or any non-Vercel host
-// where VERCEL_ENV is unset — defaults to the safe `live`.
-// Note: this only affects DEPLOYED hosts. Local `next dev` always reads draft
-// content regardless of MODE, via the `isDev` short-circuit in resolveVersion
-// (lib/storyblok-api.ts) — so the `live` fallback never hides drafts on localhost.
+// Explicit MODE wins, else non-prod VERCEL_ENV → preview; anything else → live.
+// Deployed hosts only: `next dev` always reads drafts (isDev in storyblok-api).
 const explicitMode = env.MODE
 export const MODE: Mode =
   explicitMode === 'preview' || explicitMode === 'live'

@@ -31,8 +31,7 @@ function getPreviewClient(): StoryblokClient {
   return previewClient
 }
 
-// Wrapper built per-slug so each story carries its own tag (storyblok:<slug>)
-// alongside the global tag — lets the webhook bust one story without flushing all.
+// Built per-slug so the webhook can bust one story without flushing the rest.
 function fetchPublishedStory(slug: string) {
   return unstable_cache(
     async () => {
