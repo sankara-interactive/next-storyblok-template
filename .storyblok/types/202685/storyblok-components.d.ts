@@ -18,8 +18,8 @@ export interface PageStoryblok {
   body?: (GridStoryblok | TeaserStoryblok)[];
   seo?: {
     _uid?: string;
-    title?: string;
     plugin?: string;
+    title?: string;
     description?: string;
   };
   component: "page";

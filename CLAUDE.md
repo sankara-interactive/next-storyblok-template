@@ -20,6 +20,8 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   exports none, and one isn't needed (all bloks are server components).
 - **Globals** live under `data/` and are non-routable (rejected by the page
   loader and excluded from sitemap/static params).
+- **Links**: resolve Storyblok link fields with `getHref` / `<SbLink>`
+  (`lib/getHref.ts`, `components/helpers/SbLink.tsx`) — never hand-build hrefs.
 - **MODE** (`preview`|`live`) gates draft content and `noindex`. Derived from
   `VERCEL_ENV` by default (non-prod Vercel deploys → `preview`; prod / non-Vercel →
   `live`); set the `MODE` env var explicitly to override (e.g. a draft-on-prod

@@ -10,7 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "sync": "storyblok components pull && storyblok types generate",
-    "scaffold": "node generators/cli.js"
+    "scaffold": "node generators/cli.mjs"
   },
   "dependencies": {
     "@storyblok/react": "^7.0.0",
