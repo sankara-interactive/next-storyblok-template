@@ -60,7 +60,22 @@ yarn build # or npm run build
   (run after `yarn sync`; not part of it). Auto-detects the pulled component set
   under `.storyblok/components/` — no env var needed.
 
-### 6. Setup preview mode
+### 6. Quality checks
+
+- `yarn check` — the full gate CI runs: formatting, ESLint, TypeScript, unit
+  tests, and Storyblok type drift. Run this before opening a PR.
+- Individual parts: `yarn format:check` (or `yarn format` to fix), `yarn lint`,
+  `yarn typecheck`, `yarn test`, `yarn types:check`.
+
+`yarn types:check` fails when the committed types under `.storyblok/types/` no
+longer match the committed component schemas — run `yarn sync` and commit the
+result.
+
+CI additionally runs a production build without CMS access
+(`STORYBLOK_SKIP_FETCH=true`), so builds stay green without Storyblok
+credentials.
+
+### 7. Setup preview mode
 
 To enable preview mode you have to add two preview URLs in Storyblok:
 
@@ -73,7 +88,7 @@ To enable preview mode you have to add two preview URLs in Storyblok:
 Don't forget to add the secret as env-variable.
 It might be helpful for the end user to set the preview URL as default.
 
-### 7. Webhook for revalidation
+### 8. Webhook for revalidation
 
 To revalidate pages after publishing in Storyblok, set up a Webhook pointing to:
 `https://<my-url>/api/revalidate`

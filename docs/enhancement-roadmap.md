@@ -22,7 +22,7 @@ adapt CMS data into stable UI component props.
 
 ## Phase 0: Land the Baseline PR Stack
 
-Status: `[~]` PR #11 verification and merge remaining
+Status: `[~]` All PRs merged; manual smoke-testing of the exit criteria remains
 
 Land the existing work in dependency order:
 
@@ -40,9 +40,9 @@ Tasks:
   merged baseline and merge it.
 - [x] Rebase PR #11, `feat/template-core-patterns`, onto PR #10.
 - [x] Resolve the rich-text implementation against the Storyblok v7 API.
-- [~] Run tests, typecheck, lint, and a production build. Tests, typecheck, and
-  lint pass locally; the production build remains outstanding.
-- [ ] Merge PR #11.
+- [x] Run tests, typecheck, lint, and a production build. The production build is
+  covered by the CI job added in Phase 1.
+- [x] Merge PR #11.
 
 Exit criteria:
 
@@ -53,7 +53,7 @@ Exit criteria:
 
 ## Phase 1: Baseline Reliability
 
-Status: `[x]` Implemented on `feat/template-ci-foundation`
+Status: `[x]` Implemented in PR #13, `feat/template-ci-foundation`
 
 Deliver as an independent PR before expanding the component catalogue.
 
