@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { booleanStringSchema, siteNameSchema, siteUrlSchema } from './env'
+import { siteNameSchema, siteUrlSchema } from './env'
 
 describe('environment validation', () => {
   it('uses local site defaults outside production', () => {
@@ -16,11 +16,5 @@ describe('environment validation', () => {
 
   it('rejects invalid and blank values', () => {
     expect(() => siteUrlSchema(false).parse('not a URL')).toThrow()
-  })
-
-  it('parses explicit boolean strings', () => {
-    expect(booleanStringSchema.parse(undefined)).toBe(false)
-    expect(booleanStringSchema.parse('false')).toBe(false)
-    expect(booleanStringSchema.parse('true')).toBe(true)
   })
 })

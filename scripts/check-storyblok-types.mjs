@@ -31,20 +31,8 @@ try {
 
   const result = spawnSync(
     'yarn',
-    [
-      'storyblok',
-      'types',
-      'generate',
-      '--path',
-      temporaryRoot,
-      '--space',
-      spaceIds[0],
-      '--strict',
-      '--type-suffix',
-      'Storyblok',
-      '--custom-fields-parser',
-      './lib/customFieldTypesParser.mjs',
-    ],
+    // Everything else (strict, typeSuffix, parser) comes from storyblok.config.mjs.
+    ['storyblok', 'types', 'generate', '--path', temporaryRoot, '--space', spaceIds[0]],
     { cwd: root, encoding: 'utf8' }
   )
 

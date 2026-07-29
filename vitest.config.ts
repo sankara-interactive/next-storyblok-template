@@ -5,6 +5,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['lib/**/*.test.ts', 'app/**/*.test.ts', 'generators/**/*.test.ts'],
+    env: { NEXT_PUBLIC_STORYBLOK_TOKEN: 'test-token' },
   },
   resolve: {
     alias: {

@@ -3,16 +3,11 @@ import { ISbStoryData } from '@storyblok/react/rsc'
 import StoryblokClient from 'storyblok-js-client'
 import { unstable_cache } from 'next/cache'
 import { draftMode } from 'next/headers'
-import { z } from 'zod'
 import { isPreview, STORYBLOK_CACHE_TAG, storyTag } from './config'
-import { env, isContentFetchDisabled } from './env'
+import { env, requireEnv } from './env'
 import { getStoryblokApi } from './storyblok'
 
 export type SbLink = { slug: string; is_folder: boolean }
-
-const previewEnvSchema = z.object({
-  STORYBLOK_PREVIEW_TOKEN: z.string().min(1),
-})
 
 const isDev = env.NODE_ENV === 'development'
 
@@ -23,10 +18,7 @@ export function resolveVersion(isDraft: boolean): 'draft' | 'published' {
 let previewClient: StoryblokClient | null = null
 function getPreviewClient(): StoryblokClient {
   if (!previewClient) {
-    const previewEnv = previewEnvSchema.parse(env)
-    previewClient = new StoryblokClient({
-      accessToken: previewEnv.STORYBLOK_PREVIEW_TOKEN,
-    })
+    previewClient = new StoryblokClient({ accessToken: requireEnv('STORYBLOK_PREVIEW_TOKEN') })
   }
   return previewClient
 }
@@ -48,7 +40,7 @@ function fetchPublishedStory(slug: string) {
 }
 
 export async function getStory<T>(slug: string): Promise<ISbStoryData<T> | null> {
-  if (isContentFetchDisabled()) return null
+  if (env.STORYBLOK_SKIP_FETCH) return null
   const { isEnabled: isDraft } = await draftMode()
   const version = resolveVersion(isDraft)
   try {
@@ -85,6 +77,6 @@ const fetchLinks = unstable_cache(
 )
 
 export async function getAllLinks(): Promise<Record<string, SbLink>> {
-  if (isContentFetchDisabled()) return {}
+  if (env.STORYBLOK_SKIP_FETCH) return {}
   return fetchLinks()
 }
