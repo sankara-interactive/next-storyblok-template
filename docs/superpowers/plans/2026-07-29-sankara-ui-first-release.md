@@ -124,8 +124,8 @@ cd sankara-ui
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "moduleResolution": "bundler",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "jsx": "react-jsx",
     "strict": true,
     "declaration": true,
@@ -144,9 +144,15 @@ cd sankara-ui
 {
   "extends": "./tsconfig.json",
   "include": ["src"],
-  "exclude": ["**/*.test.ts", "**/*.test.tsx", "**/*.stories.tsx"]
+  "exclude": ["**/*.test.ts", "**/*.test.tsx", "**/*.stories.tsx", "src/test/**"]
 }
 ```
+
+`nodenext` resolution is load-bearing: with `"type": "module"` and no bundler,
+`tsc` does not rewrite relative specifiers on emit, so every relative import in
+`src/` needs an explicit `.js` extension or the published `dist/index.js` throws
+`ERR_MODULE_NOT_FOUND` under plain Node. `src/test/**` must be excluded from the
+build or the test harness ships inside the package.
 
 - [ ] **Step 4: Write `vitest.config.ts` and `.gitignore`**
 
@@ -186,7 +192,7 @@ storybook-static
 
 ```ts
 import { describe, expect, it } from 'vitest'
-import { cn } from './cn'
+import { cn } from './cn.js'
 
 describe('cn', () => {
   it('joins truthy classes', () => {
@@ -241,9 +247,11 @@ const read = dir =>
 
 const sources = read('src').filter(file => /\.tsx?$/.test(file) && !/\.(test|stories)\./.test(file))
 const missing = []
+let declaring = 0
 
 for (const source of sources) {
   if (!/^['"]use client['"]/.test(fs.readFileSync(source, 'utf8'))) continue
+  declaring += 1
   const emitted = path
     .join('dist', path.relative('src', source))
     .replace(/\.tsx?$/, '.js')
@@ -261,7 +269,7 @@ if (missing.length > 0) {
   process.exit(1)
 }
 
-console.log(`'use client' preserved in all ${sources.length} source files that declare it.`)
+console.log(`'use client' preserved in all ${declaring} source files that declare it.`)
 ```
 
 This guards the single failure mode that would break every consumer at once, silently.
@@ -271,7 +279,7 @@ This guards the single failure mode that would break every consumer at once, sil
 `src/index.ts`:
 
 ```ts
-export { cn } from './utilities/cn'
+export { cn } from './utilities/cn.js'
 ```
 
 Run: `yarn install && yarn build`
@@ -338,7 +346,7 @@ git commit -m "feat: bootstrap package with tsc build and directive guard"
 ```ts
 import fs from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { TOKENS } from './tokens'
+import { TOKENS } from './tokens.js'
 
 const css = fs.readFileSync(new URL('./tokens.css', import.meta.url), 'utf8')
 
@@ -402,8 +410,8 @@ Expected: PASS, 2 tests.
 `src/index.ts`:
 
 ```ts
-export { cn } from './utilities/cn'
-export { TOKENS } from './styles/tokens'
+export { cn } from './utilities/cn.js'
+export { TOKENS } from './styles/tokens.js'
 ```
 
 - [ ] **Step 6: Commit**
@@ -435,7 +443,7 @@ This is a **server component** — no `'use client'`. It renders no interactivit
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { Icon } from './Icon'
+import { Icon } from './Icon.js'
 
 describe('Icon', () => {
   it('renders the supplied icon as an svg', () => {
@@ -477,7 +485,7 @@ Expected: FAIL — cannot resolve `./Icon`.
 ```tsx
 import type { IconProp } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { cn } from '../utilities/cn'
+import { cn } from '../utilities/cn.js'
 
 export type IconProps = {
   /** An IconDefinition from whichever FontAwesome package the consumer installs. */
@@ -514,9 +522,9 @@ Expected: PASS, 5 tests.
 `src/index.ts`:
 
 ```ts
-export { cn } from './utilities/cn'
-export { TOKENS } from './styles/tokens'
-export { Icon, type IconProps } from './components/Icon'
+export { cn } from './utilities/cn.js'
+export { TOKENS } from './styles/tokens.js'
+export { Icon, type IconProps } from './components/Icon.js'
 ```
 
 Run: `yarn build`
@@ -550,7 +558,7 @@ Scope: static scroll-snap only. Autoplay, loop and synced carousels — the Spli
 
 ```ts
 import { describe, expect, it } from 'vitest'
-import { slideIndexFromScroll } from './carousel'
+import { slideIndexFromScroll } from './carousel.js'
 
 describe('slideIndexFromScroll', () => {
   it('is zero at rest', () => {
@@ -609,7 +617,7 @@ Expected: PASS, 5 tests.
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import { Carousel } from './Carousel'
+import { Carousel } from './Carousel.js'
 
 const slides = [<p key="a">One</p>, <p key="b">Two</p>, <p key="c">Three</p>]
 
@@ -679,8 +687,8 @@ Expected: FAIL — cannot resolve `./Carousel`.
 'use client'
 
 import { Children, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
-import { cn } from '../utilities/cn'
-import { slideIndexFromScroll } from '../utilities/carousel'
+import { cn } from '../utilities/cn.js'
+import { slideIndexFromScroll } from '../utilities/carousel.js'
 
 export type CarouselProps = {
   children: ReactNode
@@ -784,11 +792,11 @@ Expected: PASS, 7 tests.
 `src/index.ts`:
 
 ```ts
-export { cn } from './utilities/cn'
-export { TOKENS } from './styles/tokens'
-export { Icon, type IconProps } from './components/Icon'
-export { Carousel, type CarouselProps } from './components/Carousel'
-export { slideIndexFromScroll } from './utilities/carousel'
+export { cn } from './utilities/cn.js'
+export { TOKENS } from './styles/tokens.js'
+export { Icon, type IconProps } from './components/Icon.js'
+export { Carousel, type CarouselProps } from './components/Carousel.js'
+export { slideIndexFromScroll } from './utilities/carousel.js'
 ```
 
 Run: `yarn build`
@@ -869,7 +877,7 @@ export default preview
 ```tsx
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import type { Meta, StoryObj } from '@storybook/react'
-import { Icon } from './Icon'
+import { Icon } from './Icon.js'
 
 const meta: Meta<typeof Icon> = { component: Icon, title: 'Icon' }
 export default meta
@@ -887,7 +895,7 @@ export const Labelled: StoryObj<typeof Icon> = {
 
 ```tsx
 import type { Meta, StoryObj } from '@storybook/react'
-import { Carousel } from './Carousel'
+import { Carousel } from './Carousel.js'
 
 const meta: Meta<typeof Carousel> = { component: Carousel, title: 'Carousel' }
 export default meta
