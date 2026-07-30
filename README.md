@@ -28,14 +28,21 @@ Create a new empty space and copy the preview token. Create your `.env` from `.e
 mv .env.example .env
 ```
 
-Add the tokens and space ID from Storyblok and the API secret as environment variables:
+Add the tokens and space ID from Storyblok, plus the two secrets, as environment variables:
 
 ```sh
 STORYBLOK_SPACE_ID=<your-space-id>
 NEXT_PUBLIC_STORYBLOK_TOKEN=<your-public-token>
 STORYBLOK_PREVIEW_TOKEN=<your-preview-token>
 API_SECRET=<a-strong-random-string-used-by-api-routes>
+STORYBLOK_WEBHOOK_SECRET=<storyblok-webhook-signing-secret>
 ```
+
+**All five are required.** They are validated on startup by `lib/env.ts`, so a
+missing one fails immediately and names itself rather than breaking a route later.
+Secrets deliberately have no defaults. `SITE_URL` and `SITE_NAME` fall back to
+`http://localhost:3000` and `Site` in development, but a production build requires
+both, and `SITE_URL` must be HTTPS.
 
 In development it's recommended to use the preview token which allows you to see unpublished (draft) data. In production, use the public token for NEXT_PUBLIC_STORYBLOK_TOKEN.
 
@@ -85,7 +92,7 @@ To enable preview mode you have to add two preview URLs in Storyblok:
 **Exit Preview**
 `https://<my-url>/api/exit-draft?slug=`
 
-Don't forget to add the secret as env-variable.
+`API_SECRET` is already set from step 3 — the app will not start without it.
 It might be helpful for the end user to set the preview URL as default.
 
 ### 8. Webhook for revalidation

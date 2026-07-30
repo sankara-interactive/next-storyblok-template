@@ -29,6 +29,15 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   `isDev` short-circuit in `resolveVersion`), so MODE only matters for deployed
   hosts. (The bridge is gated separately by the SDK's `isVisualEditor()` — see
   Bridge above.)
+- **Environment**: every read goes through `lib/env.ts` (`@t3-oss/env-nextjs` +
+  Zod) — never touch `process.env` outside it. `SITE_URL`, `SITE_NAME`,
+  `NEXT_PUBLIC_STORYBLOK_TOKEN`, `STORYBLOK_PREVIEW_TOKEN`, `API_SECRET` and
+  `STORYBLOK_WEBHOOK_SECRET` are all required: a missing one fails at boot naming
+  the variable, rather than when a route first needs it. There is one access
+  pattern — `env.X`, always typed — because a secret must never have a default.
+  `STORYBLOK_SKIP_FETCH=true` is a CI-only escape hatch making content reads
+  return empty so a production build needs no CMS access; never set it on a
+  deployed site.
 - **Analytics**: Pirsch (cookieless, `pirsch.js` / `id="pirschjs"`) loads globally
   in the layout via `<Pirsch />` — skipped in development (`NODE_ENV === 'development'`).
   PrivacyBee is a **blok** (registry key `privacy_bee`) that renders `<privacybee-widget>`
@@ -51,6 +60,8 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   `link`/`links`, `label`, `variant`/`theme` (options), `is*`/`has*` (booleans).
 
 ## Workflow
+- `yarn check` — the gate CI runs: formatting, ESLint, TypeScript, tests, and
+  Storyblok type drift. Run it before opening a PR.
 - `yarn sync` — pull schemas + regenerate types. Commit `components.json`.
 - `yarn scaffold` — generate stubs for missing components (deliberate, separate).
 - Schema source of truth = Storyblok UI; push back via the CLI/Management API
