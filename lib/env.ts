@@ -17,6 +17,15 @@ export const siteUrlSchema = (isProduction: boolean) =>
 export const siteNameSchema = (isProduction: boolean) =>
   z.preprocess(input => input || (isProduction ? input : 'Site'), nonEmpty)
 
+/**
+ * The webhook signing secret is the one value you cannot know before deploying —
+ * Storyblok needs a reachable URL first, and initial work happens locally. So it
+ * defaults outside production and stays mandatory in it: a known default HMAC
+ * secret on a real host would let anyone forge a revalidation webhook.
+ */
+export const webhookSecretSchema = (isProduction: boolean) =>
+  z.preprocess(input => input || (isProduction ? input : 'local-dev-unsigned'), nonEmpty)
+
 const isProduction = process.env.NODE_ENV === 'production'
 
 export const env = createEnv({
@@ -26,13 +35,12 @@ export const env = createEnv({
     SITE_NAME: siteNameSchema(isProduction),
     MODE: z.enum(['preview', 'live']).optional(),
     VERCEL_ENV: z.enum(['production', 'preview', 'development']).optional(),
-    // Required, not optional: preview mode and webhook revalidation are core
-    // template features, and a secret is the one thing that must never have a
-    // default. Missing values fail at boot with a named error rather than when
-    // someone first hits /api/draft or publishes a story.
+    // Required, not optional. Both are needed for local work — the visual editor
+    // points at localhost and local dev always reads drafts — so a missing one
+    // fails at boot naming itself rather than when someone hits /api/draft.
     STORYBLOK_PREVIEW_TOKEN: nonEmpty,
     API_SECRET: nonEmpty,
-    STORYBLOK_WEBHOOK_SECRET: nonEmpty,
+    STORYBLOK_WEBHOOK_SECRET: webhookSecretSchema(isProduction),
     STORYBLOK_SKIP_FETCH: z
       .enum(['true', 'false'])
       .default('false')

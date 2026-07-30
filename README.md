@@ -38,11 +38,19 @@ API_SECRET=<a-strong-random-string-used-by-api-routes>
 STORYBLOK_WEBHOOK_SECRET=<storyblok-webhook-signing-secret>
 ```
 
-**All five are required.** They are validated on startup by `lib/env.ts`, so a
-missing one fails immediately and names itself rather than breaking a route later.
-Secrets deliberately have no defaults. `SITE_URL` and `SITE_NAME` fall back to
-`http://localhost:3000` and `Site` in development, but a production build requires
-both, and `SITE_URL` must be HTTPS.
+All of these are validated on startup by `lib/env.ts`, so a missing one fails
+immediately and names itself rather than breaking a route later. The first four
+are required everywhere.
+
+`STORYBLOK_WEBHOOK_SECRET` is the exception: you cannot know it before deploying,
+since Storyblok needs a reachable URL first, so it falls back to a placeholder
+outside production and is mandatory in it. Leave it unset while working locally
+and set it on the host once the webhook exists — a known default signing secret on
+a real host would let anyone forge a revalidation request.
+
+`SITE_URL` and `SITE_NAME` behave the same way, defaulting to
+`http://localhost:3000` and `Site` locally; a production build requires both, and
+`SITE_URL` must be HTTPS.
 
 In development it's recommended to use the preview token which allows you to see unpublished (draft) data. In production, use the public token for NEXT_PUBLIC_STORYBLOK_TOKEN.
 

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { siteNameSchema, siteUrlSchema } from './env'
+import { siteNameSchema, siteUrlSchema, webhookSecretSchema } from './env'
 
 describe('required secrets', () => {
   // t3-env logs the offending variable to console.error before throwing. That is
@@ -14,16 +14,19 @@ describe('required secrets', () => {
     vi.resetModules()
   })
 
-  // These are required, not optional, so a misconfigured deploy fails at boot
-  // rather than when someone first hits /api/draft or publishes a story.
-  it.each(['API_SECRET', 'STORYBLOK_PREVIEW_TOKEN', 'STORYBLOK_WEBHOOK_SECRET'])(
-    'refuses to load without %s',
-    async name => {
-      vi.resetModules()
-      vi.stubEnv(name, '')
-      await expect(import('./env')).rejects.toThrow()
-    }
-  )
+  // Both are needed for local work, so a misconfigured setup fails at boot
+  // rather than when someone first hits /api/draft.
+  it.each(['API_SECRET', 'STORYBLOK_PREVIEW_TOKEN'])('refuses to load without %s', async name => {
+    vi.resetModules()
+    vi.stubEnv(name, '')
+    await expect(import('./env')).rejects.toThrow()
+  })
+
+  it('loads without a webhook secret outside production', async () => {
+    vi.resetModules()
+    vi.stubEnv('STORYBLOK_WEBHOOK_SECRET', '')
+    await expect(import('./env')).resolves.toBeDefined()
+  })
 })
 
 describe('environment validation', () => {
@@ -41,5 +44,13 @@ describe('environment validation', () => {
 
   it('rejects invalid and blank values', () => {
     expect(() => siteUrlSchema(false).parse('not a URL')).toThrow()
+  })
+
+  // A known default HMAC secret on a real host would let anyone forge a
+  // revalidation webhook, so the placeholder must never survive into production.
+  it('defaults the webhook secret locally but demands one in production', () => {
+    expect(webhookSecretSchema(false).parse(undefined)).toBe('local-dev-unsigned')
+    expect(() => webhookSecretSchema(true).parse(undefined)).toThrow()
+    expect(webhookSecretSchema(true).parse('a-real-secret')).toBe('a-real-secret')
   })
 })

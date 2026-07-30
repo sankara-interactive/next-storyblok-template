@@ -30,13 +30,15 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   hosts. (The bridge is gated separately by the SDK's `isVisualEditor()` — see
   Bridge above.)
 - **Environment**: every read goes through `lib/env.ts` (`@t3-oss/env-nextjs` +
-  Zod) — never touch `process.env` outside it. `SITE_URL`, `SITE_NAME`,
-  `NEXT_PUBLIC_STORYBLOK_TOKEN`, `STORYBLOK_PREVIEW_TOKEN`, `API_SECRET` and
-  `STORYBLOK_WEBHOOK_SECRET` are all required: a missing one fails at boot naming
-  the variable, rather than when a route first needs it. There is one access
-  pattern — `env.X`, always typed — because a secret must never have a default.
-  `STORYBLOK_SKIP_FETCH=true` is a CI-only escape hatch making content reads
-  return empty so a production build needs no CMS access; never set it on a
+  Zod) — never touch `process.env` outside it. One access pattern, `env.X`, always
+  typed, so nothing needs narrowing at the call site. `NEXT_PUBLIC_STORYBLOK_TOKEN`,
+  `STORYBLOK_PREVIEW_TOKEN` and `API_SECRET` are required everywhere: a missing one
+  fails at boot naming the variable. `SITE_URL`, `SITE_NAME` and
+  `STORYBLOK_WEBHOOK_SECRET` default outside production and are mandatory in it —
+  the webhook secret because it cannot be known before a deploy exists, and a
+  known default HMAC secret on a real host would let anyone forge a revalidation
+  request. `STORYBLOK_SKIP_FETCH=true` is a CI-only escape hatch making content
+  reads return empty so a production build needs no CMS access; never set it on a
   deployed site.
 - **Analytics**: Pirsch (cookieless, `pirsch.js` / `id="pirschjs"`) loads globally
   in the layout via `<Pirsch />` — skipped in development (`NODE_ENV === 'development'`).
