@@ -127,11 +127,16 @@ src/
 └── utilities/
 ```
 
-Peer dependencies: `react`, `react-dom`, `tailwindcss` v4, `next`.
+Peer dependencies: `react`, `react-dom`, `tailwindcss` v4, and the two free
+FontAwesome runtime packages.
 
-`next` is a deliberate coupling. Carousel and image components use `next/image`;
-avoiding it means either losing image optimisation in every consumer or building
-an image abstraction nobody asked for. Every consumer is a Next site.
+`next` is **not** a peer dependency of the first release. Implementation planning
+established that `Carousel` takes children, so consumers pass their own
+`next/image` elements in and nothing in the package imports a Next surface. The
+peer gets added by the release that introduces an image-bearing component —
+declaring it earlier would make every consumer satisfy a dependency the package
+never loads. When that happens the coupling is accepted rather than abstracted:
+every consumer is a Next site.
 
 ### Client boundaries
 
