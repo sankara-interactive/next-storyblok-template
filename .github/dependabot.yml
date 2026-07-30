@@ -9,6 +9,11 @@ updates:
       npm-minor-and-patch:
         patterns: ['*']
         update-types: [minor, patch]
+    ignore:
+      # @types/node tracks the runtime major (node-version in ci.yml), not npm latest.
+      # Bump both together.
+      - dependency-name: '@types/node'
+        update-types: [version-update:semver-major]
 
   - package-ecosystem: github-actions
     directory: /
