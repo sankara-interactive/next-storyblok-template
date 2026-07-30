@@ -6,9 +6,13 @@ This document is the shared implementation plan for evolving the
 sankara:interactive Next.js + Storyblok template. It is intended for humans and
 coding agents. Keep statuses and architectural decisions current as work lands.
 
-The sequencing principle is:
+After the shared foundation, work splits into two tracks that run in parallel:
 
-> Quality gates -> UI architecture -> primitives -> Storyblok adapters -> page sections.
+> **Track A** (this repo): Storyblok plumbing — routing, caching, adapters, sections.
+> **Track B** (`@sankara-ui/core` repo): the reusable UI system, built without Storyblok.
+
+They join at Phase A3, where adapters translate CMS data into UI props. Until
+then neither track blocks the other.
 
 Storyblok types must not leak into the reusable UI package. Storyblok components
 adapt CMS data into stable UI component props.
@@ -20,18 +24,29 @@ adapt CMS data into stable UI component props.
 - `[x]` Complete
 - `[!]` Blocked or awaiting a decision
 
+## Decisions
+
+Record architectural decisions here as they are made, newest last.
+
+- **Track B decisions are recorded in
+  `docs/superpowers/specs/2026-07-29-sankara-ui-design.md`**: Base UI as the
+  headless foundation, a versioned package on public npm, and Tailwind v4
+  classes against a documented `@theme` token contract.
+- **`@sankara-ui/core` lives in its own repository**, not as `packages/ui/` in this
+  template. This template consumes it as a published dependency. Rationale: a
+  template is cloned per project, and shipping the design-system source into
+  every clone is backwards; the "a consuming project can override brand tokens
+  without forking component logic" criterion is only tested honestly when the
+  consumer is external; and a workspace conversion would restructure this repo's
+  root, colliding with every open branch.
+- **The package is `@sankara-ui/core` under the `sankara-ui` npm org** (decided
+  2026-07-30). `@sankara` and `@sankara-interactive` were both taken. The second
+  segment avoids stuttering as `@sankara-ui/ui` and leaves room for
+  `@sankara-ui/storyblok` when Phase A3's adapter layer becomes a package.
+
 ## Phase 0: Land the Baseline PR Stack
 
-Status: `[~]` All PRs merged; manual smoke-testing of the exit criteria remains
-
-Land the existing work in dependency order:
-
-```text
-main
-└── #9 hardening
-    └── #10 Storyblok v7
-        └── #11 core patterns
-```
+Status: `[~]` All PRs merged; manual smoke-testing remains
 
 Tasks:
 
@@ -43,19 +58,18 @@ Tasks:
 - [x] Run tests, typecheck, lint, and a production build. The production build is
   covered by the CI job added in Phase 1.
 - [x] Merge PR #11.
+- [ ] Smoke-test rich text, embedded bloks, preview editing, internal links, and
+  email links against a real space.
 
 Exit criteria:
 
-- All three PRs are represented in `main` in the order above.
-- Rich text, embedded bloks, preview editing, internal links, and email links
-  have been smoke-tested.
-- The working baseline passes all available quality checks.
+- All three PRs are represented in `main`.
+- The manual smoke test above has actually been run — everything below assumes
+  this baseline works.
 
 ## Phase 1: Baseline Reliability
 
-Status: `[x]` Implemented in PR #13, `feat/template-ci-foundation`
-
-Deliver as an independent PR before expanding the component catalogue.
+Status: `[~]` Implemented in PR #13, `feat/template-ci-foundation`; awaiting review
 
 Tasks:
 
@@ -74,133 +88,80 @@ Exit criteria:
 - Invalid production configuration fails early with a useful error.
 - CMS outages do not silently appear as content 404s.
 
-## Phase 2: UI Foundation Decision
+---
 
-Status: `[ ]`
+# Track A — Template
 
-Run a focused Base UI versus Radix spike. Base UI is the current preference, but
-default styling is not a deciding factor.
+## Phase A1: Cleanup and Backports
 
-Implement the same small sample with both foundations:
+Status: `[ ]` Blocked on PR #13 merging (overlapping files)
 
-- Tabs
-- Dialog
-- Select or combobox
-- Animated popover
-- A server-rendered page containing client-side interaction
-
-Evaluate:
-
-- Accessibility and keyboard behavior
-- API consistency and composability
-- React Server Component boundaries
-- Styling and animation ergonomics
-- Bundle output
-- Test ergonomics
-- Form integration
-- Portals and Content Security Policy compatibility
-- Upgrade and maintenance model
+Findings from the numbers.ch backport audit and the repo over-engineering audit.
+One PR; all mechanical.
 
 Tasks:
 
-- [ ] Build and measure the Base UI sample.
-- [ ] Build and measure the Radix sample.
-- [ ] Record the decision in `docs/architecture/001-ui-foundation.md`.
-- [ ] Decide whether distribution uses a package, a private shadcn-compatible
-  registry, or both.
+- [ ] Fix per-page `openGraph` silently replacing the root layout's. Next does
+  not deep-merge that key, so `og:site_name`, `og:locale` and `og:type` are
+  missing on every content route. Export the defaults once from `lib/config.ts`
+  and spread into both; correct the now-false OG claim in `CLAUDE.md`.
+- [ ] Delete `lib/storyblok-image.ts` and its test — no callers outside the test.
+- [ ] Drop the unused `clsx` dependency.
+- [ ] Remove the four inert restated ignores in `eslint.config.mjs`
+  (`eslint-config-next` already applies them).
+- [ ] Replace `app/page.tsx` with an optional catch-all (`app/[[...slug]]`),
+  removing the duplicated `revalidate` export.
+- [ ] Shrink `sitemapPaths` to filter/map; collapse the identical `url`/`asset`
+  branches in `getHref`.
 
 Exit criteria:
 
-- The chosen foundation and rejected alternatives are documented with evidence.
-- The expected server/client boundary and dependency policy are explicit.
+- No dead exports, no unused dependencies, no inert configuration.
+- Open Graph defaults actually reach content routes.
 
-## Phase 3: Sankara UI Foundation
+## Phase A2: CMS-Editable Redirects
 
-Status: `[ ]`
+Status: `[!]` Awaiting a decision on the matching strategy
 
-Establish the reusable system before building a large component catalogue.
-The provisional package name is `@sankara/ui`; confirm availability before
-publishing.
+Client requirement: editors change redirects in Storyblok and cannot trigger a
+redeploy. Today `lib/redirects.mjs` feeds `next.config.mjs` at build time only.
 
-Suggested structure:
+Do **not** port the numbers.ch implementation as-is. Its matcher compares
+`source === pathname` (so `:slug*` patterns silently fail), skips any path
+containing a dot (so `/impressum.html` never redirects), drops the query string,
+and derives the redirect origin from the Host header.
 
-```text
-packages/ui/
-├── components/
-├── hooks/
-├── styles/
-├── test/
-├── tokens/
-└── utilities/
-```
+Two candidate designs — pick one before writing code:
+
+1. **Resolve at the 404 boundary.** `getStory` already returns `null` before
+   `notFound()` in the catch-all; look up the redirect list there and `redirect()`.
+   No per-request proxy, no self-fetch, reads go through `lib/storyblok-api.ts`
+   with existing cache tags. Costs nothing on hits. Does not fire for a source
+   path that still resolves to a live story, and covers only paths reaching the
+   catch-all.
+2. **Resolve in `proxy.ts`.** Catches every path including live ones, at the cost
+   of work on every request and a cache-read path that must work outside the
+   normal RSC context.
 
 Tasks:
 
-- [ ] Define semantic color, typography, spacing, radius, border, shadow,
-  motion, breakpoint, focus, and layering tokens.
-- [ ] Define theming and customer-brand override rules.
-- [ ] Document naming, composition, variants, refs, controlled state,
-  `className` escape hatches, and server/client boundaries.
-- [ ] Establish reduced-motion and accessibility acceptance policies.
-- [ ] Add Storybook or an equivalent isolated component workbench.
-- [ ] Add unit, accessibility, and visual-regression test infrastructure.
-- [ ] Establish package and registry release/versioning workflows.
+- [ ] Decide between (1) and (2) and record it under Decisions.
+- [ ] Define the `data/redirects` schema (source, destination, permanent).
+- [ ] Implement, preserving query strings and never trusting the Host header.
+- [ ] Keep developer-authored pattern redirects in `next.config.mjs`; the CMS
+  story is for exact-path retirement.
+- [ ] Test: exact match, no match, query preservation, permanent vs temporary.
 
 Exit criteria:
 
-- Components can be developed and tested independently of Storyblok.
-- A consuming project can override brand tokens without forking component logic.
-- Accessibility and API rules are enforceable, not only documented.
+- An editor can retire a URL and see the redirect live without a deploy.
+- Pattern redirects still work.
 
-## Phase 4: First UI Component Release
+## Phase A3: Storyblok Adapter Layer
 
-Status: `[ ]`
+Status: `[ ]` Joins Track B — needs B3
 
-Build in dependency order:
-
-- [ ] Typography
-- [ ] Container and layout primitives
-- [ ] Button
-- [ ] Icon button
-- [ ] Link
-- [ ] Field, label, help text, and error message
-- [ ] Input and textarea
-- [ ] Checkbox and radio
-- [ ] Tabs
-- [ ] Accordion
-- [ ] Dialog
-- [ ] Select
-
-Each component must include:
-
-- A typed, documented API
-- Keyboard and accessibility coverage
-- Story/workbench examples
-- Visual regression states
-- Loading, disabled, error, and empty states where applicable
-- Responsive verification
-- An explicit server or client component boundary
-
-Exit criteria:
-
-- The first release is usable without Storyblok.
-- Components share consistent composition, styling, focus, and state patterns.
-
-## Phase 5: Storyblok Adapter Layer
-
-Status: `[ ]`
-
-Keep Storyblok integration separate from `@sankara/ui`.
-
-Suggested structure:
-
-```text
-packages/storyblok-ui/
-├── adapters/
-├── mappings/
-├── schemas/
-└── test/
-```
+Keep Storyblok integration separate from `@sankara-ui/core`.
 
 Responsibilities:
 
@@ -214,17 +175,16 @@ Responsibilities:
 Tasks:
 
 - [ ] Add committed schemas and generated types for button, header, footer,
-  navigation links, redirects, and site settings.
-- [ ] Add button, tabs, accordion, form, asset, link, and rich-text adapters.
+  navigation links, and site settings.
+- [ ] Add button, accordion, form, asset, link, and rich-text adapters.
 - [ ] Automate component registry generation from committed schemas.
-- [ ] Add schema/type drift checks to CI.
 
 Exit criteria:
 
 - No reusable UI component imports Storyblok packages or generated CMS types.
 - CMS adapters are typed, editor-safe, and covered by tests.
 
-## Phase 6: Reusable Page Sections
+## Phase A4: Reusable Page Sections
 
 Status: `[ ]`
 
@@ -247,7 +207,7 @@ Exit criteria:
   components rather than introducing local alternatives.
 - Storyblok child restrictions and semantic variants are encoded in schemas.
 
-## Phase 7: Integration Verification
+## Phase A5: Integration Verification
 
 Status: `[ ]`
 
@@ -259,14 +219,15 @@ Tasks:
 - [ ] Exercise draft entry/exit and visual-editor behavior.
 - [ ] Cover metadata, sitemap, robots, redirects, and 404 behavior.
 - [ ] Cover rich-text links and embedded bloks.
-- [ ] Cover webhook revalidation behavior.
+- [ ] Cover webhook revalidation behavior, including the route handler itself —
+  currently only its helpers are tested.
 
 Exit criteria:
 
 - Core authoring and visitor journeys are verified in a real browser.
 - Accessibility and visual regressions are visible in CI.
 
-## Phase 8: Project Bootstrap and Operations
+## Phase A6: Project Bootstrap and Operations
 
 Status: `[ ]`
 
@@ -276,36 +237,145 @@ Tasks:
   localized sitemap behavior.
 - [ ] Add a `yarn setup` initializer for site identity, locale, Storyblok region,
   analytics, consent integration, environment configuration, and starter bloks.
-- [ ] Add a private Sankara component registry if selected in Phase 2.
 - [ ] Add security headers and a CSP compatible with preview and integrations.
 - [ ] Add vendor-neutral logging and error-reporting hooks.
 - [ ] Add release notes, semantic versioning, and template update automation.
+- [ ] Declare `storyblok-js-client` explicitly — three files import it while
+  relying on it staying a transitive dependency of `@storyblok/react`.
 
 Exit criteria:
 
 - A new project can be configured without manual search-and-replace work.
 - Operational and security defaults are production-ready and documented.
 
-## Proposed PR Breakdown
+---
 
-| PR | Scope |
-| --- | --- |
-| A | CI and baseline reliability |
-| B | UI foundation spike and architecture decision |
-| C | `@sankara/ui` infrastructure and tokens |
-| D | Native UI components and form foundations |
-| E | Interactive components using the selected headless foundation |
-| F | Storyblok schemas, generated types, and adapter layer |
-| G | Starter section library |
-| H | Playwright, accessibility, and visual tests |
-| I | Setup CLI, localization, security, and operations |
+# Track B — `@sankara-ui/core`
+
+Runs in its own repository. Nothing here depends on Track A until Phase A3.
+
+## Phase B1: UI Foundation Decision
+
+Status: `[x]` Decided — see `docs/superpowers/specs/2026-07-29-sankara-ui-design.md`
+
+The planned Base UI versus Radix spike was dropped. It was scoped against
+`Expandable`, `CardSlider`, `Gallery` and `Reveal`, and three of those four have
+no counterpart in either library — Base UI's `Slider` is a range input and its
+`ScrollArea` is a custom-scrollbar container, so neither library ships a
+carousel. The spike would have compared them where they do not compete.
+
+(An earlier revision of this document described `Gallery` as an overlay with a
+focus trap. That was wrong: it is a 50-line scroll-snap slider with dot
+pagination, structurally the same component as `CardSlider`.)
+
+Decisions taken:
+
+- [x] Base UI as the headless foundation, used only where a component needs it.
+  No incumbent exists to standardise on — fgpfister.ch runs Radix,
+  fairmed.ch-sb runs Headless UI — so any choice migrates something.
+- [x] Distribution is a versioned package on public npm, not a copy-in registry.
+- [x] Styling ships as Tailwind v4 classes against a documented `@theme` token
+  contract.
+
+## Phase B2: Foundation and Infrastructure
+
+Status: `[ ]`
+
+Establish the system before building a catalogue.
+
+Structure:
+
+```text
+src/
+├── components/
+├── hooks/
+├── styles/     token contract + base layer
+├── test/
+└── utilities/
+```
+
+No separate `tokens/` directory: Tailwind v4's `@theme` is the token system, so
+the contract is CSS, not a build step.
+
+Tasks:
+
+- [ ] Define semantic color, typography, spacing, radius, border, shadow,
+  motion, breakpoint, focus, and layering tokens.
+- [ ] Define theming and customer-brand override rules.
+- [ ] Document naming, composition, variants, refs, controlled state,
+  `className` escape hatches, and server/client boundaries.
+- [ ] Establish reduced-motion and accessibility acceptance policies.
+- [ ] Add Storybook or an equivalent isolated component workbench.
+- [ ] Add unit, accessibility, and visual-regression test infrastructure.
+- [ ] Establish package release and versioning workflows.
+
+Exit criteria:
+
+- Components can be developed and tested independently of Storyblok.
+- A consuming project can override brand tokens without forking component logic.
+- Accessibility and API rules are enforceable, not only documented.
+
+## Phase B3: First Component Release
+
+Status: `[ ]`
+
+The catalogue is derived from five shipped projects — numbers.ch, fgpfister.ch,
+fairmed.ch-sb, nuwa.swiss and brillen-werk.ch — not from a generic design-system
+checklist. An earlier revision derived it from numbers.ch alone and got it
+substantially wrong; see the design spec for the survey.
+
+**Tier 1 — present in every project:**
+
+- [ ] Icon — FontAwesome in four of five; numbers.ch's hand-written
+  `icon-data.ts` is a reimplementation of it. Wrap FontAwesome, don't ship icon
+  data.
+- [ ] Carousel — every project has one. Build-or-wrap is open: three hand-rolled
+  scroll-snap, two use Splide. No headless library ships one.
+
+**Tier 2 — present in two or more:**
+
+- [ ] Disclosure (numbers.ch `Expandable`, fgpfister `ExpandableTableRows` and
+  `ShowMore`), on Base UI Collapsible/Accordion
+- [ ] Field, Input, Textarea, Checkbox, RadioGroup, Select
+- [ ] Dialog, Popover, Menu — the highest-frequency primitives in the survey
+
+**Tier 3 — universal, lower risk:**
+
+- [ ] Typography, Container
+- [ ] Button and Link (shared variant surface)
+- [ ] Pagination, Breadcrumbs, mobile navigation, LanguageSwitcher, ShareBar,
+  VideoPlayer
+
+**Out of the first release:** `Reveal`, `CountUp`, `Glow`, `BgMark`, `Pill`,
+`IconBox`. Each appears only in numbers.ch — that site's visual language, not a
+shared system. Revisit when a second project needs one.
+
+Each component must include:
+
+- A typed, documented API
+- Keyboard and accessibility coverage
+- Story/workbench examples
+- Visual regression states
+- Loading, disabled, error, and empty states where applicable
+- Responsive verification
+- An explicit server or client component boundary
+
+Exit criteria:
+
+- The first release is usable without Storyblok.
+- Components share consistent composition, styling, focus, and state patterns.
+
+---
 
 ## Maintenance Rules
 
 - Update phase and task statuses in this document as work progresses.
+- Record architectural decisions under Decisions, with the rationale.
 - Add links to pull requests and architecture decisions when available.
 - Do not skip dependency phases without recording why.
 - Keep reusable UI APIs independent from Storyblok schemas.
 - Prefer semantic editor options over arbitrary visual controls.
 - Treat accessibility, responsive behavior, and reduced motion as acceptance
   criteria rather than later polish.
+- Before adding a component or phase, check whether a shipped project already
+  needed it. Evidence beats specification.
