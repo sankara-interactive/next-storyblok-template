@@ -69,7 +69,7 @@ Exit criteria:
 
 ## Phase 1: Baseline Reliability
 
-Status: `[~]` Implemented in PR #13, `feat/template-ci-foundation`; awaiting review
+Status: `[x]` Merged in PR #13, `feat/template-ci-foundation`
 
 Tasks:
 
@@ -94,24 +94,24 @@ Exit criteria:
 
 ## Phase A1: Cleanup and Backports
 
-Status: `[ ]` Blocked on PR #13 merging (overlapping files)
+Status: `[x]` Complete
 
 Findings from the numbers.ch backport audit and the repo over-engineering audit.
 One PR; all mechanical.
 
 Tasks:
 
-- [ ] Fix per-page `openGraph` silently replacing the root layout's. Next does
+- [x] Fix per-page `openGraph` silently replacing the root layout's. Next does
   not deep-merge that key, so `og:site_name`, `og:locale` and `og:type` are
   missing on every content route. Export the defaults once from `lib/config.ts`
   and spread into both; correct the now-false OG claim in `CLAUDE.md`.
-- [ ] Delete `lib/storyblok-image.ts` and its test — no callers outside the test.
-- [ ] Drop the unused `clsx` dependency.
-- [ ] Remove the four inert restated ignores in `eslint.config.mjs`
+- [x] Delete `lib/storyblok-image.ts` and its test — no callers outside the test.
+- [x] Drop the unused `clsx` dependency.
+- [x] Remove the four inert restated ignores in `eslint.config.mjs`
   (`eslint-config-next` already applies them).
-- [ ] Replace `app/page.tsx` with an optional catch-all (`app/[[...slug]]`),
+- [x] Replace `app/page.tsx` with an optional catch-all (`app/[[...slug]]`),
   removing the duplicated `revalidate` export.
-- [ ] Shrink `sitemapPaths` to filter/map; collapse the identical `url`/`asset`
+- [x] Shrink `sitemapPaths` to filter/map; collapse the identical `url`/`asset`
   branches in `getHref`.
 
 Exit criteria:

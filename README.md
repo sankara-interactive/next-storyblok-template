@@ -157,7 +157,7 @@ Use these field names consistently across bloks:
 - **PrivacyBee** is a Storyblok **blok** (registry key `privacy_bee`), not a global script. Editors place it on the pages that need the consent widget. It renders the `<privacybee-widget>` custom element via `widget.js`; the `website_id` comes from the blok's own field.
 
 **SEO**
-- Root `metadata` in `app/layout.tsx` sets the title template (`%s · Site`) and OpenGraph defaults; per-page `generateMetadata` in `app/[...slug]/page.tsx` overrides title, description, canonical, and images per story. `JsonLd` (`components/seo/JsonLd.tsx`) emits Organization + WebSite structured data sitewide.
+- Root `metadata` in `app/layout.tsx` sets the title template (`%s · Site`) and OpenGraph defaults (`OG_DEFAULTS` in `lib/config.ts`, spread into every override because Next replaces `openGraph` rather than merging it); per-page `generateMetadata` in `app/[[...slug]]/page.tsx` overrides title, description, canonical, and images per story. `JsonLd` (`components/seo/JsonLd.tsx`) emits Organization + WebSite structured data sitewide.
 
 ## Resources
 
