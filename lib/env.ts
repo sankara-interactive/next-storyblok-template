@@ -26,9 +26,13 @@ export const env = createEnv({
     SITE_NAME: siteNameSchema(isProduction),
     MODE: z.enum(['preview', 'live']).optional(),
     VERCEL_ENV: z.enum(['production', 'preview', 'development']).optional(),
-    STORYBLOK_PREVIEW_TOKEN: nonEmpty.optional(),
-    API_SECRET: nonEmpty.optional(),
-    STORYBLOK_WEBHOOK_SECRET: nonEmpty.optional(),
+    // Required, not optional: preview mode and webhook revalidation are core
+    // template features, and a secret is the one thing that must never have a
+    // default. Missing values fail at boot with a named error rather than when
+    // someone first hits /api/draft or publishes a story.
+    STORYBLOK_PREVIEW_TOKEN: nonEmpty,
+    API_SECRET: nonEmpty,
+    STORYBLOK_WEBHOOK_SECRET: nonEmpty,
     STORYBLOK_SKIP_FETCH: z
       .enum(['true', 'false'])
       .default('false')
@@ -54,12 +58,3 @@ export const env = createEnv({
   },
   emptyStringAsUndefined: true,
 })
-
-/** Assert one of the optional secrets at a call site that actually needs it. */
-export function requireEnv(
-  key: 'API_SECRET' | 'STORYBLOK_PREVIEW_TOKEN' | 'STORYBLOK_WEBHOOK_SECRET'
-): string {
-  const value = env[key]
-  if (!value) throw new Error(`Missing required environment variable: ${key}`)
-  return value
-}

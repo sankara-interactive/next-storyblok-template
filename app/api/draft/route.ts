@@ -1,7 +1,7 @@
 import { draftMode } from 'next/headers'
 import { redirect } from 'next/navigation'
 import StoryblokClient from 'storyblok-js-client'
-import { requireEnv } from '@/lib/env'
+import { env } from '@/lib/env'
 import { isDataRoute } from '@/lib/storyblok-routes'
 
 export async function GET(request: Request) {
@@ -9,12 +9,12 @@ export async function GET(request: Request) {
   const secret = searchParams.get('secret')
   const slug = searchParams.get('slug')
 
-  if (secret !== requireEnv('API_SECRET') || !slug) {
+  if (secret !== env.API_SECRET || !slug) {
     return new Response('Invalid token', { status: 401 })
   }
 
   const storyblok = new StoryblokClient({
-    accessToken: requireEnv('STORYBLOK_PREVIEW_TOKEN'),
+    accessToken: env.STORYBLOK_PREVIEW_TOKEN,
   })
   const { data } = await storyblok.get(`cdn/stories/${slug}`, {
     version: 'draft',

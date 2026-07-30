@@ -1,5 +1,30 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { siteNameSchema, siteUrlSchema } from './env'
+
+describe('required secrets', () => {
+  // t3-env logs the offending variable to console.error before throwing. That is
+  // the behaviour we want in production and noise here, so it is silenced.
+  beforeEach(() => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+    vi.unstubAllEnvs()
+    vi.resetModules()
+  })
+
+  // These are required, not optional, so a misconfigured deploy fails at boot
+  // rather than when someone first hits /api/draft or publishes a story.
+  it.each(['API_SECRET', 'STORYBLOK_PREVIEW_TOKEN', 'STORYBLOK_WEBHOOK_SECRET'])(
+    'refuses to load without %s',
+    async name => {
+      vi.resetModules()
+      vi.stubEnv(name, '')
+      await expect(import('./env')).rejects.toThrow()
+    }
+  )
+})
 
 describe('environment validation', () => {
   it('uses local site defaults outside production', () => {

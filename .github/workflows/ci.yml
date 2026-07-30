@@ -35,6 +35,9 @@ jobs:
       SITE_URL: https://example.com
       SITE_NAME: CI Build
       NEXT_PUBLIC_STORYBLOK_TOKEN: ci-placeholder
+      STORYBLOK_PREVIEW_TOKEN: ci-placeholder
+      API_SECRET: ci-placeholder
+      STORYBLOK_WEBHOOK_SECRET: ci-placeholder
       STORYBLOK_SKIP_FETCH: 'true'
     steps:
       - uses: actions/checkout@v4
