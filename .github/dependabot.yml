@@ -14,6 +14,11 @@ updates:
       # Bump both together.
       - dependency-name: '@types/node'
         update-types: [version-update:semver-major]
+      # eslint-plugin-react (via eslint-config-next) still peers on `^9.7` and calls
+      # context.getFilename(), removed in ESLint 10 — every lint run crashes. Drop this
+      # once eslint-config-next ships a plugin release supporting v10.
+      - dependency-name: 'eslint'
+        versions: ['10.x']
 
   - package-ecosystem: github-actions
     directory: /
