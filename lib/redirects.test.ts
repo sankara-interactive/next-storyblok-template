@@ -27,6 +27,17 @@ describe('toRedirectEntries', () => {
   it('tolerates non-array input', () => {
     expect(toRedirectEntries(undefined)).toEqual([])
   })
+
+  // A blank source normalizes to '/' and would claim the homepage; a blank
+  // destination would redirect onto the current URL.
+  it('drops entries whose fields are blank or whitespace', () => {
+    expect(
+      toRedirectEntries([
+        { source: '   ', destination: '/neu' },
+        { source: '/alt', destination: '  ' },
+      ])
+    ).toEqual([])
+  })
 })
 
 describe('findRedirect', () => {
@@ -67,6 +78,16 @@ describe('withQuery', () => {
 
   it('leaves the destination alone without a query', () => {
     expect(withQuery('/neu', '')).toBe('/neu')
+  })
+
+  it('inserts the query before a fragment', () => {
+    expect(withQuery('/neu#details', 'utm_source=mail')).toBe('/neu?utm_source=mail#details')
+  })
+
+  it('inserts the query before a fragment when the destination has its own', () => {
+    expect(withQuery('/neu?ref=alt#details', 'utm_source=mail')).toBe(
+      '/neu?ref=alt&utm_source=mail#details'
+    )
   })
 })
 
