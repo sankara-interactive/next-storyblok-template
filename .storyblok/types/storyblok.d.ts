@@ -5,24 +5,24 @@ import type { ISbStoryData } from '@storyblok/js';
 type StoryblokPropertyType = 'asset' | 'multiasset' | 'multilink' | 'table' | 'richtext';
 interface StoryblokAsset {
     alt: string | null;
-    copyright: string | null;
     fieldtype: 'asset';
     id: number;
     filename: string | null;
     name: string;
     title: string | null;
     focus: string | null;
-    meta_data: Record<string, any>;
-    source: string | null;
-    is_external_url: boolean;
-    is_private: boolean;
-    src: string;
-    updated_at: string;
-    width: number | null;
-    height: number | null;
-    aspect_ratio: number | null;
-    public_id: string | null;
-    content_type: string;
+    copyright?: string | null;
+    meta_data?: Record<string, any>;
+    source?: string | null;
+    is_external_url?: boolean;
+    is_private?: boolean;
+    src?: string;
+    updated_at?: string;
+    width?: number | null;
+    height?: number | null;
+    aspect_ratio?: number | null;
+    public_id?: string | null;
+    content_type?: string;
 }
 interface StoryblokMultiasset extends Array<StoryblokAsset> {
 }
@@ -71,7 +71,7 @@ interface StoryblokMultilinkUrl {
     url: string;
     full_slug: string;
 }
-interface StoryblokMultilink {
+interface StoryblokMultilinkBase {
     fieldtype: 'multilink';
     id: string;
     url: string;
@@ -81,10 +81,18 @@ interface StoryblokMultilink {
     rel?: string;
     title?: string;
     prep?: string;
-    linktype: 'story' | 'url' | 'email' | 'asset';
-    story?: StoryblokMultilinkStory | StoryblokMultilinkLink | StoryblokMultilinkUrl;
-    email?: string;
 }
+type StoryblokMultilink = (StoryblokMultilinkBase & {
+    linktype: 'story';
+    story?: StoryblokMultilinkStory | StoryblokMultilinkLink | StoryblokMultilinkUrl;
+}) | (StoryblokMultilinkBase & {
+    linktype: 'url';
+}) | (StoryblokMultilinkBase & {
+    linktype: 'email';
+    email: string;
+}) | (StoryblokMultilinkBase & {
+    linktype: 'asset';
+});
 interface StoryblokTable {
     fieldtype: 'table';
     thead: Array<{

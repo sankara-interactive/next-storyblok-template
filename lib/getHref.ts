@@ -16,7 +16,8 @@ export function getHref(link: StoryblokMultilink): string {
     case 'email':
       return `mailto:${link.email}`
     default:
-      console.warn(`Unknown link type: ${link.linktype}`)
+      // The union is exhaustive, but linktype comes from the CMS unvalidated.
+      console.warn(`Unknown link type: ${(link as StoryblokMultilink).linktype}`)
       return ''
   }
 }
