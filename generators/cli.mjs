@@ -39,6 +39,10 @@ function resolveSchemaPath() {
 
 const schema = JSON.parse(fs.readFileSync(resolveSchemaPath(), 'utf8'))
 
+// Unrestricted assets render as images; only explicit `videos` gets <video>.
+// Shared so the markup and the <Image> import can't disagree.
+const isImageAsset = field => field.type === 'asset' && !field.filetypes?.includes('videos')
+
 const generateContent = componentSchema => {
   const fields = Object.entries(componentSchema.schema).map(([key, value]) => ({
     name: key,
@@ -60,14 +64,13 @@ const generateContent = componentSchema => {
             </div>
           )}`
         case 'asset':
-          if (field.filetypes?.includes('videos')) {
+          if (!isImageAsset(field)) {
             return `{${f}?.filename && (
             <video controls>
               <source src={${f}.filename} type="video/mp4" />
             </video>
           )}`
           }
-          // ponytail: unrestricted assets render as images, adjust by hand if not
           return `{${f}?.filename && (
             <div className="relative aspect-square">
               <Image src={${f}.filename} alt={${f}.alt ?? ''} fill className="object-cover" />
@@ -93,10 +96,7 @@ const generateContent = componentSchema => {
 schema.forEach(componentSchema => {
   const componentName = toPascalCase(componentSchema.name)
   const fieldTypes = new Set(Object.values(componentSchema.schema).map(f => f.type))
-  // Must mirror the asset branch above, or <Image> is emitted without its import.
-  const hasImage = [...Object.values(componentSchema.schema)].some(
-    f => f.type === 'asset' && !f.filetypes?.includes('videos')
-  )
+  const hasImage = Object.values(componentSchema.schema).some(isImageAsset)
 
   const filePath = path.join(
     repoRoot,

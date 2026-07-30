@@ -3,28 +3,16 @@ import { z } from 'zod'
 
 const nonEmpty = z.string().trim().min(1)
 
+/** Mandatory in production, defaulted outside it. */
+export const devDefault = (isProduction: boolean, fallback: string) =>
+  isProduction ? nonEmpty : nonEmpty.default(fallback)
+
 export const siteUrlSchema = (isProduction: boolean) =>
-  z.preprocess(
-    input => input || (isProduction ? input : 'http://localhost:3000'),
-    z
-      .url()
-      .refine(input => !isProduction || new URL(input).protocol === 'https:', {
-        message: 'SITE_URL must use HTTPS in production',
-      })
-      .transform(input => new URL(input).origin)
-  )
-
-export const siteNameSchema = (isProduction: boolean) =>
-  z.preprocess(input => input || (isProduction ? input : 'Site'), nonEmpty)
-
-/**
- * The webhook signing secret is the one value you cannot know before deploying —
- * Storyblok needs a reachable URL first, and initial work happens locally. So it
- * defaults outside production and stays mandatory in it: a known default HMAC
- * secret on a real host would let anyone forge a revalidation webhook.
- */
-export const webhookSecretSchema = (isProduction: boolean) =>
-  z.preprocess(input => input || (isProduction ? input : 'local-dev-unsigned'), nonEmpty)
+  (isProduction ? z.url() : z.url().default('http://localhost:3000'))
+    .refine(input => !isProduction || new URL(input).protocol === 'https:', {
+      message: 'SITE_URL must use HTTPS in production',
+    })
+    .transform(input => new URL(input).origin)
 
 const isProduction = process.env.NODE_ENV === 'production'
 
@@ -32,19 +20,16 @@ export const env = createEnv({
   server: {
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
     SITE_URL: siteUrlSchema(isProduction),
-    SITE_NAME: siteNameSchema(isProduction),
+    SITE_NAME: devDefault(isProduction, 'Site'),
     MODE: z.enum(['preview', 'live']).optional(),
     VERCEL_ENV: z.enum(['production', 'preview', 'development']).optional(),
-    // Required, not optional. Both are needed for local work — the visual editor
-    // points at localhost and local dev always reads drafts — so a missing one
-    // fails at boot naming itself rather than when someone hits /api/draft.
+    // Needed for local work: the editor points at localhost, dev reads drafts.
     STORYBLOK_PREVIEW_TOKEN: nonEmpty,
     API_SECRET: nonEmpty,
-    STORYBLOK_WEBHOOK_SECRET: webhookSecretSchema(isProduction),
-    STORYBLOK_SKIP_FETCH: z
-      .enum(['true', 'false'])
-      .default('false')
-      .transform(input => input === 'true'),
+    // Unknowable before deploying, but a known HMAC secret on a real host lets
+    // anyone forge a revalidation webhook.
+    STORYBLOK_WEBHOOK_SECRET: devDefault(isProduction, 'local-dev-unsigned'),
+    STORYBLOK_SKIP_FETCH: z.stringbool({ truthy: ['true'], falsy: ['false'] }).default(false),
   },
   client: {
     NEXT_PUBLIC_STORYBLOK_TOKEN: nonEmpty,

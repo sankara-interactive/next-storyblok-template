@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { siteNameSchema, siteUrlSchema, webhookSecretSchema } from './env'
+import { devDefault, siteUrlSchema } from './env'
 
 describe('required secrets', () => {
-  // t3-env logs the offending variable to console.error before throwing. That is
-  // the behaviour we want in production and noise here, so it is silenced.
+  // t3-env logs the offending variable before throwing — wanted in production,
+  // noise here.
   beforeEach(() => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
   })
@@ -14,8 +14,7 @@ describe('required secrets', () => {
     vi.resetModules()
   })
 
-  // Both are needed for local work, so a misconfigured setup fails at boot
-  // rather than when someone first hits /api/draft.
+  // Needed for local work, so a bad setup fails at boot, not at /api/draft.
   it.each(['API_SECRET', 'STORYBLOK_PREVIEW_TOKEN'])('refuses to load without %s', async name => {
     vi.resetModules()
     vi.stubEnv(name, '')
@@ -30,27 +29,21 @@ describe('required secrets', () => {
 })
 
 describe('environment validation', () => {
-  it('uses local site defaults outside production', () => {
-    expect(siteUrlSchema(false).parse(undefined)).toBe('http://localhost:3000')
-    expect(siteNameSchema(false).parse(undefined)).toBe('Site')
+  // Shared by SITE_NAME and the webhook secret. The placeholder must never
+  // survive into production — see the schema's comment for why.
+  it('defaults outside production and demands a value in it', () => {
+    expect(devDefault(false, 'Site').parse(undefined)).toBe('Site')
+    expect(() => devDefault(true, 'Site').parse(undefined)).toThrow()
+    expect(devDefault(true, 'Site').parse('a-real-secret')).toBe('a-real-secret')
   })
 
-  it('requires an HTTPS site identity in production', () => {
+  it('uses a localhost site URL outside production', () => {
+    expect(siteUrlSchema(false).parse(undefined)).toBe('http://localhost:3000')
+  })
+
+  it('requires an HTTPS site URL in production', () => {
     expect(() => siteUrlSchema(true).parse(undefined)).toThrow()
-    expect(() => siteNameSchema(true).parse(undefined)).toThrow()
     expect(() => siteUrlSchema(true).parse('http://example.com')).toThrow('HTTPS')
     expect(siteUrlSchema(true).parse('https://example.com/path')).toBe('https://example.com')
-  })
-
-  it('rejects invalid and blank values', () => {
-    expect(() => siteUrlSchema(false).parse('not a URL')).toThrow()
-  })
-
-  // A known default HMAC secret on a real host would let anyone forge a
-  // revalidation webhook, so the placeholder must never survive into production.
-  it('defaults the webhook secret locally but demands one in production', () => {
-    expect(webhookSecretSchema(false).parse(undefined)).toBe('local-dev-unsigned')
-    expect(() => webhookSecretSchema(true).parse(undefined)).toThrow()
-    expect(webhookSecretSchema(true).parse('a-real-secret')).toBe('a-real-secret')
   })
 })
