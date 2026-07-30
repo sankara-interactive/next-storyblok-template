@@ -97,6 +97,7 @@ cd sankara-ui
     "@fortawesome/fontawesome-svg-core": "^7.3.1",
     "@fortawesome/free-solid-svg-icons": "^7.3.1",
     "@fortawesome/react-fontawesome": "^3.5.0",
+    "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
@@ -439,9 +440,17 @@ git commit -m "feat: add the @theme token contract with neutral defaults"
 
 **Interfaces:**
 - Consumes: `cn` from Task 1.
-- Produces: `Icon({ icon, size, className, title }: IconProps)` where `IconProps = { icon: IconProp; size?: number; className?: string; title?: string }`. `IconProp` is re-exported from `@fortawesome/fontawesome-svg-core`.
+- Produces: `Icon({ icon, size, className, label }: IconProps)` where `IconProps = { icon: IconProp; size?: number; className?: string; label?: string }`. `IconProp` comes from `@fortawesome/fontawesome-svg-core`.
 
 This is a **server component** — no `'use client'`. It renders no interactivity.
+
+The accessible name is `label`, rendered as `aria-label` plus `role="img"` — **not**
+FontAwesome's `title` prop. FontAwesome 7 deprecated `title`/`titleId`
+(`react-fontawesome/dist/index.d.ts:365`: "Instead of using a `title` prop, use the
+`aria-label` attribute instead") and it no longer reaches the DOM, so
+`getByTitle` can never match. `aria-label` is a plain SVG attribute and works
+across the whole `^6.7.0 || ^7.0.0` peer range, which matters because the
+surveyed consumers straddle both majors.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -459,12 +468,12 @@ describe('Icon', () => {
     expect(container.querySelector('svg')).toBeInTheDocument()
   })
 
-  it('exposes an accessible name when given a title', () => {
-    render(<Icon icon={faChevronDown} title="Mehr anzeigen" />)
-    expect(screen.getByTitle('Mehr anzeigen')).toBeInTheDocument()
+  it('exposes an accessible name when given a label', () => {
+    render(<Icon icon={faChevronDown} label="Mehr anzeigen" />)
+    expect(screen.getByRole('img', { name: 'Mehr anzeigen' })).toBeInTheDocument()
   })
 
-  it('is hidden from assistive tech when it has no title', () => {
+  it('is hidden from assistive tech when it has no label', () => {
     const { container } = render(<Icon icon={faChevronDown} />)
     expect(container.querySelector('svg')).toHaveAttribute('aria-hidden', 'true')
   })
@@ -501,16 +510,17 @@ export type IconProps = {
   /** Explicit pixel size. Omit to inherit the surrounding font size. */
   size?: number
   /** Accessible name. Omit for purely decorative icons. */
-  title?: string
+  label?: string
   className?: string
 }
 
-export function Icon({ icon, size, title, className }: IconProps) {
+export function Icon({ icon, size, label, className }: IconProps) {
   return (
     <FontAwesomeIcon
       icon={icon}
-      title={title}
-      aria-hidden={title ? undefined : true}
+      role={label ? 'img' : undefined}
+      aria-label={label}
+      aria-hidden={label ? undefined : true}
       style={size ? { width: size, height: size } : undefined}
       className={cn('inline-block shrink-0', className)}
     />
@@ -1078,10 +1088,12 @@ icon set, so it works with the free packages, Pro, or a Kit:
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { Icon } from '@sankara/ui'
 
-<Icon icon={faChevronDown} size={22} title="Mehr anzeigen" />
+<Icon icon={faChevronDown} size={22} label="Mehr anzeigen" />
 ```
 
-Omit `title` for decorative icons; they are then hidden from assistive tech.
+Omit `label` for decorative icons; they are then hidden from assistive tech.
+`label` becomes `aria-label` plus `role="img"` — FontAwesome 7 deprecated its own
+`title` prop in favour of exactly this.
 
 ## Carousel
 
