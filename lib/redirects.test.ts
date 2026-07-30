@@ -1,21 +1,81 @@
 import { describe, expect, it } from 'vitest'
-import { toNextRedirects } from './redirects.mjs'
+import { findRedirect, queryString, toRedirectEntries, withQuery } from './redirects'
 
-describe('toNextRedirects', () => {
+describe('toRedirectEntries', () => {
   it('maps valid entries and defaults to permanent', () => {
-    const out = toNextRedirects([
-      { source: '/alt', destination: '/neu' },
-      { source: '/tmp', destination: '/ziel', permanent: false },
-    ])
-    expect(out).toEqual([
+    expect(
+      toRedirectEntries([
+        { source: '/alt', destination: '/neu' },
+        { source: '/tmp', destination: '/ziel', permanent: false },
+      ])
+    ).toEqual([
       { source: '/alt', destination: '/neu', permanent: true },
       { source: '/tmp', destination: '/ziel', permanent: false },
     ])
   })
-  it('drops entries missing source or destination', () => {
-    expect(toNextRedirects([{ source: '/x' }, { destination: '/y' }, {}])).toEqual([])
+
+  it('normalizes a missing leading slash and a trailing one', () => {
+    expect(toRedirectEntries([{ source: 'alt/pfad/', destination: '/neu' }])[0].source).toBe(
+      '/alt/pfad'
+    )
   })
+
+  it('drops entries missing source or destination', () => {
+    expect(toRedirectEntries([{ source: '/x' }, { destination: '/y' }, {}])).toEqual([])
+  })
+
   it('tolerates non-array input', () => {
-    expect(toNextRedirects(undefined)).toEqual([])
+    expect(toRedirectEntries(undefined)).toEqual([])
+  })
+})
+
+describe('findRedirect', () => {
+  const entries = toRedirectEntries([
+    { source: '/alt', destination: '/neu' },
+    { source: '/impressum.html', destination: '/impressum', permanent: false },
+  ])
+
+  it('matches an exact path', () => {
+    expect(findRedirect(entries, '/alt')?.destination).toBe('/neu')
+  })
+
+  it('matches a path containing a dot', () => {
+    expect(findRedirect(entries, '/impressum.html')?.permanent).toBe(false)
+  })
+
+  it('ignores a trailing slash on the request', () => {
+    expect(findRedirect(entries, '/alt/')?.destination).toBe('/neu')
+  })
+
+  it('returns null when nothing matches', () => {
+    expect(findRedirect(entries, '/nichts')).toBeNull()
+  })
+
+  it('does not match on a prefix', () => {
+    expect(findRedirect(entries, '/alt/tiefer')).toBeNull()
+  })
+})
+
+describe('withQuery', () => {
+  it('carries the incoming query onto the destination', () => {
+    expect(withQuery('/neu', 'utm_source=mail')).toBe('/neu?utm_source=mail')
+  })
+
+  it('appends when the destination has its own query', () => {
+    expect(withQuery('/neu?ref=alt', 'utm_source=mail')).toBe('/neu?ref=alt&utm_source=mail')
+  })
+
+  it('leaves the destination alone without a query', () => {
+    expect(withQuery('/neu', '')).toBe('/neu')
+  })
+})
+
+describe('queryString', () => {
+  it('serializes scalars, repeats arrays, and skips undefined', () => {
+    expect(queryString({ a: '1', b: ['x', 'y'], c: undefined })).toBe('a=1&b=x&b=y')
+  })
+
+  it('encodes reserved characters', () => {
+    expect(queryString({ q: 'a b&c' })).toBe('q=a+b%26c')
   })
 })

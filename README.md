@@ -119,6 +119,34 @@ busts only that story's tag, while a `data/` global, a structural change
 (move/delete/unpublish), or a missing slug flushes the whole `storyblok` tag
 (which also covers nav, sitemap, and links).
 
+### 9. Editor-managed redirects
+
+Editors retire an old URL by adding an entry to the `data/redirects` story — no
+deploy needed. Create a nestable `redirect` blok with three fields and a
+`redirects` content type holding them in a `entries` bloks field:
+
+| Field         | Type    | Notes                                                     |
+| ------------- | ------- | --------------------------------------------------------- |
+| `source`      | text    | Old path, e.g. `/impressum.html`. Exact match.             |
+| `destination` | text    | Path (`/impressum`) or absolute URL.                       |
+| `permanent`   | boolean | Unset/true → 308. False → 307.                             |
+
+Resolution happens at the 404 boundary in `app/[[...slug]]/page.tsx`: when a
+story is missing, `lib/redirects.ts` looks the path up and redirects. Live pages
+never pay for the lookup, and the list rides the normal cache tags — publishing
+`data/redirects` flushes the global `storyblok` tag like any other `data/` global.
+
+Two consequences worth knowing:
+
+- **The source must actually be gone.** A path that still resolves to a published
+  story renders that story; the redirect never fires. Unpublish or delete first,
+  then add the entry.
+- **Query strings are preserved.** `/alt?utm_source=mail` → `/neu?utm_source=mail`.
+  A destination carrying its own query keeps it and the incoming one is appended.
+
+Pattern redirects (`/blog/:slug*`) are developer territory — add a standard Next
+`redirects()` to `next.config.mjs`. The CMS story is for exact-path retirement.
+
 ## Conventions
 
 These rules keep the codebase predictable across components and contributors.

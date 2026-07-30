@@ -20,6 +20,11 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   exports none, and one isn't needed (all bloks are server components).
 - **Globals** live under `data/` and are non-routable (rejected by the page
   loader and excluded from sitemap/static params).
+- **Redirects**: editor-owned exact-path retirement lives in `data/redirects` and
+  resolves at the 404 boundary (`lib/redirects.ts`, called from the catch-all when
+  `getStory` returns `null`), so live pages never pay for the lookup. A source
+  path that still resolves to a published story never redirects. Pattern
+  redirects stay in `next.config.mjs`.
 - **Links**: resolve Storyblok link fields with `getHref` / `<SbLink>`
   (`lib/getHref.ts`, `components/helpers/SbLink.tsx`) — never hand-build hrefs.
 - **MODE** (`preview`|`live`) gates draft content and `noindex`. Derived from
