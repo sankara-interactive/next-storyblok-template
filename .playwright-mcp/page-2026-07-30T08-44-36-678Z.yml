@@ -1,0 +1,12 @@
+- group "Referenzen" [ref=f2e3]:
+  - generic [ref=f2e4]:
+    - group "1 von 3" [ref=f2e5]:
+      - generic [ref=f2e6]: Slide 1
+    - group "2 von 3" [ref=f2e7]:
+      - generic [ref=f2e8]: Slide 2
+    - group "3 von 3" [ref=f2e9]:
+      - generic [ref=f2e10]: Slide 3
+  - generic [ref=f2e11]:
+    - button "Slide 1"
+    - button "Slide 2"
+    - button "Slide 3"

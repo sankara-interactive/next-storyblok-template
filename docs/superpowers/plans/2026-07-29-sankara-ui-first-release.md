@@ -917,6 +917,20 @@ export default config
 
 This mirrors exactly what a consumer writes, so a missing `@source` shows up in the workbench rather than in a client project.
 
+`postcss.config.mjs` is also required — without it the Vite builder never invokes
+the Tailwind engine and every story renders completely unstyled:
+
+```js
+export default {
+  plugins: {
+    '@tailwindcss/postcss': {},
+  },
+}
+```
+
+Add `@tailwindcss/postcss` as a devDependency. This is workbench-only tooling and
+does not touch the package build, which stays `tsc` plus the directive guard.
+
 `.storybook/preview.ts`:
 
 ```ts

@@ -1,0 +1,107 @@
+- generic [active] [ref=f9e1]:
+  - generic [ref=f9e2]:
+    - log
+    - log
+  - generic [ref=f9e4]:
+    - generic [ref=f9e5]:
+      - banner [ref=f9e7]:
+        - heading "Storybook" [level=1] [ref=f9e8]
+        - generic [ref=f9e12]:
+          - generic [ref=f9e13]:
+            - generic [ref=f9e14]:
+              - link "Skip to content" [ref=f9e15] [cursor=pointer]:
+                - /url: "#storybook-preview-wrapper"
+              - link "Storybook" [ref=f9e17] [cursor=pointer]:
+                - /url: ./
+                - img "Storybook" [ref=f9e18]
+              - switch "Settings" [ref=f9e23] [cursor=pointer]
+            - generic [ref=f9e29]:
+              - generic [ref=f9e31] [cursor=pointer]:
+                - button "Open onboarding guide" [ref=f9e35]:
+                  - strong [ref=f9e39]: Get started
+                - generic [ref=f9e40]:
+                  - button "Collapse onboarding guide" [expanded] [ref=f9e41]
+                  - button "0% completed" [ref=f9e44]:
+                    - generic [ref=f9e50]: 0%
+              - list [ref=f9e53]:
+                - listitem [ref=f9e54]:
+                  - button "Open onboarding guide for Set up with AI" [ref=f9e55] [cursor=pointer]:
+                    - generic [ref=f9e60]: Set up with AI
+                  - button "Copy prompt"
+                - listitem [ref=f9e62]:
+                  - button "Open onboarding guide for Change a story with Controls" [ref=f9e63] [cursor=pointer]:
+                    - generic [ref=f9e67]: Change a story with Controls
+                - listitem [ref=f9e69]:
+                  - button "Open onboarding guide for Publish your Storybook for feedback" [ref=f9e70] [cursor=pointer]:
+                    - generic [ref=f9e74]: Publish your Storybook for feedback
+          - generic [ref=f9e76]: Search for components
+          - search [ref=f9e77]:
+            - combobox [ref=f9e78]:
+              - searchbox "Search for components" [ref=f9e79]
+              - code:
+                - generic: ⌘
+                - text: K
+              - button "Tag filters" [ref=f9e81] [cursor=pointer]
+            - button "Create a new story" [ref=f9e84] [cursor=pointer]
+          - navigation [ref=f9e88]:
+            - heading "Stories" [level=2] [ref=f9e89]
+            - generic [ref=f9e91]:
+              - generic [ref=f9e92]:
+                - button [ref=f9e93] [cursor=pointer]
+                - 'button "Change status: New" [ref=f9e100] [cursor=pointer]'
+              - generic [ref=f9e103]:
+                - button [expanded] [ref=f9e104] [cursor=pointer]
+                - 'button "Change status: New" [ref=f9e111] [cursor=pointer]'
+              - generic [ref=f9e114]:
+                - link [ref=f9e115] [cursor=pointer]:
+                  - /url: /?path=/story/icon--decorative
+                - link "Skip to content" [ref=f9e119] [cursor=pointer]:
+                  - /url: "#storybook-preview-wrapper"
+                - 'button "Change status: New" [ref=f9e120] [cursor=pointer]'
+              - generic [ref=f9e123]:
+                - link [ref=f9e124] [cursor=pointer]:
+                  - /url: /?path=/story/icon--labelled
+                - 'button "Change status: New" [ref=f9e128] [cursor=pointer]'
+      - separator "Sidebar resize handle" [ref=f9e131]
+    - generic [ref=f9e133]:
+      - region [ref=f9e134]:
+        - heading "Toolbar" [level=2] [ref=f9e135]
+        - toolbar [ref=f9e136]:
+          - generic [ref=f9e137]:
+            - button "Reload story" [ref=f9e138] [cursor=pointer]
+            - switch "Measure tool" [ref=f9e141] [cursor=pointer]
+            - switch "Outline tool" [ref=f9e145] [cursor=pointer]
+            - button "Viewport size" [ref=f9e148] [cursor=pointer]
+            - button "Vision filter" [ref=f9e153] [cursor=pointer]
+          - generic [ref=f9e158]:
+            - button "Open in isolation mode" [ref=f9e159] [cursor=pointer]
+            - switch "Change zoom level" [ref=f9e165] [cursor=pointer]: 100%
+            - button "Enter full screen" [ref=f9e166] [cursor=pointer]
+            - button "Open in editor" [ref=f9e169] [cursor=pointer]
+      - main [ref=f9e173]:
+        - heading "Main preview area" [level=2] [ref=f9e174]
+        - generic [ref=f9e175]:
+          - progressbar "Content is loading..." [ref=f9e177]
+          - generic [ref=f9e178]:
+            - link "Skip to sidebar" [ref=f9e179] [cursor=pointer]:
+              - /url: "#icon--decorative"
+            - iframe [ref=f9e183]:
+              
+    - generic [ref=f9e184]:
+      - separator "Addon panel resize handle" [ref=f9e185]
+      - region [ref=f9e187]:
+        - heading "Addon panel" [level=2] [ref=f9e188]
+        - generic [ref=f9e189]:
+          - generic [ref=f9e190]:
+            - generic [ref=f9e191]:
+              - button "Move addon panel to right" [ref=f9e192] [cursor=pointer]
+              - button "Hide addon panel" [ref=f9e196] [cursor=pointer]
+            - tablist "Available addons" [ref=f9e202]:
+              - tab "Controls" [ref=f9e203] [cursor=pointer]
+              - tab "Actions" [ref=f9e206] [cursor=pointer]
+              - tab "Interactions" [ref=f9e209] [cursor=pointer]
+              - tab "Accessibility" [selected] [ref=f9e212] [cursor=pointer]
+          - tabpanel "Accessibility" [ref=f9e215]:
+            - generic [ref=f9e217]:
+              - strong [ref=f9e220]: Preparing accessibility scan
+              - paragraph [ref=f9e221]: Please wait while the addon is initializing...

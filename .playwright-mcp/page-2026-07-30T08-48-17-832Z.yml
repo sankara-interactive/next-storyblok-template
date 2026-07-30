@@ -1,0 +1,155 @@
+- generic [active] [ref=f5e1]:
+  - generic [ref=f5e2]:
+    - log
+    - log
+  - generic [ref=f5e4]:
+    - generic [ref=f5e5]:
+      - banner [ref=f5e7]:
+        - heading "Storybook" [level=1] [ref=f5e8]
+        - generic [ref=f5e11]:
+          - generic [ref=f5e12]:
+            - generic [ref=f5e13]:
+              - generic [ref=f5e14]:
+                - link "Skip to content" [ref=f5e15] [cursor=pointer]:
+                  - /url: "#storybook-preview-wrapper"
+                - link "Storybook" [ref=f5e17] [cursor=pointer]:
+                  - /url: ./
+                  - img "Storybook" [ref=f5e18]
+                - switch "Settings" [ref=f5e23] [cursor=pointer]
+              - generic [ref=f5e145]:
+                - generic [ref=f5e147] [cursor=pointer]:
+                  - button "Open onboarding guide" [ref=f5e151]:
+                    - strong [ref=f5e155]: Get started
+                  - generic [ref=f5e156]:
+                    - button "Collapse onboarding guide" [expanded] [ref=f5e157]
+                    - button "0% completed" [ref=f5e160]:
+                      - generic [ref=f5e166]: 0%
+                - list [ref=f5e169]:
+                  - listitem [ref=f5e170]:
+                    - button "Open onboarding guide for Set up with AI" [ref=f5e171] [cursor=pointer]:
+                      - generic [ref=f5e176]: Set up with AI
+                    - button "Copy prompt"
+                  - listitem [ref=f5e178]:
+                    - button "Open onboarding guide for Change a story with Controls" [ref=f5e179] [cursor=pointer]:
+                      - generic [ref=f5e183]: Change a story with Controls
+                  - listitem [ref=f5e185]:
+                    - button "Open onboarding guide for Publish your Storybook for feedback" [ref=f5e186] [cursor=pointer]:
+                      - generic [ref=f5e190]: Publish your Storybook for feedback
+            - generic [ref=f5e27]: Search for components
+            - search [ref=f5e28]:
+              - combobox [ref=f5e29]:
+                - searchbox "Search for components" [ref=f5e30]
+                - code:
+                  - generic: ⌘
+                  - text: K
+                - button "Tag filters" [ref=f5e193] [cursor=pointer]
+              - button "Create a new story" [ref=f5e31] [cursor=pointer]
+            - navigation [ref=f5e35]:
+              - heading "Stories" [level=2] [ref=f5e36]
+              - generic [ref=f5e196]:
+                - generic [ref=f5e197]:
+                  - button [expanded] [ref=f5e198] [cursor=pointer]
+                  - 'button "Change status: New" [ref=f5e205] [cursor=pointer]'
+                - generic [ref=f5e208]:
+                  - link [ref=f5e209] [cursor=pointer]:
+                    - /url: /?path=/story/carousel--single
+                  - link "Skip to content" [ref=f5e213] [cursor=pointer]:
+                    - /url: "#storybook-preview-wrapper"
+                  - 'button "Change status: New" [ref=f5e214] [cursor=pointer]'
+                - generic [ref=f5e217]:
+                  - link [ref=f5e218] [cursor=pointer]:
+                    - /url: /?path=/story/carousel--peeking
+                  - 'button "Change status: New" [ref=f5e222] [cursor=pointer]'
+                - generic [ref=f5e225]:
+                  - button [ref=f5e226] [cursor=pointer]
+                  - 'button "Change status: New" [ref=f5e233] [cursor=pointer]'
+          - link "Storybook 10.4 Learn what's new in Storybook Dismiss notification" [ref=f5e238] [cursor=pointer]:
+            - /url: /?path=/settings/whats-new
+            - generic [ref=f5e242]:
+              - generic "Storybook 10.4" [ref=f5e243]
+              - generic [ref=f5e244]: Learn what's new in Storybook
+            - button "Dismiss notification" [ref=f5e245]
+      - separator "Sidebar resize handle" [ref=f5e56]
+    - generic [ref=f5e58]:
+      - region [ref=f5e59]:
+        - heading "Toolbar" [level=2] [ref=f5e60]
+        - toolbar [ref=f5e61]:
+          - generic [ref=f5e62]:
+            - button "Reload story" [ref=f5e63] [cursor=pointer]
+            - switch "Grid visibility" [ref=f5e248] [cursor=pointer]
+            - button "Preview background" [ref=f5e251] [cursor=pointer]
+            - switch "Measure tool" [ref=f5e66] [cursor=pointer]
+            - switch "Outline tool" [ref=f5e70] [cursor=pointer]
+            - button "Viewport size" [ref=f5e73] [cursor=pointer]
+            - button "Vision filter" [ref=f5e78] [cursor=pointer]
+          - generic [ref=f5e83]:
+            - button "Open in isolation mode" [ref=f5e84] [cursor=pointer]
+            - switch "Change zoom level" [ref=f5e90] [cursor=pointer]: 100%
+            - button "Enter full screen" [ref=f5e91] [cursor=pointer]
+            - button "Open in editor" [ref=f5e255] [cursor=pointer]
+      - main [ref=f5e94]:
+        - heading "Main preview area" [level=2] [ref=f5e95]
+        - generic [ref=f5e99]:
+          - link "Skip to sidebar" [ref=f5e100] [cursor=pointer]:
+            - /url: "#carousel--single"
+          - iframe [ref=f5e104]:
+            - group "Referenzen" [ref=f6e3]:
+              - generic [ref=f6e4]:
+                - group "1 von 3" [ref=f6e5]:
+                  - generic [ref=f6e6]: Slide 1
+                - group "2 von 3" [ref=f6e7]:
+                  - generic [ref=f6e8]: Slide 2
+                - group "3 von 3" [ref=f6e9]:
+                  - generic [ref=f6e10]: Slide 3
+              - generic [ref=f6e11]:
+                - button "Slide 1" [ref=f6e12]
+                - button "Slide 2" [ref=f6e13]
+                - button "Slide 3" [ref=f6e14]
+    - generic [ref=f5e105]:
+      - separator "Addon panel resize handle" [ref=f5e106]
+      - region [ref=f5e108]:
+        - heading "Addon panel" [level=2] [ref=f5e109]
+        - generic [ref=f5e110]:
+          - generic [ref=f5e111]:
+            - generic [ref=f5e112]:
+              - button "Move addon panel to right" [ref=f5e113] [cursor=pointer]
+              - button "Hide addon panel" [ref=f5e117] [cursor=pointer]
+            - tablist "Available addons" [ref=f5e123]:
+              - tab "Controls 5" [ref=f5e259] [cursor=pointer]:
+                - generic [ref=f5e125]:
+                  - generic [ref=f5e126]: Controls
+                  - generic [ref=f5e260]: "5"
+              - tab "Actions" [ref=f5e127] [cursor=pointer]
+              - tab "Interactions" [ref=f5e130] [cursor=pointer]
+              - tab "Accessibility 1" [selected] [ref=f5e261] [cursor=pointer]:
+                - generic [ref=f5e134]:
+                  - generic [ref=f5e135]: Accessibility
+                  - generic [ref=f5e262]: "1"
+          - tabpanel "Accessibility 1" [ref=f5e263]:
+            - generic [ref=f5e265]:
+              - generic [ref=f5e266]:
+                - generic [ref=f5e267]:
+                  - button "Highlight elements with accessibility test results" [ref=f5e268] [cursor=pointer]
+                  - button "Expand all results" [ref=f5e272] [cursor=pointer]
+                  - button "Rerun accessibility scan" [ref=f5e275] [cursor=pointer]
+                - tablist [ref=f5e280]:
+                  - tab "Violations 1" [selected] [ref=f5e281] [cursor=pointer]:
+                    - generic [ref=f5e282]:
+                      - text: Violations
+                      - generic [ref=f5e283]: "1"
+                  - tab "Passes 14" [ref=f5e284] [cursor=pointer]:
+                    - generic [ref=f5e285]:
+                      - text: Passes
+                      - generic [ref=f5e286]: "14"
+                  - tab "Inconclusive 0" [ref=f5e287] [cursor=pointer]:
+                    - generic [ref=f5e288]:
+                      - text: Inconclusive
+                      - generic [ref=f5e289]: "0"
+              - tabpanel "Violations 1" [ref=f5e290]:
+                - generic [ref=f5e295] [cursor=pointer]:
+                  - generic [ref=f5e296]:
+                    - strong [ref=f5e297]: Scrollable element focusable
+                    - generic [ref=f5e298]: scrollable-region-focusable
+                  - generic [ref=f5e299]: Serious
+                  - generic [ref=f5e300]: "1"
+                  - 'button "Expand details for: Scrollable element focusable" [ref=f5e301]'
