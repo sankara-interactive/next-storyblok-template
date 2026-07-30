@@ -1,4 +1,4 @@
-# `@sankara/ui` — Design
+# `@sankara-ui/core` — Design
 
 Date: 2026-07-29
 Status: approved, ready for implementation planning
@@ -12,7 +12,7 @@ carousel, its own disclosure widget, and its own form inputs. Fixes never
 propagate; patterns drift; a new site starts from a copy of whichever previous
 site was closest.
 
-`@sankara/ui` is the shared layer. It is not a general-purpose design system —
+`@sankara-ui/core` is the shared layer. It is not a general-purpose design system —
 it holds what our projects have repeatedly needed, and nothing else.
 
 ## Evidence base
@@ -53,7 +53,7 @@ Two conclusions follow, both of which overturned earlier assumptions:
 
 ### D1 — Own repository, published to public npm
 
-`sankara-interactive/sankara-ui`, published as `@sankara/ui`.
+`sankara-interactive/sankara-ui`, published as `@sankara-ui/core`.
 
 A template is cloned per project, so shipping design-system source into every
 clone is backwards, and the "consumers override brand tokens without forking
@@ -97,7 +97,7 @@ Components ship Tailwind utility classes. Consumers add one line to their CSS:
 
 ```css
 @import "tailwindcss";
-@source "../node_modules/@sankara/ui";
+@source "../node_modules/@sankara-ui/core";
 ```
 
 Tailwind v4 excludes `node_modules` from scanning by default; `@source` is the
@@ -160,7 +160,8 @@ Ordered by demonstrated demand.
 - `Icon` — FontAwesome is used in four of five projects. numbers.ch is the
   outlier only because it hand-wrote 255 lines of `icon-data.ts` keyed on
   `fa-*` names, which is a reimplementation of FontAwesome rather than an
-  alternative. The package wraps FontAwesome behind a stable `<Icon name>` API;
+  alternative. The package wraps FontAwesome behind a stable
+  `<Icon icon={…} label={…} />` API taking an `IconDefinition`;
   numbers.ch's `icon-data.ts` is deleted on migration, not extracted.
 - `Carousel` — every project has one. Must cover numbers.ch's `CardSlider` and
   `Gallery` (the same scroll-snap mechanism written twice), fgpfister's
@@ -209,7 +210,7 @@ implementation plan. The first plan covers **repository bootstrap, the token
 contract, the workbench, the release pipeline, and Tier 1 only**. Tiers 2 and 3
 each get their own plan once the pipeline has published something real. This
 keeps the first plan's success criterion concrete: a consumer can install
-`@sankara/ui`, add one `@source` line, and render a themed `Carousel`.
+`@sankara-ui/core`, add one `@source` line, and render a themed `Carousel`.
 
 ## Testing
 
@@ -236,9 +237,13 @@ code came from is the honest test of whether the tokens parameterised anything.
   and getting this wrong breaks every consumer simultaneously. The build tool
   must be chosen against this constraint and verified with a real consumer
   before the first publish. Not yet decided.
-- **The `@sankara` npm scope is unverified.** `@sankara/ui` returns 404, which
-  proves the package does not exist but not that the scope is unclaimed. Confirm
-  with `npm org create` before committing to the name.
+- **~~The npm scope is unverified.~~ Resolved 2026-07-30.** Both `@sankara` and
+  `@sankara-interactive` were already taken. The org `sankara-ui` was registered
+  instead, so the package is `@sankara-ui/core` — a second segment is required or
+  it stutters as `@sankara-ui/ui`. Future packages take the same scope:
+  `@sankara-ui/storyblok` for the Track A adapter layer. Note that `npm org
+  create` does not exist; orgs are created only at npmjs.com/org/create, and
+  scope availability cannot be checked from the CLI.
 - **Tailwind major-version coupling.** A consumer on a future Tailwind major
   may not compile the package's classes. Accepted; revisit at Tailwind v5.
 - **A forgotten `@source` line renders components unstyled** with no error. The

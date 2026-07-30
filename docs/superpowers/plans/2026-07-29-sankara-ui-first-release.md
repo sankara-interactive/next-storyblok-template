@@ -1,8 +1,8 @@
-# `@sankara/ui` First Release Implementation Plan
+# `@sankara-ui/core` First Release Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Publish `@sankara/ui@0.1.0` to public npm with a token contract, a component workbench, a release pipeline, and the two Tier 1 components (`Icon`, `Carousel`), consumable by a Next 16 + Tailwind v4 project.
+**Goal:** Publish `@sankara-ui/core@0.1.0` to public npm with a token contract, a component workbench, a release pipeline, and the two Tier 1 components (`Icon`, `Carousel`), consumable by a Next 16 + Tailwind v4 project.
 
 **Architecture:** A plain `tsc`-compiled React component library — no bundler. Components ship Tailwind utility classes resolved against `@theme` variables the package provides as defaults and the consumer overrides. Interactive components carry `'use client'`; everything else stays a server component. Logic that can break is extracted into pure functions so it can be unit-tested without a DOM.
 
@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- Package name: `@sankara/ui`. Repository: `sankara-interactive/sankara-ui`.
+- Package name: `@sankara-ui/core`. Repository: `sankara-interactive/sankara-ui`.
 - Node `22.14.0`, `packageManager: yarn@4.7.0` — matched to `next-storyblok-template`.
 - Build is `tsc` only. No bundler. Verified: `tsc` emits `'use client';` as line 1, above its injected jsx-runtime import.
 - `'use client'` only on components that need interactivity. A blanket directive would push every consumer's tree client-side.
@@ -68,7 +68,7 @@ cd sankara-ui
 
 ```json
 {
-  "name": "@sankara/ui",
+  "name": "@sankara-ui/core",
   "version": "0.0.0",
   "description": "Shared UI components for sankara:interactive projects",
   "license": "MIT",
@@ -1018,11 +1018,11 @@ git commit -m "feat: add Storybook workbench with the a11y addon"
 
 **Interfaces:**
 - Consumes: everything above.
-- Produces: `@sankara/ui@0.1.0` on public npm.
+- Produces: `@sankara-ui/core@0.1.0` on public npm.
 
 - [ ] **Step 1: Verify the npm scope is available**
 
-Requires a human — `@sankara/ui` returning 404 proves the package does not exist, not that the scope is unclaimed.
+Requires a human — `@sankara-ui/core` returning 404 proves the package does not exist, not that the scope is unclaimed.
 
 ```bash
 npm login
@@ -1099,22 +1099,22 @@ jobs:
 `README.md` must lead with installation, because a missing `@source` line renders every component unstyled with no error:
 
 ````markdown
-# @sankara/ui
+# @sankara-ui/core
 
 Shared UI components for sankara:interactive projects. Next 16 + Tailwind v4.
 
 ## Install
 
 ```sh
-yarn add @sankara/ui
+yarn add @sankara-ui/core
 ```
 
 Then in your global stylesheet — **both lines are required**:
 
 ```css
 @import "tailwindcss";
-@import "@sankara/ui/styles.css";
-@source "../node_modules/@sankara/ui";
+@import "@sankara-ui/core/styles.css";
+@source "../node_modules/@sankara-ui/core";
 ```
 
 Tailwind v4 does not scan `node_modules` by default. Without the `@source`
@@ -1122,7 +1122,7 @@ line the components render completely unstyled, with no error.
 
 ## Theming
 
-`@sankara/ui/styles.css` ships neutral defaults for every token. Override any
+`@sankara-ui/core/styles.css` ships neutral defaults for every token. Override any
 of them in your own `@theme` block, after the import:
 
 | Token | Purpose |
@@ -1142,7 +1142,7 @@ icon set, so it works with the free packages, Pro, or a Kit:
 
 ```tsx
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
-import { Icon } from '@sankara/ui'
+import { Icon } from '@sankara-ui/core'
 
 <Icon icon={faChevronDown} size={22} label="Mehr anzeigen" />
 ```
@@ -1154,7 +1154,7 @@ Omit `label` for decorative icons; they are then hidden from assistive tech.
 ## Carousel
 
 ```tsx
-import { Carousel } from '@sankara/ui'
+import { Carousel } from '@sankara-ui/core'
 
 <Carousel label="Referenzen" perView={2.2}>
   {items.map(item => <Card key={item.id} {...item} />)}
@@ -1173,7 +1173,7 @@ git add -A && git commit -m "chore: release 0.1.0"
 git push
 ```
 
-Expected: the Changesets action opens a release PR; merging it publishes `@sankara/ui@0.1.0`.
+Expected: the Changesets action opens a release PR; merging it publishes `@sankara-ui/core@0.1.0`.
 
 - [ ] **Step 6: Prove a real consumer works**
 
@@ -1181,14 +1181,14 @@ This is the plan's success criterion, and it must be run against the published p
 
 ```bash
 cd ../next-storyblok-template
-yarn add @sankara/ui
+yarn add @sankara-ui/core
 ```
 
 Add to `styles/globals.css`:
 
 ```css
-@import "@sankara/ui/styles.css";
-@source "../node_modules/@sankara/ui";
+@import "@sankara-ui/core/styles.css";
+@source "../node_modules/@sankara-ui/core";
 ```
 
 Render a `Carousel` with three slides on a page, run `yarn dev`, and confirm: slides snap, dots track scrolling, arrow keys move between slides, and the dots pick up the template's `--color-primary` if it overrides the default.

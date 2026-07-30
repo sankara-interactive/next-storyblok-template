@@ -9,7 +9,7 @@ coding agents. Keep statuses and architectural decisions current as work lands.
 After the shared foundation, work splits into two tracks that run in parallel:
 
 > **Track A** (this repo): Storyblok plumbing — routing, caching, adapters, sections.
-> **Track B** (`@sankara/ui` repo): the reusable UI system, built without Storyblok.
+> **Track B** (`@sankara-ui/core` repo): the reusable UI system, built without Storyblok.
 
 They join at Phase A3, where adapters translate CMS data into UI props. Until
 then neither track blocks the other.
@@ -32,13 +32,17 @@ Record architectural decisions here as they are made, newest last.
   `docs/superpowers/specs/2026-07-29-sankara-ui-design.md`**: Base UI as the
   headless foundation, a versioned package on public npm, and Tailwind v4
   classes against a documented `@theme` token contract.
-- **`@sankara/ui` lives in its own repository**, not as `packages/ui/` in this
+- **`@sankara-ui/core` lives in its own repository**, not as `packages/ui/` in this
   template. This template consumes it as a published dependency. Rationale: a
   template is cloned per project, and shipping the design-system source into
   every clone is backwards; the "a consuming project can override brand tokens
   without forking component logic" criterion is only tested honestly when the
   consumer is external; and a workspace conversion would restructure this repo's
-  root, colliding with every open branch. Confirm the npm scope before publishing.
+  root, colliding with every open branch.
+- **The package is `@sankara-ui/core` under the `sankara-ui` npm org** (decided
+  2026-07-30). `@sankara` and `@sankara-interactive` were both taken. The second
+  segment avoids stuttering as `@sankara-ui/ui` and leaves room for
+  `@sankara-ui/storyblok` when Phase A3's adapter layer becomes a package.
 
 ## Phase 0: Land the Baseline PR Stack
 
@@ -157,7 +161,7 @@ Exit criteria:
 
 Status: `[ ]` Joins Track B — needs B3
 
-Keep Storyblok integration separate from `@sankara/ui`.
+Keep Storyblok integration separate from `@sankara-ui/core`.
 
 Responsibilities:
 
@@ -246,7 +250,7 @@ Exit criteria:
 
 ---
 
-# Track B — `@sankara/ui`
+# Track B — `@sankara-ui/core`
 
 Runs in its own repository. Nothing here depends on Track A until Phase A3.
 
