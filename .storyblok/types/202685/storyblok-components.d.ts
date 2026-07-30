@@ -6,12 +6,14 @@ export interface FeatureStoryblok {
   text?: StoryblokRichtext;
   component: "feature";
   _uid: string;
+  _editable?: string | undefined;
 }
 
 export interface GridStoryblok {
   columns?: FeatureStoryblok[];
   component: "grid";
   _uid: string;
+  _editable?: string | undefined;
 }
 
 export interface PageStoryblok {
@@ -24,6 +26,7 @@ export interface PageStoryblok {
   };
   component: "page";
   _uid: string;
+  _editable?: string | undefined;
 }
 
 export interface TeaserStoryblok {
@@ -33,6 +36,7 @@ export interface TeaserStoryblok {
   button_link: Exclude<StoryblokMultilink, {linktype?: "email"} | {linktype?: "asset"}>;
   component: "teaser";
   _uid: string;
+  _editable?: string | undefined;
 }
 
 export type ContentType = PageStoryblok;
