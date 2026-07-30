@@ -7,17 +7,24 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write \"app/**/*.{ts,tsx}\" \"components/**/*.{ts,tsx}\" \"generators/**/*.mjs\" \"scripts/**/*.mjs\" \"lib/**/*.{ts,tsx,mjs}\" \"*.{js,mjs,ts}\"",
+    "format:check": "prettier --check \"app/**/*.{ts,tsx}\" \"components/**/*.{ts,tsx}\" \"generators/**/*.mjs\" \"scripts/**/*.mjs\" \"lib/**/*.{ts,tsx,mjs}\" \"*.{js,mjs,ts}\"",
     "test": "vitest run",
     "test:watch": "vitest",
+    "check": "yarn format:check && yarn lint && yarn typecheck && yarn test && yarn types:check",
     "sync": "storyblok components pull && storyblok types generate",
+    "types:check": "node scripts/check-storyblok-types.mjs",
     "scaffold": "node generators/cli.mjs"
   },
   "dependencies": {
     "@storyblok/react": "^7.0.0",
+    "@t3-oss/env-nextjs": "^0.13.11",
     "clsx": "^2.1.1",
     "next": "^16.1.6",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.1",
@@ -27,6 +34,7 @@
     "eslint": "^9",
     "eslint-config-next": "^16.1.6",
     "postcss": "^8.5.8",
+    "prettier": "3.9.5",
     "storyblok": "^4.16.2",
     "tailwindcss": "^4.2.1",
     "typescript": "^5.9.3",

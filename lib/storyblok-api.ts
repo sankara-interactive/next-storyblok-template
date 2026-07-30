@@ -4,11 +4,12 @@ import StoryblokClient from 'storyblok-js-client'
 import { unstable_cache } from 'next/cache'
 import { draftMode } from 'next/headers'
 import { isPreview, STORYBLOK_CACHE_TAG, storyTag } from './config'
+import { env } from './env'
 import { getStoryblokApi } from './storyblok'
 
 export type SbLink = { slug: string; is_folder: boolean }
 
-const isDev = process.env.NODE_ENV === 'development'
+const isDev = env.NODE_ENV === 'development'
 
 export function resolveVersion(isDraft: boolean): 'draft' | 'published' {
   return isDev || isPreview || isDraft ? 'draft' : 'published'
@@ -17,13 +18,12 @@ export function resolveVersion(isDraft: boolean): 'draft' | 'published' {
 let previewClient: StoryblokClient | null = null
 function getPreviewClient(): StoryblokClient {
   if (!previewClient) {
-    previewClient = new StoryblokClient({ accessToken: process.env.STORYBLOK_PREVIEW_TOKEN })
+    previewClient = new StoryblokClient({ accessToken: env.STORYBLOK_PREVIEW_TOKEN })
   }
   return previewClient
 }
 
-// Wrapper built per-slug so each story carries its own tag (storyblok:<slug>)
-// alongside the global tag — lets the webhook bust one story without flushing all.
+// Built per-slug so the webhook can bust one story without flushing the rest.
 function fetchPublishedStory(slug: string) {
   return unstable_cache(
     async () => {
@@ -35,11 +35,12 @@ function fetchPublishedStory(slug: string) {
       return data.story
     },
     ['storyblok-story', slug],
-    { tags: [STORYBLOK_CACHE_TAG, storyTag(slug)] },
+    { tags: [STORYBLOK_CACHE_TAG, storyTag(slug)] }
   )()
 }
 
 export async function getStory<T>(slug: string): Promise<ISbStoryData<T> | null> {
+  if (env.STORYBLOK_SKIP_FETCH) return null
   const { isEnabled: isDraft } = await draftMode()
   const version = resolveVersion(isDraft)
   try {
@@ -53,9 +54,16 @@ export async function getStory<T>(slug: string): Promise<ISbStoryData<T> | null>
       return data.story as ISbStoryData<T>
     }
     return (await fetchPublishedStory(slug)) as ISbStoryData<T>
-  } catch {
-    return null
+  } catch (error) {
+    if (isStoryblokNotFound(error)) return null
+    throw error
   }
+}
+
+export function isStoryblokNotFound(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false
+  const candidate = error as { status?: unknown; response?: { status?: unknown } }
+  return candidate.status === 404 || candidate.response?.status === 404
 }
 
 const fetchLinks = unstable_cache(
@@ -65,9 +73,10 @@ const fetchLinks = unstable_cache(
     return data.links as Record<string, SbLink>
   },
   ['storyblok-links'],
-  { tags: [STORYBLOK_CACHE_TAG] },
+  { tags: [STORYBLOK_CACHE_TAG] }
 )
 
 export async function getAllLinks(): Promise<Record<string, SbLink>> {
+  if (env.STORYBLOK_SKIP_FETCH) return {}
   return fetchLinks()
 }

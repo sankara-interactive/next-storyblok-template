@@ -29,6 +29,19 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   `isDev` short-circuit in `resolveVersion`), so MODE only matters for deployed
   hosts. (The bridge is gated separately by the SDK's `isVisualEditor()` — see
   Bridge above.)
+- **Environment**: app and server code reads `lib/env.ts` (`@t3-oss/env-nextjs` +
+  Zod), never `process.env` — one access pattern, `env.X`, always typed, so nothing
+  needs narrowing at the call site. Build-time config that loads outside the Next
+  bundle is the exception and must use `process.env` directly:
+  `next.config.mjs`, `storyblok.config.mjs`, `lib/redirects.mjs`, `scripts/`. `NEXT_PUBLIC_STORYBLOK_TOKEN`,
+  `STORYBLOK_PREVIEW_TOKEN` and `API_SECRET` are required everywhere: a missing one
+  fails at boot naming the variable. `SITE_URL`, `SITE_NAME` and
+  `STORYBLOK_WEBHOOK_SECRET` default outside production and are mandatory in it —
+  the webhook secret because it cannot be known before a deploy exists, and a
+  known default HMAC secret on a real host would let anyone forge a revalidation
+  request. `STORYBLOK_SKIP_FETCH=true` is a CI-only escape hatch making content
+  reads return empty so a production build needs no CMS access; never set it on a
+  deployed site.
 - **Analytics**: Pirsch (cookieless, `pirsch.js` / `id="pirschjs"`) loads globally
   in the layout via `<Pirsch />` — skipped in development (`NODE_ENV === 'development'`).
   PrivacyBee is a **blok** (registry key `privacy_bee`) that renders `<privacybee-widget>`
@@ -51,6 +64,8 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   `link`/`links`, `label`, `variant`/`theme` (options), `is*`/`has*` (booleans).
 
 ## Workflow
+- `yarn check` — the gate CI runs: formatting, ESLint, TypeScript, tests, and
+  Storyblok type drift. Run it before opening a PR.
 - `yarn sync` — pull schemas + regenerate types. Commit `components.json`.
 - `yarn scaffold` — generate stubs for missing components (deliberate, separate).
 - Schema source of truth = Storyblok UI; push back via the CLI/Management API

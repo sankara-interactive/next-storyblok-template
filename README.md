@@ -28,14 +28,32 @@ Create a new empty space and copy the preview token. Create your `.env` from `.e
 mv .env.example .env
 ```
 
-Add the tokens and space ID from Storyblok and the API secret as environment variables:
+Add the tokens and space ID from Storyblok, plus the two secrets, as environment variables:
 
 ```sh
 STORYBLOK_SPACE_ID=<your-space-id>
 NEXT_PUBLIC_STORYBLOK_TOKEN=<your-public-token>
 STORYBLOK_PREVIEW_TOKEN=<your-preview-token>
 API_SECRET=<a-strong-random-string-used-by-api-routes>
+STORYBLOK_WEBHOOK_SECRET=<storyblok-webhook-signing-secret>
 ```
+
+`NEXT_PUBLIC_STORYBLOK_TOKEN`, `STORYBLOK_PREVIEW_TOKEN` and `API_SECRET` are
+validated on startup by `lib/env.ts` and required everywhere, so a missing one
+fails immediately and names itself rather than breaking a route later.
+
+`STORYBLOK_SPACE_ID` is not part of that validation — only the Storyblok CLI reads
+it, via `storyblok.config.mjs`. The app boots without it; `yarn sync` does not.
+
+`STORYBLOK_WEBHOOK_SECRET` is the exception: you cannot know it before deploying,
+since Storyblok needs a reachable URL first, so it falls back to a placeholder
+outside production and is mandatory in it. Leave it unset while working locally
+and set it on the host once the webhook exists — a known default signing secret on
+a real host would let anyone forge a revalidation request.
+
+`SITE_URL` and `SITE_NAME` behave the same way, defaulting to
+`http://localhost:3000` and `Site` locally; a production build requires both, and
+`SITE_URL` must be HTTPS.
 
 In development it's recommended to use the preview token which allows you to see unpublished (draft) data. In production, use the public token for NEXT_PUBLIC_STORYBLOK_TOKEN.
 
@@ -60,7 +78,22 @@ yarn build # or npm run build
   (run after `yarn sync`; not part of it). Auto-detects the pulled component set
   under `.storyblok/components/` — no env var needed.
 
-### 6. Setup preview mode
+### 6. Quality checks
+
+- `yarn check` — the full gate CI runs: formatting, ESLint, TypeScript, unit
+  tests, and Storyblok type drift. Run this before opening a PR.
+- Individual parts: `yarn format:check` (or `yarn format` to fix), `yarn lint`,
+  `yarn typecheck`, `yarn test`, `yarn types:check`.
+
+`yarn types:check` fails when the committed types under `.storyblok/types/` no
+longer match the committed component schemas — run `yarn sync` and commit the
+result.
+
+CI additionally runs a production build without CMS access
+(`STORYBLOK_SKIP_FETCH=true`), so builds stay green without Storyblok
+credentials.
+
+### 7. Setup preview mode
 
 To enable preview mode you have to add two preview URLs in Storyblok:
 
@@ -70,10 +103,10 @@ To enable preview mode you have to add two preview URLs in Storyblok:
 **Exit Preview**
 `https://<my-url>/api/exit-draft?slug=`
 
-Don't forget to add the secret as env-variable.
+`API_SECRET` is already set from step 3 — the app will not start without it.
 It might be helpful for the end user to set the preview URL as default.
 
-### 7. Webhook for revalidation
+### 8. Webhook for revalidation
 
 To revalidate pages after publishing in Storyblok, set up a Webhook pointing to:
 `https://<my-url>/api/revalidate`

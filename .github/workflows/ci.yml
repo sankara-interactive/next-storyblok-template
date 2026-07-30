@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          cache: yarn
+      - run: corepack enable
+      - run: yarn install --immutable
+      - run: yarn check
+
+  build:
+    name: Build without CMS access
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SITE_URL: https://example.com
+      SITE_NAME: CI Build
+      NEXT_PUBLIC_STORYBLOK_TOKEN: ci-placeholder
+      STORYBLOK_PREVIEW_TOKEN: ci-placeholder
+      API_SECRET: ci-placeholder
+      STORYBLOK_WEBHOOK_SECRET: ci-placeholder
+      STORYBLOK_SKIP_FETCH: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          cache: yarn
+      - run: corepack enable
+      - run: yarn install --immutable
+      - run: yarn build
