@@ -947,7 +947,7 @@ export const Decorative: StoryObj<typeof Icon> = {
 }
 
 export const Labelled: StoryObj<typeof Icon> = {
-  args: { icon: faChevronDown, size: 22, title: 'Mehr anzeigen' },
+  args: { icon: faChevronDown, size: 22, label: 'Mehr anzeigen' },
 }
 ```
 
