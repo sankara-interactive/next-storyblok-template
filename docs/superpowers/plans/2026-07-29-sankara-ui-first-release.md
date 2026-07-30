@@ -15,7 +15,7 @@
 - Build is `tsc` only. No bundler. Verified: `tsc` emits `'use client';` as line 1, above its injected jsx-runtime import.
 - `'use client'` only on components that need interactivity. A blanket directive would push every consumer's tree client-side.
 - No Storyblok packages, no generated CMS types, no data fetching anywhere in `src/`.
-- The package never imports a FontAwesome **icon set**. Three of five surveyed projects use FA Pro or a Kit from a licensed private registry, which a public package cannot depend on. Consumers pass `IconDefinition` values in.
+- The package never imports a FontAwesome **icon set** from shipped code. Three of five surveyed projects use FA Pro or a Kit from a licensed private registry, which a public package cannot depend on. Consumers pass `IconDefinition` values in. Test files (`src/**/*.test.*`) may import `@fortawesome/free-solid-svg-icons` as a devDependency — they are excluded from the build and never published.
 - Peer dependency ranges must be permissive — surveyed projects span `@fortawesome/fontawesome-svg-core` ^6.7.2–^7.3.1 and `@fortawesome/react-fontawesome` ^0.2.0–^3.5.0.
 - **`next` is not a dependency of 0.1.0.** The spec listed it as a peer because it assumed the carousel would render images itself; it takes children instead, so nothing in this release imports `next/image` or `next/link`. Add the peer in the release that introduces an image-bearing component, not before — an unused peer makes every consumer satisfy a dependency the package never loads.
 - Every component accepts `className`, merged **last** so consumers always win.
@@ -518,6 +518,10 @@ export function Icon({ icon, size, label, className }: IconProps) {
   return (
     <FontAwesomeIcon
       icon={icon}
+      // Inert under FA7 — its core bakes role="img" in and react-fontawesome
+      // drops a falsy override — but kept deliberately: FA6 is inside the peer
+      // range and has not been verified to do the same. aria-hidden is what
+      // actually hides decorative icons, and it does work on both.
       role={label ? 'img' : undefined}
       aria-label={label}
       aria-hidden={label ? undefined : true}
