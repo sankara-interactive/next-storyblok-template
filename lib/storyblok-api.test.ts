@@ -1,5 +1,17 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { isStoryblokNotFound, resolveVersion } from './storyblok-api'
+
+const { get, draftMode } = vi.hoisted(() => ({
+  get: vi.fn(),
+  draftMode: vi.fn(async () => ({ isEnabled: true })),
+}))
+
+vi.mock('next/headers', () => ({ draftMode }))
+vi.mock('storyblok-js-client', () => ({
+  default: class {
+    get = get
+  },
+}))
 
 describe('resolveVersion', () => {
   it('returns draft when draft mode is on', () => {
@@ -20,6 +32,43 @@ describe('isStoryblokNotFound', () => {
     expect(isStoryblokNotFound({ status: 401 })).toBe(false)
     expect(isStoryblokNotFound(new Error('network unavailable'))).toBe(false)
     expect(isStoryblokNotFound(null)).toBe(false)
+  })
+})
+
+// The point of the 404 narrowing: a CMS outage must not read as missing content.
+describe('getStory failure semantics', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    get.mockReset()
+    draftMode.mockClear()
+  })
+
+  afterEach(() => vi.unstubAllEnvs())
+
+  it('returns null without contacting Storyblok when fetching is disabled', async () => {
+    vi.stubEnv('STORYBLOK_SKIP_FETCH', 'true')
+    const mod = await import('./storyblok-api')
+    await expect(mod.getStory('home')).resolves.toBeNull()
+    expect(get).not.toHaveBeenCalled()
+    expect(draftMode).not.toHaveBeenCalled()
+  })
+
+  it('returns null for a genuine 404', async () => {
+    get.mockRejectedValue({ status: 404 })
+    const mod = await import('./storyblok-api')
+    await expect(mod.getStory('missing')).resolves.toBeNull()
+  })
+
+  it('rethrows an operational failure instead of reporting it as missing', async () => {
+    get.mockRejectedValue({ status: 401 })
+    const mod = await import('./storyblok-api')
+    await expect(mod.getStory('home')).rejects.toEqual({ status: 401 })
+  })
+
+  it('returns the story on success', async () => {
+    get.mockResolvedValue({ data: { story: { name: 'Home' } } })
+    const mod = await import('./storyblok-api')
+    await expect(mod.getStory('home')).resolves.toEqual({ name: 'Home' })
   })
 })
 

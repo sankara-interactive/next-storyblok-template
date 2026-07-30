@@ -38,9 +38,12 @@ API_SECRET=<a-strong-random-string-used-by-api-routes>
 STORYBLOK_WEBHOOK_SECRET=<storyblok-webhook-signing-secret>
 ```
 
-All of these are validated on startup by `lib/env.ts`, so a missing one fails
-immediately and names itself rather than breaking a route later. The first four
-are required everywhere.
+`NEXT_PUBLIC_STORYBLOK_TOKEN`, `STORYBLOK_PREVIEW_TOKEN` and `API_SECRET` are
+validated on startup by `lib/env.ts` and required everywhere, so a missing one
+fails immediately and names itself rather than breaking a route later.
+
+`STORYBLOK_SPACE_ID` is not part of that validation — only the Storyblok CLI reads
+it, via `storyblok.config.mjs`. The app boots without it; `yarn sync` does not.
 
 `STORYBLOK_WEBHOOK_SECRET` is the exception: you cannot know it before deploying,
 since Storyblok needs a reachable URL first, so it falls back to a placeholder

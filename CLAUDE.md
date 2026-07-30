@@ -29,9 +29,11 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   `isDev` short-circuit in `resolveVersion`), so MODE only matters for deployed
   hosts. (The bridge is gated separately by the SDK's `isVisualEditor()` — see
   Bridge above.)
-- **Environment**: every read goes through `lib/env.ts` (`@t3-oss/env-nextjs` +
-  Zod) — never touch `process.env` outside it. One access pattern, `env.X`, always
-  typed, so nothing needs narrowing at the call site. `NEXT_PUBLIC_STORYBLOK_TOKEN`,
+- **Environment**: app and server code reads `lib/env.ts` (`@t3-oss/env-nextjs` +
+  Zod), never `process.env` — one access pattern, `env.X`, always typed, so nothing
+  needs narrowing at the call site. Build-time config that loads outside the Next
+  bundle is the exception and must use `process.env` directly:
+  `next.config.mjs`, `storyblok.config.mjs`, `lib/redirects.mjs`, `scripts/`. `NEXT_PUBLIC_STORYBLOK_TOKEN`,
   `STORYBLOK_PREVIEW_TOKEN` and `API_SECRET` are required everywhere: a missing one
   fails at boot naming the variable. `SITE_URL`, `SITE_NAME` and
   `STORYBLOK_WEBHOOK_SECRET` default outside production and are mandatory in it —
