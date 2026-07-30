@@ -13,7 +13,7 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   action (unpublish/move/delete), or a missing slug flushes the whole `storyblok`
   tag (nav/sitemap/links are global-tagged). Tag-flush only works because every
   read is tagged.
-- **Bridge** is handled by the SDK: `<StoryblokStory>` (in `app/[...slug]/page.tsx`)
+- **Bridge** is handled by the SDK: `<StoryblokStory>` (in `app/[[...slug]]/page.tsx`)
   renders `StoryblokLiveEditing`, which self-gates on `isVisualEditor()` and
   dynamically loads the bridge only inside the Storyblok editor iframe — so it
   never ships in the production bundle. There is no `StoryblokProvider`; the SDK
@@ -49,7 +49,9 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   layout. Its `website_id` comes from the blok field — there is no global env var for it.
 - **SEO**: structured data (Organization + WebSite JSON-LD) is emitted sitewide from
   `components/seo/JsonLd.tsx`; root `metadata` in `app/layout.tsx` provides title-template
-  + OG defaults; per-page metadata in `app/[...slug]/page.tsx` overrides title/description/canonical/images.
+  + OG defaults; per-page metadata in `app/[[...slug]]/page.tsx` overrides
+  title/description/canonical/images. Next *replaces* `openGraph` rather than merging it,
+  so every override spreads `OG_DEFAULTS` (`lib/config.ts`).
 
 ## Conventions
 - Registry key = EXACT snake_case technical name (mismatch = silent no-render).

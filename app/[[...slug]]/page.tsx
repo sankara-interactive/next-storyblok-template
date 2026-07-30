@@ -2,7 +2,7 @@ import { StoryblokStory } from '@storyblok/react/rsc'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Logo from '@/components/layout/Logo'
-import { isPreview } from '@/lib/config'
+import { isPreview, OG_DEFAULTS } from '@/lib/config'
 import { getAllLinks, getStory } from '@/lib/storyblok-api'
 import { isDataRoute } from '@/lib/storyblok-routes'
 import { PageStoryblok } from '@storyblok-component-types'
@@ -48,6 +48,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     alternates: { canonical: canonicalPath },
     robots: isPreview ? { index: false, follow: false } : { index: true, follow: true },
     openGraph: {
+      ...OG_DEFAULTS,
       title,
       description,
       url: canonicalPath,
