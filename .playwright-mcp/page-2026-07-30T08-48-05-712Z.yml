@@ -1,0 +1,68 @@
+- generic [active] [ref=f5e1]:
+  - generic [ref=f5e2]:
+    - log
+    - log
+  - generic [ref=f5e4]:
+    - generic [ref=f5e5]:
+      - banner [ref=f5e7]:
+        - heading "Storybook" [level=1] [ref=f5e8]
+        - generic [ref=f5e12]:
+          - generic [ref=f5e14]:
+            - link "Skip to content" [ref=f5e15] [cursor=pointer]:
+              - /url: "#storybook-preview-wrapper"
+            - link "Storybook" [ref=f5e17] [cursor=pointer]:
+              - /url: ./
+              - img "Storybook" [ref=f5e18]
+            - switch "Settings" [ref=f5e23] [cursor=pointer]
+          - generic [ref=f5e27]: Search for components
+          - search [ref=f5e28]:
+            - combobox [ref=f5e29]:
+              - searchbox "Search for components" [ref=f5e30]
+              - code:
+                - generic: ⌘
+                - text: K
+            - button "Create a new story" [ref=f5e31] [cursor=pointer]
+          - navigation [ref=f5e35]:
+            - heading "Stories" [level=2] [ref=f5e36]
+      - separator "Sidebar resize handle" [ref=f5e56]
+    - generic [ref=f5e58]:
+      - region [ref=f5e59]:
+        - heading "Toolbar" [level=2] [ref=f5e60]
+        - toolbar [ref=f5e61]:
+          - generic [ref=f5e62]:
+            - button "Reload story" [ref=f5e63] [cursor=pointer]
+            - switch "Measure tool" [ref=f5e66] [cursor=pointer]
+            - switch "Outline tool" [ref=f5e70] [cursor=pointer]
+            - button "Viewport size" [ref=f5e73] [cursor=pointer]
+            - button "Vision filter" [ref=f5e78] [cursor=pointer]
+          - generic [ref=f5e83]:
+            - button "Open in isolation mode" [ref=f5e84] [cursor=pointer]
+            - switch "Change zoom level" [ref=f5e90] [cursor=pointer]: 100%
+            - button "Enter full screen" [ref=f5e91] [cursor=pointer]
+      - main [ref=f5e94]:
+        - heading "Main preview area" [level=2] [ref=f5e95]
+        - generic [ref=f5e96]:
+          - progressbar "Content is loading..." [ref=f5e98]
+          - generic [ref=f5e99]:
+            - link "Skip to sidebar" [ref=f5e100] [cursor=pointer]:
+              - /url: "#carousel--single"
+            - iframe [ref=f5e104]:
+              
+    - generic [ref=f5e105]:
+      - separator "Addon panel resize handle" [ref=f5e106]
+      - region [ref=f5e108]:
+        - heading "Addon panel" [level=2] [ref=f5e109]
+        - generic [ref=f5e110]:
+          - generic [ref=f5e111]:
+            - generic [ref=f5e112]:
+              - button "Move addon panel to right" [ref=f5e113] [cursor=pointer]
+              - button "Hide addon panel" [ref=f5e117] [cursor=pointer]
+            - tablist "Available addons" [ref=f5e123]:
+              - tab "Controls" [ref=f5e124] [cursor=pointer]
+              - tab "Actions" [ref=f5e127] [cursor=pointer]
+              - tab "Interactions" [ref=f5e130] [cursor=pointer]
+              - tab "Accessibility" [selected] [ref=f5e133] [cursor=pointer]
+          - tabpanel "Accessibility" [ref=f5e136]:
+            - generic [ref=f5e138]:
+              - strong [ref=f5e141]: Preparing accessibility scan
+              - paragraph [ref=f5e142]: Please wait while the addon is initializing...
