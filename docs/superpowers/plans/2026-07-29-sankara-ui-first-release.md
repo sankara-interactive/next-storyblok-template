@@ -343,7 +343,15 @@ git commit -m "feat: bootstrap package with tsc build and directive guard"
 
 `src/styles/tokens.test.ts`:
 
+The `@vitest-environment node` docblock is required. The suite defaults to
+jsdom for component tests, and under jsdom `import.meta.url` resolves to an
+`http://localhost/` URL, so `fs.readFileSync(new URL(...))` throws
+`TypeError: The URL must be of scheme file`. Override per file rather than
+changing the global environment — Tasks 3 and 4 need jsdom and the jest-dom
+matchers.
+
 ```ts
+// @vitest-environment node
 import fs from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { TOKENS } from './tokens.js'
