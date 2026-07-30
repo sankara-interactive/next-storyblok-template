@@ -37,7 +37,7 @@
     "storyblok": "^4.21.1",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.3",
-    "vitest": "^3.0.0"
+    "vitest": "^4.1.10"
   },
   "engines": {
     "node": "^22.14.0"
