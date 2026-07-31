@@ -1,0 +1,16 @@
+[
+  {
+    "name": "text_section",
+    "display_name": "Text Section",
+    "is_root": false,
+    "is_nestable": true,
+    "schema": {
+      "eyebrow": { "type": "text", "pos": 0 },
+      "headline": { "type": "text", "pos": 1 },
+      "lead": { "type": "richtext", "pos": 2 },
+      "link": { "type": "multilink", "pos": 3 }
+    },
+    "internal_tags_list": [],
+    "internal_tag_ids": []
+  }
+]
