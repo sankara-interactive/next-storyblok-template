@@ -380,21 +380,32 @@ git commit -m "Validate the committed baseline schema"
 - Consumes: `RichTextRenderer` from `components/helpers/RichTextRenderer` and `SbLink` from `components/helpers/SbLink`.
 - Produces: `export const components` from `lib/storyblok.ts` — a `Record<string, unknown>` whose keys are the registry's snake_case blok names. Task 6 asserts against it.
 
-- [ ] **Step 1: Regenerate types so `TextSectionStoryblok` exists**
+- [ ] **Step 1: Switch the committed schema to the Template space**
 
-The baseline is not the pulled schema, so generated types do not yet know `text_section`. Pull the space you pushed to in Task 2 and regenerate:
-
-```bash
-yarn sync
-```
-
-Run `yarn types:check` and expect it to pass. Confirm `TextSectionStoryblok` now exists:
+Decided before execution: the repo's committed component set and generated types
+track **294223376817452**, not `202685`. `yarn sync` cannot be used here — it reads
+`STORYBLOK_SPACE_ID` from `.env`, which still points at `202685`. Pass the space
+explicitly instead.
 
 ```bash
-grep -n "TextSectionStoryblok" .storyblok/types/*/storyblok-components.d.ts
+rm -rf .storyblok/components/202685 .storyblok/types/202685
+yarn storyblok components pull --space 294223376817452
+yarn storyblok types generate --space 294223376817452
 ```
 
-If `yarn sync` pulls into a second space directory, `yarn types:check` will fail with "Expected one committed Storyblok component set". In that case delete the stale directory for the space you are not targeting and re-run.
+Run `yarn types:check` and expect it to pass — it derives the space from the single
+committed directory, so exactly one must remain. Confirm the type exists:
+
+```bash
+grep -n "TextSectionStoryblok" .storyblok/types/294223376817452/storyblok-components.d.ts
+```
+
+Expected: a match. If `.storyblok/components/` still holds two directories,
+`yarn types:check` fails with "Expected one committed Storyblok component set" —
+delete the stale one and re-run.
+
+Note for the human afterwards: set `STORYBLOK_SPACE_ID=294223376817452` in `.env`
+so plain `yarn sync` targets the right space later. No agent may edit `.env*`.
 
 - [ ] **Step 2: Write the component**
 
