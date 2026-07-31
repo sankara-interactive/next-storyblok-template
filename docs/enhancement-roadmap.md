@@ -163,9 +163,10 @@ Tasks:
 - [x] Create the `redirect` blok and `redirects` content type in the Storyblok
       space, then `yarn sync`. Needs a CLI session from `storyblok login -r eu` using
       the **email** method — a personal access token 403s on `/internal_tags`, which
-      both `components pull` and `push` call unconditionally. `STORYBLOK_TOKEN` in
-      `.env` is ignored unless `STORYBLOK_LOGIN` and `STORYBLOK_REGION` accompany it,
-      and `.env.example`'s `STORYBLOK_OAUTH_TOKEN` is read by nothing. See
+      both `components pull` and `push` call unconditionally. A bare
+      `STORYBLOK_TOKEN` in `.env` is ignored unless `STORYBLOK_LOGIN` and
+      `STORYBLOK_REGION` accompany it; `STORYBLOK_MANAGEMENT_TOKEN` is the separate
+      personal token used for Management API reads and deletes. See
       `docs/superpowers/specs/2026-07-31-storyblok-space-bootstrap-design.md`.
       The `yarn setup:space` baseline now creates both on any target space.
 - [x] Implement, preserving query strings and never trusting the Host header.
