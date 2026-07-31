@@ -1,0 +1,11 @@
+{
+  "id": 3,
+  "name": "data",
+  "slug": "data",
+  "full_slug": "data",
+  "uuid": "33333333-3333-4333-8333-333333333333",
+  "is_folder": true,
+  "parent_id": 0,
+  "position": 2,
+  "content": {}
+}
