@@ -1,0 +1,23 @@
+{
+  "id": 2,
+  "name": "Über uns",
+  "slug": "about",
+  "full_slug": "about",
+  "uuid": "22222222-2222-4222-8222-222222222222",
+  "is_folder": false,
+  "is_startpage": false,
+  "parent_id": 0,
+  "position": 1,
+  "content": {
+    "_uid": "bbbbbbbb-1111-4111-8111-bbbbbbbbbbbb",
+    "component": "page",
+    "body": [
+      {
+        "_uid": "bbbbbbbb-2222-4222-8222-bbbbbbbbbbbb",
+        "component": "text_section",
+        "headline": "Über uns",
+        "eyebrow": "Team"
+      }
+    ]
+  }
+}
