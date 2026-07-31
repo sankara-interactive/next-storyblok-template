@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
 import { spawnSync } from 'node:child_process'
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
 
 const SPACE_ID_PATTERN = /^\d+$/
 
@@ -22,9 +25,16 @@ function run(args) {
   if (result.status !== 0) process.exit(result.status ?? 1)
 }
 
-/** A personal access token 403s on /internal_tags, which components push calls. */
-function requireSession() {
-  const result = spawnSync('yarn', ['storyblok', 'user'], { encoding: 'utf8' })
+function defaultCheckSession() {
+  return spawnSync('yarn', ['storyblok', 'user'], { encoding: 'utf8' })
+}
+
+/**
+ * A personal access token 403s on /internal_tags, which components push calls.
+ * @param {{ checkSession?: () => { status: number | null, stdout?: string, stderr?: string } }} [options]
+ */
+export function requireSession({ checkSession = defaultCheckSession } = {}) {
+  const result = checkSession()
   if (result.status !== 0 || !/logged in/i.test(result.stdout ?? '')) {
     console.error(
       'No Storyblok CLI session.\n' +
@@ -33,6 +43,39 @@ function requireSession() {
         'which `components push` calls unconditionally.'
     )
     process.exit(1)
+    return
+  }
+}
+
+/**
+ * Reuses the CLI session `requireSession` already established, rather than a
+ * raw API token: `storyblok stories pull` into a throwaway directory, then
+ * reads back whatever story JSON files it wrote. No network call of our own,
+ * and no second auth mechanism to document.
+ */
+function defaultListStories(space) {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'setup-space-check-'))
+  try {
+    const result = spawnSync(
+      'yarn',
+      ['storyblok', '--path', tmpDir, 'stories', 'pull', '--space', space],
+      { encoding: 'utf8' }
+    )
+    if (result.status !== 0) {
+      throw new Error(
+        `Could not check whether space ${space} is empty: ` +
+          `\`storyblok stories pull\` exited ${result.status}.\n${result.stderr ?? ''}`
+      )
+    }
+    const storiesDir = path.join(tmpDir, 'stories', space)
+    if (!fs.existsSync(storiesDir)) return []
+    return fs
+      .readdirSync(storiesDir)
+      .filter(file => file.endsWith('.json'))
+      .map(file => JSON.parse(fs.readFileSync(path.join(storiesDir, file), 'utf8')))
+      .map(story => ({ full_slug: story.full_slug, id: story.id }))
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true })
   }
 }
 
@@ -44,37 +87,12 @@ function requireSession() {
  * home/about/data/data/redirects gets those stories silently claimed and
  * overwritten. Refuse unless the target space is empty, or the operator passes
  * --force to acknowledge a deliberate re-run.
+ * @param {string} space
+ * @param {boolean} force
+ * @param {{ listStories?: (space: string) => Array<{ full_slug: string, id: number }> }} [options]
  */
-async function requireEmptySpace(space, force) {
-  const token = process.env.STORYBLOK_TOKEN
-  if (!token) {
-    console.error(
-      'STORYBLOK_TOKEN is not set.\n' +
-        'This script needs it to check the target space is empty before pushing\n' +
-        '(a plain node script does not auto-load .env — export it or set it in .env\n' +
-        'and load it yourself). Set STORYBLOK_TOKEN in .env for this pre-flight check.'
-    )
-    if (!force) process.exit(1)
-    console.error('Continuing anyway because --force was passed.')
-    return
-  }
-
-  const response = await fetch(`https://mapi.storyblok.com/v1/spaces/${space}/stories`, {
-    headers: { Authorization: token },
-  })
-
-  if (!response.ok) {
-    console.error(
-      `Could not verify the target space is empty: GET /spaces/${space}/stories returned ${response.status}.`
-    )
-    if (!force) process.exit(1)
-    console.error('Continuing anyway because --force was passed.')
-    return
-  }
-
-  const body = await response.json()
-  const stories = body.stories ?? []
-
+export function requireEmptySpace(space, force, { listStories = defaultListStories } = {}) {
+  const stories = listStories(space)
   if (stories.length > 0) {
     console.error(
       `Space ${space} already contains ${stories.length} stor${stories.length === 1 ? 'y' : 'ies'}:\n` +
@@ -84,20 +102,24 @@ async function requireEmptySpace(space, force) {
         'data/redirects). Target an empty space, or re-run with --force if you\n' +
         'knowingly want to push into this space again.'
     )
-    if (!force) process.exit(1)
+    if (!force) {
+      process.exit(1)
+      return
+    }
     console.error('Continuing anyway because --force was passed.')
   }
 }
 
-async function main() {
+function main() {
   const { space, yes, force } = parseArgs(process.argv.slice(2))
   console.log(`Target space: ${space}`)
   if (!yes) {
     console.log('This overwrites components and stories in that space. Re-run with --yes.')
     process.exit(1)
+    return
   }
   requireSession()
-  await requireEmptySpace(space, force)
+  requireEmptySpace(space, force)
   run(['components', 'push', '--from', 'baseline', '--suffix', 'baseline', '--space', space])
   run(['stories', 'push', '--from', 'baseline', '--space', space, '--publish'])
   console.log(
@@ -106,4 +128,11 @@ async function main() {
   )
 }
 
-if (import.meta.filename === process.argv[1]) main()
+if (import.meta.filename === process.argv[1]) {
+  try {
+    main()
+  } catch (error) {
+    console.error(error.message)
+    process.exit(1)
+  }
+}
