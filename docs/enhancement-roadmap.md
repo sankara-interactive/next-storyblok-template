@@ -55,7 +55,7 @@ Record architectural decisions here as they are made, newest last.
 
 ## Phase 0: Land the Baseline PR Stack
 
-Status: `[~]` All PRs merged; manual smoke-testing remains
+Status: `[~]` All PRs merged; smoke test run except preview editing
 
 Tasks:
 
@@ -67,8 +67,16 @@ Tasks:
 - [x] Run tests, typecheck, lint, and a production build. The production build is
       covered by the CI job added in Phase 1.
 - [x] Merge PR #11.
-- [ ] Smoke-test rich text, embedded bloks, preview editing, internal links, and
-      email links against a real space.
+- [x] Smoke-test rich text, embedded bloks, internal links, and email links
+      against a real space. Run 2026-07-31 against the Template space
+      (294223376817452) via `scripts/smoke.sh`: 13/13, covering the headline and
+      eyebrow, a bold mark, an internal link resolving to `/about`, a `mailto:`
+      link, a blok embedded inside richtext, `/about`, and two negative cases
+      (unknown path 404s, `data/` non-routable). It also proved Phase A2 at
+      runtime for the first time — `/alt` → 308 `/about`, query preserved.
+- [ ] Smoke-test **preview editing** in the visual editor. The one item
+      `scripts/smoke.sh` cannot automate: point the space's preview URL at the
+      dev server, open `home` in the editor, confirm edits reflect live.
 
 Exit criteria:
 
