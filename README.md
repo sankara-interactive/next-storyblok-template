@@ -170,7 +170,28 @@ the UI — `components push` creates and updates but cannot delete.
 
 The baseline bootstraps _new_ spaces; it does not govern existing ones. For a
 space already in use, the Storyblok UI stays the source of truth and `yarn sync`
-pulls its schema.
+pulls its schema. `setup:space` refuses a target holding stories outside the
+baseline set, so it cannot quietly overwrite a space in use; `--force` overrides
+that, and should not be habitual.
+
+#### Which Storyblok credential does what
+
+Three similar names, three different jobs. They are not interchangeable:
+
+| Credential                       | Used for                                 | Supplied via                                     |
+| -------------------------------- | ---------------------------------------- | ------------------------------------------------ |
+| CLI session (OAuth, email login) | `components` / `stories` push and pull   | `storyblok login -r eu`, stored outside the repo |
+| `STORYBLOK_MANAGEMENT_TOKEN`     | direct Management API reads, and deletes | `.env`                                           |
+| `NEXT_PUBLIC_STORYBLOK_TOKEN`    | delivery reads from the app              | `.env`, validated by `lib/env.ts`                |
+
+The management token is a personal access token: fine for reading and deleting,
+but it cannot drive `components push`. Deleting a component is the one schema
+operation the CLI cannot do at all, which is why removing the starter bloks above
+is a manual step.
+
+Setting a bare `STORYBLOK_TOKEN` in `.env` does nothing — the CLI only reads it
+when `STORYBLOK_LOGIN` and `STORYBLOK_REGION` are set alongside it, and otherwise
+uses the stored login session.
 
 ## Conventions
 
