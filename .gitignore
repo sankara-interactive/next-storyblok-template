@@ -57,6 +57,7 @@ test-timings.json
 
 # Storyblok
 .storyblok/logs
+.storyblok/stories/*/manifest.jsonl
 
 # Agent scratch
 .superpowers
