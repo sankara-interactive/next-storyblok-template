@@ -1,8 +1,9 @@
 import { StoryblokStory } from '@storyblok/react/rsc'
 import { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect, redirect } from 'next/navigation'
 import Logo from '@/components/layout/Logo'
 import { isPreview, OG_DEFAULTS } from '@/lib/config'
+import { findRedirect, getRedirects, queryString, withQuery } from '@/lib/redirects'
 import { getAllLinks, getStory } from '@/lib/storyblok-api'
 import { isDataRoute } from '@/lib/storyblok-routes'
 import { PageStoryblok } from '@storyblok-component-types'
@@ -13,10 +14,15 @@ export const revalidate = 3600
 
 type Props = {
   params: Promise<{ slug?: string[] }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
 function slugFromParams(slug?: string[]): string {
   return slug && slug.length ? slug.join('/') : 'home'
+}
+
+function pathFromSlug(slug: string): string {
+  return slug === 'home' ? '/' : `/${slug}`
 }
 
 export async function generateStaticParams() {
@@ -40,7 +46,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const seo = story.content.seo ?? {}
   const title = seo.title || story.name
   const description = seo.description || undefined
-  const canonicalPath = slug === 'home' ? '/' : `/${slug}`
+  const canonicalPath = pathFromSlug(slug)
 
   return {
     title,
@@ -67,7 +73,16 @@ export default async function Home(props: Props) {
   if (isDataRoute(slug)) notFound()
 
   const story = await getStory<ContentType>(slug)
-  if (!story) notFound()
+  if (!story) {
+    // Only awaited here, so live pages stay statically rendered.
+    const match = findRedirect(await getRedirects(), pathFromSlug(slug))
+    if (match) {
+      const target = withQuery(match.destination, queryString(await props.searchParams))
+      if (match.permanent) permanentRedirect(target)
+      redirect(target)
+    }
+    notFound()
+  }
 
   return (
     <>

@@ -43,6 +43,15 @@ Record architectural decisions here as they are made, newest last.
   2026-07-30). `@sankara` and `@sankara-interactive` were both taken. The second
   segment avoids stuttering as `@sankara-ui/ui` and leaves room for
   `@sankara-ui/storyblok` when Phase A3's adapter layer becomes a package.
+- **CMS redirects resolve at the 404 boundary, not in `proxy.ts`** (decided
+  2026-07-30). The requirement is exact-path *retirement*, and a retired URL is
+  by definition the 404 case, so the proxy's one real advantage — redirecting a
+  path that still resolves to a live story — buys nothing here. It would cost a
+  lookup on every request plus a Storyblok read outside the RSC context, which
+  means either a per-request fetch or a second cache that the revalidation
+  webhook cannot flush; both break the invariant that every read is tagged.
+  The trade-off accepted: an editor must unpublish the old story before its
+  redirect fires. Pattern redirects stay developer-owned in `next.config.mjs`.
 
 ## Phase 0: Land the Baseline PR Stack
 
@@ -121,10 +130,13 @@ Exit criteria:
 
 ## Phase A2: CMS-Editable Redirects
 
-Status: `[!]` Awaiting a decision on the matching strategy
+Status: `[~]` Code complete; blocked on the Storyblok schema existing
 
 Client requirement: editors change redirects in Storyblok and cannot trigger a
-redeploy. Today `lib/redirects.mjs` feeds `next.config.mjs` at build time only.
+redeploy. Resolved at the 404 boundary — see Decisions. The old build-time path
+(`lib/redirects.mjs` feeding `next.config.mjs`) is gone: a baked copy would keep
+serving a stale destination after an editor changed it, which is the exact thing
+the requirement rules out.
 
 Do **not** port the numbers.ch implementation as-is. Its matcher compares
 `source === pathname` (so `:slug*` patterns silently fail), skips any path
@@ -145,12 +157,20 @@ Two candidate designs — pick one before writing code:
 
 Tasks:
 
-- [ ] Decide between (1) and (2) and record it under Decisions.
-- [ ] Define the `data/redirects` schema (source, destination, permanent).
-- [ ] Implement, preserving query strings and never trusting the Host header.
-- [ ] Keep developer-authored pattern redirects in `next.config.mjs`; the CMS
+- [x] Decide between (1) and (2) and record it under Decisions.
+- [x] Define the `data/redirects` schema (source, destination, permanent) —
+  documented in `README.md`.
+- [ ] Create the `redirect` blok and `redirects` content type in the Storyblok
+  space, then `yarn sync`. Needs `STORYBLOK_OAUTH_TOKEN`, which is not set
+  locally; until this lands `getRedirects()` reads a story that does not exist
+  and returns `[]`, so nothing redirects.
+- [x] Implement, preserving query strings and never trusting the Host header.
+  Destinations come from the CMS as a path or absolute URL, so no origin is
+  ever derived from a request header.
+- [x] Keep developer-authored pattern redirects in `next.config.mjs`; the CMS
   story is for exact-path retirement.
-- [ ] Test: exact match, no match, query preservation, permanent vs temporary.
+- [x] Test: exact match, no match, prefix non-match, dotted paths, trailing
+  slashes, query preservation, permanent vs temporary.
 
 Exit criteria:
 

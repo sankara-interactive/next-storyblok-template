@@ -10,7 +10,10 @@ describe('generateMetadata', () => {
     getStory.mockResolvedValue({ name: 'About', content: { seo: { title: 'About us' } } })
     const { generateMetadata } = await import('./page')
 
-    const metadata = await generateMetadata({ params: Promise.resolve({ slug: ['about'] }) })
+    const metadata = await generateMetadata({
+      params: Promise.resolve({ slug: ['about'] }),
+      searchParams: Promise.resolve({}),
+    })
 
     expect(metadata.openGraph).toMatchObject({
       siteName: SITE_NAME,
