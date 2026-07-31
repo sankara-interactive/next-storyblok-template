@@ -6,7 +6,9 @@ import {
   isLikelyPublishQuotaFailure,
   parseArgs,
   readLatestReport,
+  requireComponentsPushed,
   requireEmptySpace,
+  requireFreshReport,
   requireSession,
 } from './setup-space.mjs'
 
@@ -251,5 +253,74 @@ describe('isLikelyPublishQuotaFailure', () => {
 
   it('returns false for a missing report', () => {
     expect(isLikelyPublishQuotaFailure(null)).toBe(false)
+  })
+})
+
+describe('requireComponentsPushed', () => {
+  it('passes through when every baseline component is present in the pulled set, without a network call', () => {
+    const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+    const pulledComponentNames = () => ['page', 'text_section', 'redirects', 'redirect']
+    const baselineComponentNames = () => ['page', 'text_section']
+
+    requireComponentsPushed('12345', { pulledComponentNames, baselineComponentNames })
+
+    expect(exit).not.toHaveBeenCalled()
+    exit.mockRestore()
+  })
+
+  it('fails when a baseline component is missing from the pulled set, without a network call', () => {
+    const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    const pulledComponentNames = () => ['page']
+    const baselineComponentNames = () => ['page', 'text_section', 'redirects']
+
+    requireComponentsPushed('12345', { pulledComponentNames, baselineComponentNames })
+
+    expect(exit).toHaveBeenCalledWith(1)
+    expect(error.mock.calls[0][0]).toMatch(/missing from the space after push/)
+    expect(error.mock.calls[0][0]).toMatch(/- text_section/)
+    expect(error.mock.calls[0][0]).toMatch(/- redirects/)
+    expect(error.mock.calls[0][0]).not.toMatch(/- page/)
+    exit.mockRestore()
+    error.mockRestore()
+  })
+})
+
+describe('requireFreshReport', () => {
+  let dir: string
+
+  beforeEach(() => {
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), 'setup-space-fresh-report-test-'))
+  })
+
+  afterEach(() => {
+    fs.rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('refuses when no report newer than the snapshot appeared (e.g. requireAuthentication early-returned)', () => {
+    fs.writeFileSync(path.join(dir, 'storyblok-stories-push-100.json'), '{"status":"SUCCESS"}')
+
+    // Snapshot taken equal to the newest report that already existed before the push:
+    // simulates a push that produced no new report at all.
+    expect(() => requireFreshReport(dir, 'stories-push', 100)).toThrow(/produced no new report/)
+  })
+
+  it('refuses when the reports directory does not exist at all', () => {
+    expect(() => requireFreshReport(path.join(dir, 'missing'), 'stories-push', null)).toThrow(
+      /produced no new report/
+    )
+  })
+
+  it('returns the new report when its runId is strictly newer than the snapshot', () => {
+    fs.writeFileSync(path.join(dir, 'storyblok-stories-push-100.json'), '{"status":"FAILURE"}')
+    fs.writeFileSync(path.join(dir, 'storyblok-stories-push-200.json'), '{"status":"SUCCESS"}')
+
+    expect(requireFreshReport(dir, 'stories-push', 100)).toEqual({ status: 'SUCCESS' })
+  })
+
+  it('accepts any report on a first-ever run (no prior snapshot)', () => {
+    fs.writeFileSync(path.join(dir, 'storyblok-stories-push-100.json'), '{"status":"SUCCESS"}')
+
+    expect(requireFreshReport(dir, 'stories-push', null)).toEqual({ status: 'SUCCESS' })
   })
 })

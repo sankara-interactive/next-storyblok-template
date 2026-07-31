@@ -9,6 +9,10 @@ const SPACE_ID_PATTERN = /^\d+$/
 const SUCCESS = 'SUCCESS'
 const STORYBLOK_ROOT = path.join(process.cwd(), '.storyblok')
 const BASELINE_STORIES_DIR = path.join(STORYBLOK_ROOT, 'stories/baseline')
+const BASELINE_COMPONENTS_FILE = path.join(
+  STORYBLOK_ROOT,
+  'components/baseline/components.baseline.json'
+)
 
 /** Never falls back to STORYBLOK_SPACE_ID: that points at a live space. */
 export function parseArgs(argv) {
@@ -99,9 +103,59 @@ export function isLikelyPublishQuotaFailure(report) {
   )
 }
 
-function run(args, commandSuffix, space) {
+/**
+ * Highest existing runId for a command+space, or null if none exist yet.
+ * Report filenames are `storyblok-<commandSuffix>-<runId>.json` and runId is
+ * a timestamp, so "highest" and "most recent" coincide.
+ */
+function latestRunId(dir, commandSuffix) {
+  let files
+  try {
+    files = fs.readdirSync(dir)
+  } catch {
+    return null
+  }
+  const pattern = new RegExp(`^storyblok-${commandSuffix}-(\\d+)\\.json$`)
+  const runIds = files
+    .map(file => file.match(pattern))
+    .filter(Boolean)
+    .map(match => Number(match[1]))
+  return runIds.length === 0 ? null : Math.max(...runIds)
+}
+
+/**
+ * `stories push` early-returns WITHOUT writing a report when
+ * `requireAuthentication` fails mid-run (e.g. an expired CLI session) or if
+ * the process dies before its `finally`. Without this check, a plain
+ * `readLatestReport` call after such a run would silently return a
+ * PREVIOUS run's report -- very likely SUCCESS on a repeat bootstrap -- and
+ * the caller would wrongly conclude success. Require the post-push report's
+ * runId to be strictly newer than whatever existed before the push;
+ * anything else means the push produced no new report at all.
+ * @param {string} dir
+ * @param {string} commandSuffix
+ * @param {number | null} beforeRunId
+ */
+export function requireFreshReport(dir, commandSuffix, beforeRunId) {
+  const afterRunId = latestRunId(dir, commandSuffix)
+  if (afterRunId === null || (beforeRunId !== null && afterRunId <= beforeRunId)) {
+    throw new Error(
+      `\`storyblok ${commandSuffix.replace(/-/g, ' ')}\` produced no new report ` +
+        `(most recent report is still ${beforeRunId === null ? 'none' : `runId ${beforeRunId}`}).`
+    )
+  }
+  return readLatestReport(dir, commandSuffix)
+}
+
+function spawnStoryblok(args) {
   spawnSync('yarn', ['storyblok', ...args], { stdio: 'inherit', encoding: 'utf8' })
-  return readLatestReport(reportsDirFor(STORYBLOK_ROOT, space), commandSuffix)
+}
+
+function run(args, commandSuffix, space) {
+  const dir = reportsDirFor(STORYBLOK_ROOT, space)
+  const beforeRunId = latestRunId(dir, commandSuffix)
+  spawnStoryblok(args)
+  return requireFreshReport(dir, commandSuffix, beforeRunId)
 }
 
 function defaultCheckSession() {
@@ -232,6 +286,55 @@ export function requireEmptySpace(
   console.error('Continuing anyway because --force was passed.')
 }
 
+/**
+ * `components push` writes no report to gate on (see the comment above the
+ * `components push` call in `main`), so success is verified positively:
+ * pull the space's components back into a fresh temp dir and confirm every
+ * baseline component name is present. Reuses the CLI session `requireSession`
+ * already established, the same way `defaultListStories` does -- no second
+ * auth mechanism to document.
+ */
+function defaultPulledComponentNames(space) {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'setup-space-components-check-'))
+  try {
+    spawnSync('yarn', ['storyblok', '--path', tmpDir, 'components', 'pull', '--space', space], {
+      encoding: 'utf8',
+    })
+    const componentsFile = path.join(tmpDir, 'components', space, 'components.json')
+    if (!fs.existsSync(componentsFile)) return []
+    return JSON.parse(fs.readFileSync(componentsFile, 'utf8')).map(component => component.name)
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true })
+  }
+}
+
+function defaultBaselineComponentNames() {
+  return JSON.parse(fs.readFileSync(BASELINE_COMPONENTS_FILE, 'utf8')).map(
+    component => component.name
+  )
+}
+
+/**
+ * @param {string} space
+ * @param {{ pulledComponentNames?: (space: string) => string[], baselineComponentNames?: () => string[] }} [options]
+ */
+export function requireComponentsPushed(
+  space,
+  {
+    pulledComponentNames = defaultPulledComponentNames,
+    baselineComponentNames = defaultBaselineComponentNames,
+  } = {}
+) {
+  const pulled = new Set(pulledComponentNames(space))
+  const missing = baselineComponentNames().filter(name => !pulled.has(name))
+  if (missing.length === 0) return
+  console.error(
+    `Components push did not land in space ${space}: missing from the space after push:\n` +
+      missing.map(name => `  - ${name}`).join('\n')
+  )
+  process.exit(1)
+}
+
 function main() {
   const { space, yes, force } = parseArgs(process.argv.slice(2))
   console.log(`Target space: ${space}`)
@@ -243,19 +346,23 @@ function main() {
   requireSession()
   requireEmptySpace(space, force)
 
-  const componentsReport = run(
-    ['components', 'push', '--from', 'baseline', '--suffix', 'baseline', '--space', space],
-    'components-push',
-    space
-  )
-  if (componentsReport?.status !== SUCCESS) {
-    console.error(
-      `components push did not succeed (${describeReportFailure(componentsReport)}).\n` +
-        'Not proceeding to stories push.'
-    )
-    process.exit(1)
-    return
-  }
+  // `components push` never writes a report -- pushCmd$3.action in
+  // storyblok/dist/index.mjs never calls getReporter()/reporter.finalize()
+  // (unlike stories push/pull, assets pull/push/transfer, migrations run,
+  // and schema push/init/rollback, which all do). Gating on a report here
+  // would always fail closed, so this pushes directly and verifies the
+  // result positively instead -- see requireComponentsPushed.
+  spawnStoryblok([
+    'components',
+    'push',
+    '--from',
+    'baseline',
+    '--suffix',
+    'baseline',
+    '--space',
+    space,
+  ])
+  requireComponentsPushed(space)
 
   const storiesReport = run(
     ['stories', 'push', '--from', 'baseline', '--space', space, '--publish'],
