@@ -1,0 +1,87 @@
+{
+  "id": 1,
+  "name": "Home",
+  "slug": "home",
+  "full_slug": "home",
+  "uuid": "11111111-1111-4111-8111-111111111111",
+  "is_folder": false,
+  "is_startpage": false,
+  "parent_id": 0,
+  "position": 0,
+  "content": {
+    "_uid": "aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa",
+    "component": "page",
+    "body": [
+      {
+        "_uid": "aaaaaaaa-2222-4222-8222-aaaaaaaaaaaa",
+        "component": "text_section",
+        "eyebrow": "Willkommen",
+        "headline": "Template-Demoseite",
+        "link": {
+          "id": "22222222-2222-4222-8222-222222222222",
+          "linktype": "story",
+          "fieldtype": "multilink",
+          "cached_url": "about",
+          "url": ""
+        },
+        "lead": {
+          "type": "doc",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                { "type": "text", "text": "Dieser Text ist " },
+                { "type": "text", "text": "fett", "marks": [{ "type": "bold" }] },
+                { "type": "text", "text": " und verlinkt auf " },
+                {
+                  "type": "text",
+                  "text": "die Über-uns-Seite",
+                  "marks": [
+                    {
+                      "type": "link",
+                      "attrs": {
+                        "href": "about",
+                        "uuid": "22222222-2222-4222-8222-222222222222",
+                        "linktype": "story",
+                        "target": "_self"
+                      }
+                    }
+                  ]
+                },
+                { "type": "text", "text": " sowie auf " },
+                {
+                  "type": "text",
+                  "text": "eine E-Mail-Adresse",
+                  "marks": [
+                    {
+                      "type": "link",
+                      "attrs": {
+                        "href": "hallo@example.ch",
+                        "linktype": "email",
+                        "target": "_self"
+                      }
+                    }
+                  ]
+                },
+                { "type": "text", "text": "." }
+              ]
+            },
+            {
+              "type": "blok",
+              "attrs": {
+                "id": "aaaaaaaa-3333-4333-8333-aaaaaaaaaaaa",
+                "body": [
+                  {
+                    "_uid": "aaaaaaaa-4444-4444-8444-aaaaaaaaaaaa",
+                    "component": "text_section",
+                    "headline": "Eingebetteter Blok"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
