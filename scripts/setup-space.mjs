@@ -6,6 +6,9 @@ import os from 'node:os'
 import path from 'node:path'
 
 const SPACE_ID_PATTERN = /^\d+$/
+const SUCCESS = 'SUCCESS'
+const STORYBLOK_ROOT = path.join(process.cwd(), '.storyblok')
+const BASELINE_STORIES_DIR = path.join(STORYBLOK_ROOT, 'stories/baseline')
 
 /** Never falls back to STORYBLOK_SPACE_ID: that points at a live space. */
 export function parseArgs(argv) {
@@ -20,9 +23,85 @@ export function parseArgs(argv) {
   return { space, yes: argv.includes('--yes'), force: argv.includes('--force') }
 }
 
-function run(args) {
-  const result = spawnSync('yarn', ['storyblok', ...args], { stdio: 'inherit', encoding: 'utf8' })
-  if (result.status !== 0) process.exit(result.status ?? 1)
+function reportsDirFor(basePath, space) {
+  return path.join(basePath, 'reports', space)
+}
+
+/**
+ * The Storyblok CLI never sets a non-zero process exit code on failure — its
+ * error path (`handleError` in storyblok/dist/index.mjs) logs and returns
+ * without touching `process.exitCode`, and the root program has no global
+ * exit handling. `result.status` from `spawnSync` is therefore never a
+ * reliable signal. What IS reliable is the report the CLI writes to
+ * `<path>/reports/<space>/storyblok-<command>-<runId>.json`, containing a
+ * `status` field (`SUCCESS` | `PARTIAL_SUCCESS` | `FAILURE` | ...). This
+ * reads the newest report matching a command+space, or null if none exists
+ * or it can't be parsed.
+ * @param {string} dir
+ * @param {string} commandSuffix e.g. "stories-pull", "components-push"
+ */
+export function readLatestReport(dir, commandSuffix) {
+  let files
+  try {
+    files = fs.readdirSync(dir)
+  } catch {
+    return null
+  }
+  const pattern = new RegExp(`^storyblok-${commandSuffix}-(\\d+)\\.json$`)
+  const [latest] = files
+    .map(file => ({ file, match: file.match(pattern) }))
+    .filter(({ match }) => match)
+    .map(({ file, match }) => ({ file, runId: Number(match[1]) }))
+    .sort((a, b) => b.runId - a.runId)
+  if (!latest) return null
+  try {
+    return JSON.parse(fs.readFileSync(path.join(dir, latest.file), 'utf8'))
+  } catch {
+    return null
+  }
+}
+
+/** Prints the report status plus, when available, the CLI's own per-story error list. */
+function describeReportFailure(report) {
+  if (!report) return 'no report was written'
+  const failedStories = report.meta?.failedStories
+  if (Array.isArray(failedStories) && failedStories.length > 0) {
+    return (
+      `status: ${report.status}\n` +
+      failedStories.map(story => `  - ${story.full_slug ?? story.slug}: ${story.error}`).join('\n')
+    )
+  }
+  return `status: ${report.status}`
+}
+
+const PUBLISH_QUOTA_ERROR_PATTERN =
+  /well-formed but was unable to be followed due to semantic errors/i
+
+/**
+ * `stories push --publish` on a space whose Development-plan daily publish
+ * quota is exhausted fails every story's publish step with the same generic
+ * 422 ("well-formed ... semantic errors"), while story content itself is
+ * created/updated successfully — that is the only failure signature the
+ * CLI's report distinguishes from a real content problem. Content still
+ * lands (as drafts); only publishing needs a retry once the quota resets, so
+ * this is treated as a soft failure rather than a hard bootstrap failure.
+ */
+export function isLikelyPublishQuotaFailure(report) {
+  if (!report || report.status !== 'PARTIAL_SUCCESS') return false
+  const summary = report.summary ?? {}
+  if ((summary.creationResults?.failed ?? 0) > 0) return false
+  if ((summary.processResults?.failed ?? 0) > 0) return false
+  if ((summary.updateResults?.failed ?? 0) === 0) return false
+  const failedStories = report.meta?.failedStories ?? []
+  return (
+    failedStories.length > 0 &&
+    failedStories.every(story => PUBLISH_QUOTA_ERROR_PATTERN.test(story.error ?? ''))
+  )
+}
+
+function run(args, commandSuffix, space) {
+  spawnSync('yarn', ['storyblok', ...args], { stdio: 'inherit', encoding: 'utf8' })
+  return readLatestReport(reportsDirFor(STORYBLOK_ROOT, space), commandSuffix)
 }
 
 function defaultCheckSession() {
@@ -52,19 +131,24 @@ export function requireSession({ checkSession = defaultCheckSession } = {}) {
  * raw API token: `storyblok stories pull` into a throwaway directory, then
  * reads back whatever story JSON files it wrote. No network call of our own,
  * and no second auth mechanism to document.
+ *
+ * Success is determined from the pull's own report, never from
+ * `spawnSync`'s exit code (see `readLatestReport`). A missing report, an
+ * unreadable one, or a non-SUCCESS status means the check itself failed —
+ * that is NOT the same as the space being empty, and must not be treated as
+ * such.
  */
 function defaultListStories(space) {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'setup-space-check-'))
   try {
-    const result = spawnSync(
-      'yarn',
-      ['storyblok', '--path', tmpDir, 'stories', 'pull', '--space', space],
-      { encoding: 'utf8' }
-    )
-    if (result.status !== 0) {
+    spawnSync('yarn', ['storyblok', '--path', tmpDir, 'stories', 'pull', '--space', space], {
+      encoding: 'utf8',
+    })
+    const report = readLatestReport(reportsDirFor(tmpDir, space), 'stories-pull')
+    if (report?.status !== SUCCESS) {
       throw new Error(
-        `Could not check whether space ${space} is empty: ` +
-          `\`storyblok stories pull\` exited ${result.status}.\n${result.stderr ?? ''}`
+        `\`storyblok stories pull\` did not report success for space ${space} ` +
+          `(${report ? `status: ${report.status}` : 'no report was written'}).`
       )
     }
     const storiesDir = path.join(tmpDir, 'stories', space)
@@ -79,35 +163,73 @@ function defaultListStories(space) {
   }
 }
 
+/** Slugs the baseline itself ships (home, about, data, data/redirects), derived from the committed story fixtures so this can't drift from the baseline set defined elsewhere. */
+function defaultBaselineSlugs() {
+  return fs
+    .readdirSync(BASELINE_STORIES_DIR)
+    .filter(file => file.endsWith('.json'))
+    .map(
+      file => JSON.parse(fs.readFileSync(path.join(BASELINE_STORIES_DIR, file), 'utf8')).full_slug
+    )
+}
+
 /**
  * `stories push --from baseline --space <id>` treats this as a cross-space push
  * (the source alias "baseline" never equals the target space id). In that mode
  * the CLI's findSlugMatch accepts a slug match in the TARGET space WITHOUT
  * checking uuid equality, so a target space that already has stories at
  * home/about/data/data/redirects gets those stories silently claimed and
- * overwritten. Refuse unless the target space is empty, or the operator passes
- * --force to acknowledge a deliberate re-run.
+ * overwritten. Refuse unless the target only contains stories at baseline
+ * slugs (a starter space, or a repeat run against an already-bootstrapped
+ * space); anything else — a slug the baseline doesn't ship — hard-stops.
+ *
+ * A failed pre-check (see `defaultListStories`) is always an ERROR, never
+ * "empty": `--force` can still override it, but the message makes clear the
+ * check FAILED rather than passed.
  * @param {string} space
  * @param {boolean} force
- * @param {{ listStories?: (space: string) => Array<{ full_slug: string, id: number }> }} [options]
+ * @param {{ listStories?: (space: string) => Array<{ full_slug: string, id: number }>, baselineSlugs?: () => string[] }} [options]
  */
-export function requireEmptySpace(space, force, { listStories = defaultListStories } = {}) {
-  const stories = listStories(space)
-  if (stories.length > 0) {
+export function requireEmptySpace(
+  space,
+  force,
+  { listStories = defaultListStories, baselineSlugs = defaultBaselineSlugs } = {}
+) {
+  let stories
+  try {
+    stories = listStories(space)
+  } catch (error) {
     console.error(
-      `Space ${space} already contains ${stories.length} stor${stories.length === 1 ? 'y' : 'ies'}:\n` +
-        stories.map(story => `  - ${story.full_slug} (id ${story.id})`).join('\n') +
-        '\n\nPushing the baseline into a non-empty space can silently claim and\n' +
-        'overwrite existing stories at matching slugs (home, about, data,\n' +
-        'data/redirects). Target an empty space, or re-run with --force if you\n' +
-        'knowingly want to push into this space again.'
+      `Could not confirm space ${space} is safe to push into:\n  ${error.message}\n\n` +
+        'The pre-push check FAILED — that is not the same as the space being\n' +
+        'empty, and proceeding could silently overwrite existing content.'
     )
     if (!force) {
+      console.error('Re-run with --force only once you have confirmed manually that this is safe.')
       process.exit(1)
       return
     }
-    console.error('Continuing anyway because --force was passed.')
+    console.error('Continuing anyway because --force was passed, despite the check failing.')
+    return
   }
+
+  const baseline = new Set(baselineSlugs())
+  const unexpected = stories.filter(story => !baseline.has(story.full_slug))
+  if (unexpected.length === 0) return
+
+  console.error(
+    `Space ${space} already contains ${unexpected.length} stor${unexpected.length === 1 ? 'y' : 'ies'} outside the baseline set:\n` +
+      unexpected.map(story => `  - ${story.full_slug} (id ${story.id})`).join('\n') +
+      '\n\nPushing the baseline into a space with unrelated content can silently\n' +
+      'claim and overwrite stories at matching slugs. Target an empty (or\n' +
+      'baseline-only) space, or re-run with --force if you knowingly want to\n' +
+      'push into this space again.'
+  )
+  if (!force) {
+    process.exit(1)
+    return
+  }
+  console.error('Continuing anyway because --force was passed.')
 }
 
 function main() {
@@ -120,12 +242,52 @@ function main() {
   }
   requireSession()
   requireEmptySpace(space, force)
-  run(['components', 'push', '--from', 'baseline', '--suffix', 'baseline', '--space', space])
-  run(['stories', 'push', '--from', 'baseline', '--space', space, '--publish'])
-  console.log(
-    '\nDone. One manual step remains: delete the Storyblok starter bloks\n' +
-      '(feature, grid, teaser) in the UI — `components push` cannot delete.'
+
+  const componentsReport = run(
+    ['components', 'push', '--from', 'baseline', '--suffix', 'baseline', '--space', space],
+    'components-push',
+    space
   )
+  if (componentsReport?.status !== SUCCESS) {
+    console.error(
+      `components push did not succeed (${describeReportFailure(componentsReport)}).\n` +
+        'Not proceeding to stories push.'
+    )
+    process.exit(1)
+    return
+  }
+
+  const storiesReport = run(
+    ['stories', 'push', '--from', 'baseline', '--space', space, '--publish'],
+    'stories-push',
+    space
+  )
+
+  if (storiesReport?.status === SUCCESS) {
+    console.log(
+      '\nDone. One manual step remains: delete the Storyblok starter bloks\n' +
+        '(feature, grid, teaser) in the UI — `components push` cannot delete.'
+    )
+    return
+  }
+
+  if (isLikelyPublishQuotaFailure(storiesReport)) {
+    console.warn(
+      '\nStory content pushed, but publishing failed for every story with the\n' +
+        'generic error Storyblok returns when a Development-plan space has hit\n' +
+        'its daily publish quota. Content landed as drafts — this is NOT treated\n' +
+        'as a bootstrap failure. Publish manually once the quota resets\n' +
+        `(Storyblok UI, or \`yarn storyblok stories publish --space ${space}\`).`
+    )
+    console.log(
+      '\nOne manual step remains: delete the Storyblok starter bloks\n' +
+        '(feature, grid, teaser) in the UI — `components push` cannot delete.'
+    )
+    return
+  }
+
+  console.error(`stories push did not succeed (${describeReportFailure(storiesReport)}).`)
+  process.exit(1)
 }
 
 if (import.meta.filename === process.argv[1]) {
