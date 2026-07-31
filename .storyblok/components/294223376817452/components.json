@@ -1,0 +1,261 @@
+[
+  {
+    "name": "feature",
+    "display_name": null,
+    "description": null,
+    "created_at": "2026-07-31T08:53:57.977Z",
+    "updated_at": "2026-07-31T08:53:57.977Z",
+    "id": 203974401957559,
+    "schema": {
+      "name": {
+        "type": "text",
+        "id": "7SRT1brVQM-XaqTFego-rg"
+      }
+    },
+    "image": null,
+    "preview_field": null,
+    "is_root": false,
+    "preview_tmpl": null,
+    "is_nestable": true,
+    "all_presets": [],
+    "preset_id": null,
+    "real_name": "feature",
+    "component_group_uuid": null,
+    "color": null,
+    "icon": null,
+    "internal_tags_list": [],
+    "internal_tag_ids": [],
+    "content_type_asset_preview": null,
+    "metadata": {}
+  },
+  {
+    "name": "grid",
+    "display_name": null,
+    "description": null,
+    "created_at": "2026-07-31T08:53:57.962Z",
+    "updated_at": "2026-07-31T08:53:57.962Z",
+    "id": 203974401900214,
+    "schema": {
+      "columns": {
+        "type": "bloks",
+        "id": "u197ZNQoQKS_VK41zMfdRA"
+      }
+    },
+    "image": null,
+    "preview_field": null,
+    "is_root": false,
+    "preview_tmpl": null,
+    "is_nestable": true,
+    "all_presets": [],
+    "preset_id": null,
+    "real_name": "grid",
+    "component_group_uuid": null,
+    "color": null,
+    "icon": null,
+    "internal_tags_list": [],
+    "internal_tag_ids": [],
+    "content_type_asset_preview": null,
+    "metadata": {}
+  },
+  {
+    "name": "page",
+    "display_name": "Page",
+    "description": null,
+    "created_at": "2026-07-31T08:53:57.933Z",
+    "updated_at": "2026-07-31T10:05:13.957Z",
+    "id": 203974401781428,
+    "schema": {
+      "body": {
+        "type": "bloks",
+        "pos": 0,
+        "restrict_components": true,
+        "restrict_type": "",
+        "component_whitelist": [
+          "text_section"
+        ],
+        "id": "RldUgFKkTSWAE8pnKK5PAg"
+      },
+      "tab-seo": {
+        "type": "tab",
+        "display_name": "SEO",
+        "keys": [
+          "seo"
+        ],
+        "pos": 1,
+        "id": "zoA"
+      },
+      "seo": {
+        "type": "custom",
+        "field_type": "meta-fields",
+        "pos": 2,
+        "options": [],
+        "id": "hRXMa3pRRamq0YsdO5GqiQ"
+      }
+    },
+    "image": null,
+    "preview_field": null,
+    "is_root": true,
+    "preview_tmpl": null,
+    "is_nestable": false,
+    "all_presets": [],
+    "preset_id": null,
+    "real_name": "Page",
+    "component_group_uuid": null,
+    "color": null,
+    "icon": null,
+    "internal_tags_list": [],
+    "internal_tag_ids": [],
+    "content_type_asset_preview": null,
+    "metadata": {}
+  },
+  {
+    "name": "redirect",
+    "display_name": "Redirect",
+    "description": null,
+    "created_at": "2026-07-31T10:05:13.107Z",
+    "updated_at": "2026-07-31T10:05:13.107Z",
+    "id": 203991912894440,
+    "schema": {
+      "source": {
+        "type": "text",
+        "pos": 0,
+        "id": "mWLmlkKBTMWOJHTwCf8BTA"
+      },
+      "destination": {
+        "type": "text",
+        "pos": 1,
+        "id": "WIZvWNsyShedJwMbFaaAEw"
+      },
+      "permanent": {
+        "type": "boolean",
+        "pos": 2,
+        "default_value": true,
+        "id": "cQ73JWNlRrqam6A-fJkQLg"
+      }
+    },
+    "image": null,
+    "preview_field": null,
+    "is_root": false,
+    "preview_tmpl": null,
+    "is_nestable": true,
+    "all_presets": [],
+    "preset_id": null,
+    "real_name": "Redirect",
+    "component_group_uuid": null,
+    "color": null,
+    "icon": null,
+    "internal_tags_list": [],
+    "internal_tag_ids": [],
+    "content_type_asset_preview": null,
+    "metadata": {}
+  },
+  {
+    "name": "redirects",
+    "display_name": "Redirects",
+    "description": null,
+    "created_at": "2026-07-31T10:05:13.955Z",
+    "updated_at": "2026-07-31T10:05:13.955Z",
+    "id": 203991916367849,
+    "schema": {
+      "entries": {
+        "type": "bloks",
+        "pos": 0,
+        "restrict_components": true,
+        "restrict_type": "",
+        "component_whitelist": [
+          "redirect"
+        ],
+        "id": "yYnSuV9VT0q-Pzb3KWXujQ"
+      }
+    },
+    "image": null,
+    "preview_field": null,
+    "is_root": true,
+    "preview_tmpl": null,
+    "is_nestable": false,
+    "all_presets": [],
+    "preset_id": null,
+    "real_name": "Redirects",
+    "component_group_uuid": null,
+    "color": null,
+    "icon": null,
+    "internal_tags_list": [],
+    "internal_tag_ids": [],
+    "content_type_asset_preview": null,
+    "metadata": {}
+  },
+  {
+    "name": "teaser",
+    "display_name": null,
+    "description": null,
+    "created_at": "2026-07-31T08:53:57.947Z",
+    "updated_at": "2026-07-31T08:53:57.947Z",
+    "id": 203974401838773,
+    "schema": {
+      "headline": {
+        "type": "text",
+        "id": "Xpn1kTFVRPq5OKOYL5dn7g"
+      }
+    },
+    "image": null,
+    "preview_field": null,
+    "is_root": false,
+    "preview_tmpl": null,
+    "is_nestable": true,
+    "all_presets": [],
+    "preset_id": null,
+    "real_name": "teaser",
+    "component_group_uuid": null,
+    "color": null,
+    "icon": null,
+    "internal_tags_list": [],
+    "internal_tag_ids": [],
+    "content_type_asset_preview": null,
+    "metadata": {}
+  },
+  {
+    "name": "text_section",
+    "display_name": "Text Section",
+    "description": null,
+    "created_at": "2026-07-31T10:01:40.186Z",
+    "updated_at": "2026-07-31T10:01:40.186Z",
+    "id": 203991040774109,
+    "schema": {
+      "eyebrow": {
+        "type": "text",
+        "pos": 0,
+        "id": "Idw8mbTcS9KVaXUU4dZ5hg"
+      },
+      "headline": {
+        "type": "text",
+        "pos": 1,
+        "id": "czLJRZi3S4CuuaSA_o7TVg"
+      },
+      "lead": {
+        "type": "richtext",
+        "pos": 2,
+        "id": "12s7oGCASiehkO217edWYg"
+      },
+      "link": {
+        "type": "multilink",
+        "pos": 3,
+        "id": "19lEYxpvTTaN43lhcxzrJA"
+      }
+    },
+    "image": null,
+    "preview_field": null,
+    "is_root": false,
+    "preview_tmpl": null,
+    "is_nestable": true,
+    "all_presets": [],
+    "preset_id": null,
+    "real_name": "Text Section",
+    "component_group_uuid": null,
+    "color": null,
+    "icon": null,
+    "internal_tags_list": [],
+    "internal_tag_ids": [],
+    "content_type_asset_preview": null,
+    "metadata": {}
+  }
+]
