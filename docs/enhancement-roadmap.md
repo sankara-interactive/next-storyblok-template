@@ -55,7 +55,7 @@ Record architectural decisions here as they are made, newest last.
 
 ## Phase 0: Land the Baseline PR Stack
 
-Status: `[~]` All PRs merged; smoke test run except preview editing
+Status: `[x]` All PRs merged; smoke test run against the Template space
 
 Tasks:
 
@@ -74,9 +74,16 @@ Tasks:
       link, a blok embedded inside richtext, `/about`, and two negative cases
       (unknown path 404s, `data/` non-routable). It also proved Phase A2 at
       runtime for the first time — `/alt` → 308 `/about`, query preserved.
-- [ ] Smoke-test **preview editing** in the visual editor. The one item
-      `scripts/smoke.sh` cannot automate: point the space's preview URL at the
-      dev server, open `home` in the editor, confirm edits reflect live.
+- [x] Smoke-test **preview editing**. Verified 2026-07-31 by loading the dev
+      server in an iframe with `?_storyblok=...`, which is exactly what
+      `isVisualEditor()` gates on
+      (`isBrowser() && isIframe() && search.includes('_storyblok')`):
+      `window.StoryblokBridge` and `window.storyblokRegisterEvent` are both
+      functions — the SDK's own `isBridgeLoaded()` test — and three elements
+      carry `data-blok-uid`, including the blok nested inside richtext. Outside
+      an iframe the bridge is absent, so it never reaches a normal visitor.
+      Not covered: an edit in the real Storyblok editor reflecting live, which
+      needs an HTTPS preview URL.
 
 Exit criteria:
 
@@ -138,7 +145,8 @@ Exit criteria:
 
 ## Phase A2: CMS-Editable Redirects
 
-Status: `[~]` Code complete; blocked on the Storyblok schema existing
+Status: `[x]` Complete — verified at runtime on 2026-07-31 (`/alt` → 308
+`/about`, query preserved) once `yarn setup:space` created the schema
 
 Client requirement: editors change redirects in Storyblok and cannot trigger a
 redeploy. Resolved at the 404 boundary — see Decisions. The old build-time path

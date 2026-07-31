@@ -1,0 +1,21 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]
+  - main [ref=e8]:
+    - generic [ref=e9]:
+      - paragraph [ref=e10]: Willkommen
+      - heading "Template-Demoseite" [level=2] [ref=e11]
+      - generic [ref=e12]:
+        - paragraph [ref=e13]:
+          - text: Dieser Text ist
+          - strong [ref=e14]: fett
+          - text: und verlinkt auf
+          - link "die Über-uns-Seite" [ref=e15] [cursor=pointer]:
+            - /url: about
+          - text: sowie auf
+          - link "eine E-Mail-Adresse" [ref=e16] [cursor=pointer]:
+            - /url: mailto:hallo@example.ch
+          - text: .
+        - heading "Eingebetteter Blok" [level=2] [ref=e18]
+      - link "Mehr erfahren" [ref=e19] [cursor=pointer]:
+        - /url: /about
+  - contentinfo [ref=e20]: Your Footer
