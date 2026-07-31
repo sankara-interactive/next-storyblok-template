@@ -20,7 +20,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
-      "@storyblok-component-types": ["./.storyblok/types/202685/storyblok-components"]
+      "@storyblok-component-types": ["./.storyblok/types/294223376817452/storyblok-components"]
     },
     "plugins": [
       {
