@@ -7,6 +7,9 @@ import path from 'node:path'
 
 const SPACE_ID_PATTERN = /^\d+$/
 const SUCCESS = 'SUCCESS'
+const MANUAL_STEP_REMINDER =
+  'One manual step remains: delete the Storyblok starter bloks\n' +
+  '(feature, grid, teaser) in the UI — `components push` cannot delete.'
 const STORYBLOK_ROOT = path.join(process.cwd(), '.storyblok')
 const BASELINE_STORIES_DIR = path.join(STORYBLOK_ROOT, 'stories/baseline')
 const BASELINE_COMPONENTS_FILE = path.join(
@@ -45,24 +48,29 @@ function reportsDirFor(basePath, space) {
  * @param {string} commandSuffix e.g. "stories-pull", "components-push"
  */
 export function readLatestReport(dir, commandSuffix) {
-  let files
-  try {
-    files = fs.readdirSync(dir)
-  } catch {
-    return null
-  }
-  const pattern = new RegExp(`^storyblok-${commandSuffix}-(\\d+)\\.json$`)
-  const [latest] = files
-    .map(file => ({ file, match: file.match(pattern) }))
-    .filter(({ match }) => match)
-    .map(({ file, match }) => ({ file, runId: Number(match[1]) }))
-    .sort((a, b) => b.runId - a.runId)
+  const [latest] = matchingReports(dir, commandSuffix)
   if (!latest) return null
   try {
     return JSON.parse(fs.readFileSync(path.join(dir, latest.file), 'utf8'))
   } catch {
     return null
   }
+}
+
+/** Reports for a command+space, newest first. Empty when the directory is absent. */
+function matchingReports(dir, commandSuffix) {
+  let files
+  try {
+    files = fs.readdirSync(dir)
+  } catch {
+    return []
+  }
+  const pattern = new RegExp(`^storyblok-${commandSuffix}-(\\d+)\\.json$`)
+  return files
+    .map(file => file.match(pattern))
+    .filter(Boolean)
+    .map(match => ({ file: match[0], runId: Number(match[1]) }))
+    .sort((a, b) => b.runId - a.runId)
 }
 
 /** Prints the report status plus, when available, the CLI's own per-story error list. */
@@ -109,18 +117,8 @@ export function isLikelyPublishQuotaFailure(report) {
  * a timestamp, so "highest" and "most recent" coincide.
  */
 function latestRunId(dir, commandSuffix) {
-  let files
-  try {
-    files = fs.readdirSync(dir)
-  } catch {
-    return null
-  }
-  const pattern = new RegExp(`^storyblok-${commandSuffix}-(\\d+)\\.json$`)
-  const runIds = files
-    .map(file => file.match(pattern))
-    .filter(Boolean)
-    .map(match => Number(match[1]))
-  return runIds.length === 0 ? null : Math.max(...runIds)
+  const [latest] = matchingReports(dir, commandSuffix)
+  return latest ? latest.runId : null
 }
 
 /**
@@ -371,10 +369,7 @@ function main() {
   )
 
   if (storiesReport?.status === SUCCESS) {
-    console.log(
-      '\nDone. One manual step remains: delete the Storyblok starter bloks\n' +
-        '(feature, grid, teaser) in the UI — `components push` cannot delete.'
-    )
+    console.log(`\nDone. ${MANUAL_STEP_REMINDER}`)
     return
   }
 
@@ -386,10 +381,7 @@ function main() {
         'as a bootstrap failure. Publish manually once the quota resets\n' +
         `(Storyblok UI, or \`yarn storyblok stories publish --space ${space}\`).`
     )
-    console.log(
-      '\nOne manual step remains: delete the Storyblok starter bloks\n' +
-        '(feature, grid, teaser) in the UI — `components push` cannot delete.'
-    )
+    console.log(`\n${MANUAL_STEP_REMINDER}`)
     return
   }
 
