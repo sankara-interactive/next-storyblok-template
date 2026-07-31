@@ -74,16 +74,19 @@ Tasks:
       link, a blok embedded inside richtext, `/about`, and two negative cases
       (unknown path 404s, `data/` non-routable). It also proved Phase A2 at
       runtime for the first time — `/alt` → 308 `/about`, query preserved.
-- [x] Smoke-test **preview editing**. Verified 2026-07-31 by loading the dev
-      server in an iframe with `?_storyblok=...`, which is exactly what
+- [x] Smoke-test **preview editing**. Verified 2026-07-31 end to end in the real
+      Storyblok editor, over an HTTPS tunnel, with live updates working.
       `isVisualEditor()` gates on
-      (`isBrowser() && isIframe() && search.includes('_storyblok')`):
-      `window.StoryblokBridge` and `window.storyblokRegisterEvent` are both
-      functions — the SDK's own `isBridgeLoaded()` test — and three elements
-      carry `data-blok-uid`, including the blok nested inside richtext. Outside
-      an iframe the bridge is absent, so it never reaches a normal visitor.
-      Not covered: an edit in the real Storyblok editor reflecting live, which
-      needs an HTTPS preview URL.
+      `isBrowser() && isIframe() && search.includes('_storyblok')`, so the bridge
+      loads only inside the editor iframe and is absent for a normal visitor —
+      both directions confirmed. Three elements carry `data-blok-uid`, including
+      the blok nested inside richtext, so that one is individually selectable.
+      **Do not preview `yarn dev` through a tunnel.** Next's HMR WebSocket
+      cannot upgrade through cloudflared (502 on `wss://`), so dev retries every
+      second and reloads the page, destroying the JS context before the bridge
+      finishes initialising — the page renders but never updates, which looks
+      exactly like a broken bridge. Serve `yarn build && yarn start` instead;
+      there is no HMR socket and the bridge initialises normally.
 
 Exit criteria:
 
