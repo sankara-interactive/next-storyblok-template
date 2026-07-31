@@ -137,10 +137,17 @@ committed baseline JSON is what earns a test, in vitest:
 
 - every blok named in a `component_whitelist` or restricted tag exists in the file
 - content types are `is_root`; nestables are `is_nestable`
-- every nestable in the baseline has a key in the `lib/storyblok.ts` registry
+- every nestable reachable from a **routable** content type's bloks fields has a
+  key in the `lib/storyblok.ts` registry
 
 The last assertion catches the failure `CLAUDE.md` warns about — a name mismatch
 causing a silent no-render — which is otherwise invisible until a page is loaded.
+
+"Routable" is load-bearing: `redirect` is a nestable, but it is reached only from
+`redirects`, a `data/` content type that `getRedirects()` parses as data and never
+renders. Requiring a registry key for it would force a renderer that does nothing.
+Data-only bloks are therefore exempt, and the test derives that from reachability
+rather than a hand-maintained exclusion list.
 
 ## Verified against the Template space (294223376817452)
 
