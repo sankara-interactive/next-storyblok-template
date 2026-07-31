@@ -3,6 +3,7 @@
 Next 16 (App Router, RSC) + Storyblok marketing-site template.
 
 ## Architecture
+
 - **All Storyblok reads** go through `lib/storyblok-api.ts` (`server-only`). Live
   reads carry the global `STORYBLOK_CACHE_TAG`; each published story also carries a
   per-story tag (`storyTag(slug)` → `storyblok:<slug>`). Never call the SDK directly
@@ -53,12 +54,13 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   from `https://www.privacybee.ch/widget.js`; it is placed in page content, not the
   layout. Its `website_id` comes from the blok field — there is no global env var for it.
 - **SEO**: structured data (Organization + WebSite JSON-LD) is emitted sitewide from
-  `components/seo/JsonLd.tsx`; root `metadata` in `app/layout.tsx` provides title-template
-  + OG defaults; per-page metadata in `app/[[...slug]]/page.tsx` overrides
-  title/description/canonical/images. Next *replaces* `openGraph` rather than merging it,
-  so every override spreads `OG_DEFAULTS` (`lib/config.ts`).
+  `components/seo/JsonLd.tsx`; root `metadata` in `app/layout.tsx` provides the
+  title-template and OG defaults; per-page metadata in `app/[[...slug]]/page.tsx`
+  overrides title/description/canonical/images. Next _replaces_ `openGraph` rather
+  than merging it, so every override spreads `OG_DEFAULTS` (`lib/config.ts`).
 
 ## Conventions
+
 - Registry key = EXACT snake_case technical name (mismatch = silent no-render).
   snake_case keeps blok names consistent with Storyblok-native fields (`is_folder`,
   link/asset internals). Generated types stay PascalCase (`HeroSectionStoryblok`).
@@ -71,11 +73,29 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   `link`/`links`, `label`, `variant`/`theme` (options), `is*`/`has*` (booleans).
 
 ## Workflow
+
 - `yarn check` — the gate CI runs: formatting, ESLint, TypeScript, tests, and
   Storyblok type drift. Run it before opening a PR.
 - `yarn sync` — pull schemas + regenerate types. Commit `components.json`.
 - `yarn scaffold` — generate stubs for missing components (deliberate, separate).
+- `yarn setup:space --space <id> --yes` — bootstrap a **new** space from the
+  committed baseline (`.storyblok/{components,stories}/baseline/`). It refuses a
+  space holding stories outside that baseline; `--force` overrides. Never point it
+  at a space in use. Existing spaces stay UI-driven — this does not govern them.
 - Schema source of truth = Storyblok UI; push back via the CLI/Management API
   only when authoring a blok in code (overwrites — coordinate).
-- Agents: use the Storyblok Management API, not the MCP, for schema/content work.
+- **Credentials, three of them, not interchangeable.** The CLI session
+  (`storyblok login -r eu`, _email_ method) drives `components`/`stories`
+  push and pull — a personal access token cannot, because those commands call
+  `/internal_tags` unconditionally and it 403s there. `STORYBLOK_MANAGEMENT_TOKEN`
+  is that personal token, for direct Management API reads and deletes.
+  `NEXT_PUBLIC_STORYBLOK_TOKEN` is the delivery token the app reads via
+  `lib/env.ts`. A lone `STORYBLOK_TOKEN` in `.env` does nothing: the CLI reads it
+  only with `STORYBLOK_LOGIN` and `STORYBLOK_REGION` set too.
+- Agents: prefer the CLI for schema and content writes (it uses the session);
+  use the Management API for read-back verification and for deletes, which the
+  CLI cannot do — `components push` creates and updates only. Not the MCP.
+- Verify server-side, not by exit status: the Storyblok CLI does not set a
+  non-zero exit code on failure, and reports "Updated" for components it just
+  created. Read the CLI's `reports/<space>/*.json` `status`, or pull and inspect.
 - Never edit `.env*`; never commit on `main`.
