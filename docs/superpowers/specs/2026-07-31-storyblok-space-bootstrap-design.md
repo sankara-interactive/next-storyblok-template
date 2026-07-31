@@ -94,7 +94,9 @@ output so the step is not silently skipped.
 
 ### Content
 
-`.storyblok/stories/baseline/`, pushed with `stories push --publish`.
+`.storyblok/stories/baseline/`, pushed with
+`stories push --from baseline --publish`. The `--from` is load-bearing: without
+it the CLI reads `.storyblok/stories/<target-space-id>/` and finds nothing.
 
 - **`home`** (`page`) — one `text_section` whose `lead` richtext contains a
   paragraph with marks, an internal link, an email link, and an embedded blok.
