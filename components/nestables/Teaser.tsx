@@ -1,7 +1,6 @@
 import { TeaserStoryblok } from '@storyblok-component-types'
 import { SbBlokData, storyblokEditable } from '@storyblok/react/rsc'
 import Image from 'next/image'
-import { SbLink } from '@/components/helpers/SbLink'
 
 export default function Teaser({ blok }: { blok: TeaserStoryblok }) {
   return (
@@ -11,15 +10,6 @@ export default function Teaser({ blok }: { blok: TeaserStoryblok }) {
           <h1 className="text-4xl xl:text-5xl text-light dark:text-dark font-medium tracking-normal leading-tight mb-6">
             {blok.headline}
           </h1>
-          {blok.lead && <h2 className="text-lg font-medium mb-6">{blok.lead}</h2>}
-          <div className="flex flex-col sm:block py-4">
-            <SbLink
-              link={blok.button_link}
-              className="inline-block font-medium shadow uppercase rounded hover:shadow-md sm:mr-4 py-3 px-6 text-base mb-4 primary"
-            >
-              {blok.button_label}
-            </SbLink>
-          </div>
         </div>
         <div className="hidden lg:block lg:w-5/12">
           <Image
