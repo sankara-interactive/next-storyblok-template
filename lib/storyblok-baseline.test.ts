@@ -28,6 +28,9 @@ describe('baseline schema', () => {
   })
 
   it('tab keys reference fields that exist', () => {
+    // Pins the fixture: without this, the loop below is vacuously true if
+    // e.g. `tab-seo` were deleted from the baseline.
+    expect(byName.get('page')!.schema['tab-seo']).toBeDefined()
     for (const component of baseline) {
       for (const [name, field] of Object.entries(component.schema)) {
         if (field.type !== 'tab') continue
