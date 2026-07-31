@@ -126,10 +126,8 @@ complete until that is done.
 - The resolved target space is echoed, and `--yes` is required to proceed.
   `components push` has no `--dry-run` (only `stories push` does), so explicit
   confirmation is the guard rather than preview.
-- Missing authentication fails early naming `STORYBLOK_TOKEN`, matching how
-  `lib/env.ts` reports missing configuration. Note the CLI reads `STORYBLOK_TOKEN`
-  (it loads `.env` via `dotenv/config`); `.env.example` currently documents
-  `STORYBLOK_OAUTH_TOKEN`, which nothing reads.
+- Missing authentication fails early with the fix in the message — see
+  Authentication below. A personal access token is not sufficient.
 - Nothing writes to `.env`.
 
 ## Testing
@@ -144,25 +142,52 @@ committed baseline JSON is what earns a test, in vitest:
 The last assertion catches the failure `CLAUDE.md` warns about — a name mismatch
 causing a silent no-render — which is otherwise invisible until a page is loaded.
 
-## Open questions, to settle with a token
+## Verified against the Template space (294223376817452)
 
-None change the design's shape; each has an obvious fallback.
+Settled empirically on 2026-07-31, authenticated as `emanuel@sankara.ch`:
 
-1. Does `components push --from` accept a non-numeric directory name such as
-   `baseline`? The help text says "source space id". Fallback: keep the baseline
-   under a numeric directory.
-2. Is a stable tab key such as `tab-seo` valid, where the live space uses
-   `tab-<uuid>`? Fallback: generate a uuid-suffixed key.
-3. What layout does `stories push` expect under `.storyblok/stories/`?
+1. **`--from` accepts a non-numeric directory name.** `const fromSpace =
+options.from || space` is used as a plain directory string with no numeric
+   validation, so `--from baseline` reads `<path>/components/baseline/`.
+   `components push` also hard-errors without `--space`, so part of the guardrail
+   is built into the CLI.
+2. **Component layout** is `<path>/components/<dir>/components.json`.
+3. **Story layout** is `<path>/stories/<dir>/<slug>_<uuid>.json`, each holding the
+   full story object (`content`, `full_slug`, `is_folder`, `is_startpage`, …).
+   Baseline stories therefore need stable hand-picked UUIDs.
+4. The target space contains exactly the Storyblok starter set — `feature`,
+   `grid`, `page`, `teaser` and one `home` story — so bootstrapping destroys
+   nothing of value.
+
+Still open, with a trivial fallback: is a stable tab key such as `tab-seo` valid,
+where the live space uses `tab-<uuid>`? Fallback: generate a uuid-suffixed key.
+
+## Authentication
+
+**The CLI needs a session created by `storyblok login` with the _email_ method.**
+This is not interchangeable with a personal access token:
+
+- Both `components pull` and `components push` call `fetchComponentInternalTags`
+  unconditionally, inside a `Promise.all`. A personal access token returns
+  `403 {"error":"This endpoint does not support this token type"}` on
+  `/v1/spaces/<id>/internal_tags`, which aborts the whole command. This is not
+  avoidable by keeping tags out of the baseline.
+- `STORYBLOK_TOKEN` in `.env` is ignored unless `STORYBLOK_LOGIN` **and**
+  `STORYBLOK_REGION` are also set — `getEnvCredentials()` requires all three or
+  falls through to the stored session in `~/.storyblok/credentials.json`.
+- `.env.example` documents `STORYBLOK_OAUTH_TOKEN`, which nothing reads.
+
+`setup:space` should therefore check for a working session rather than for an
+environment variable, and say "run `storyblok login -r eu` and choose email" when
+one is missing.
 
 ## Limitations, stated plainly
 
-- **Nothing here validates the file formats against Storyblok.** Only running the
-  bootstrap once against a scratch space does. The first implementation step is
-  therefore: obtain a Management API token as `STORYBLOK_TOKEN`, run
-  `components pull` and
-  `stories pull` against a scratch space, observe the real formats, then author
-  the baseline to match.
+- **The push direction is still unproven.** `components pull` and `stories pull`
+  have been run against the target space and the layouts are recorded above, but
+  no push has been attempted. Whether a hand-authored baseline is accepted as-is —
+  particularly the tab key and the `meta-fields` custom field — is only settled by
+  running it.
 - **Deleting the starter components is not automated.** `components push` has no
   `--delete`; the step is manual and therefore skippable. If it proves annoying in
   practice, the cheapest fix is a small Management API call in `setup:space`
