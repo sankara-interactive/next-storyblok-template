@@ -106,6 +106,21 @@ To enable preview mode you have to add two preview URLs in Storyblok:
 `API_SECRET` is already set from step 3 — the app will not start without it.
 It might be helpful for the end user to set the preview URL as default.
 
+The `/api/draft` route validates the secret, confirms the story exists, enables
+draft mode, and forwards **only** the `_storyblok*` params onward — the secret
+never reaches the page URL. `data/` stories are rejected as non-previewable.
+
+**Previewing a local server over an HTTPS tunnel:** Storyblok's editor needs
+HTTPS, so a tunnel (`cloudflared tunnel --url http://localhost:3000`) is the usual
+way to preview locally. Serve a production build through it —
+`yarn build && yarn start` — **not `yarn dev`**. Next's HMR WebSocket cannot
+upgrade through a tunnel (502 on `wss://`), so the dev server retries every second
+and reloads the page, destroying the JS context before the Storyblok bridge
+finishes loading. The symptom is a page that renders but never reflects edits,
+which looks identical to a broken bridge. Note that with a production build,
+browsing the tunnel URL directly returns 404 for unpublished stories — only the
+`/api/draft` path shows them, which is exactly what the editor uses.
+
 ### 8. Webhook for revalidation
 
 To revalidate pages after publishing in Storyblok, set up a Webhook pointing to:
