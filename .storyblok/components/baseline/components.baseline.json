@@ -1,5 +1,34 @@
 [
   {
+    "name": "page",
+    "display_name": "Page",
+    "is_root": true,
+    "is_nestable": false,
+    "schema": {
+      "body": {
+        "type": "bloks",
+        "pos": 0,
+        "restrict_components": true,
+        "restrict_type": "",
+        "component_whitelist": ["text_section"]
+      },
+      "tab-seo": {
+        "type": "tab",
+        "display_name": "SEO",
+        "keys": ["seo"],
+        "pos": 1
+      },
+      "seo": {
+        "type": "custom",
+        "field_type": "meta-fields",
+        "pos": 2,
+        "options": []
+      }
+    },
+    "internal_tags_list": [],
+    "internal_tag_ids": []
+  },
+  {
     "name": "text_section",
     "display_name": "Text Section",
     "is_root": false,
@@ -9,6 +38,36 @@
       "headline": { "type": "text", "pos": 1 },
       "lead": { "type": "richtext", "pos": 2 },
       "link": { "type": "multilink", "pos": 3 }
+    },
+    "internal_tags_list": [],
+    "internal_tag_ids": []
+  },
+  {
+    "name": "redirects",
+    "display_name": "Redirects",
+    "is_root": true,
+    "is_nestable": false,
+    "schema": {
+      "entries": {
+        "type": "bloks",
+        "pos": 0,
+        "restrict_components": true,
+        "restrict_type": "",
+        "component_whitelist": ["redirect"]
+      }
+    },
+    "internal_tags_list": [],
+    "internal_tag_ids": []
+  },
+  {
+    "name": "redirect",
+    "display_name": "Redirect",
+    "is_root": false,
+    "is_nestable": true,
+    "schema": {
+      "source": { "type": "text", "pos": 0 },
+      "destination": { "type": "text", "pos": 1 },
+      "permanent": { "type": "boolean", "pos": 2, "default_value": true }
     },
     "internal_tags_list": [],
     "internal_tag_ids": []
