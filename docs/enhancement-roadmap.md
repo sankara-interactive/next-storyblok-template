@@ -161,10 +161,14 @@ Tasks:
 - [x] Define the `data/redirects` schema (source, destination, permanent) —
   documented in `README.md`.
 - [ ] Create the `redirect` blok and `redirects` content type in the Storyblok
-  space, then `yarn sync`. Needs a Management API token as `STORYBLOK_TOKEN` —
-  the name the CLI actually reads, not `.env.example`'s `STORYBLOK_OAUTH_TOKEN`,
-  which nothing reads. Until this lands `getRedirects()` reads a story that does
-  not exist and returns `[]`, so nothing redirects.
+  space, then `yarn sync`. Needs a CLI session from `storyblok login -r eu` using
+  the **email** method — a personal access token 403s on `/internal_tags`, which
+  both `components pull` and `push` call unconditionally. `STORYBLOK_TOKEN` in
+  `.env` is ignored unless `STORYBLOK_LOGIN` and `STORYBLOK_REGION` accompany it,
+  and `.env.example`'s `STORYBLOK_OAUTH_TOKEN` is read by nothing. See
+  `docs/superpowers/specs/2026-07-31-storyblok-space-bootstrap-design.md`.
+  Until this lands `getRedirects()` reads a story that does not exist and returns
+  `[]`, so nothing redirects.
 - [x] Implement, preserving query strings and never trusting the Host header.
   Destinations come from the CMS as a path or absolute URL, so no origin is
   ever derived from a request header.
