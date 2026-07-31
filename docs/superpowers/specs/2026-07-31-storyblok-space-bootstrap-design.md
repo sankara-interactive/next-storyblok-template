@@ -21,7 +21,7 @@ Two consequences:
 ## Decisions
 
 - **The Storyblok UI stays the source of truth for schema.** The committed
-  baseline exists to *bootstrap* a new space, not to govern existing ones.
+  baseline exists to _bootstrap_ a new space, not to govern existing ones.
   `yarn sync` remains the workflow for real spaces. This preserves the existing
   rule in `CLAUDE.md` rather than inverting it.
 - **The demo space is a reproducible dev/preview space, not a CI dependency.**
@@ -45,7 +45,7 @@ Rejected alternatives:
   for now because the installed `storyblok@4.21.1` package exports only field
   types — no schema DSL — so the entry-file format cannot be verified without
   running `schema init` against a live space. It is also the code-driven
-  *governance* tool, which conflicts with keeping the UI authoritative. Worth
+  _governance_ tool, which conflicts with keeping the UI authoritative. Worth
   revisiting once the format has been observed.
 - **A `scripts/setup-space.mjs` over the Management API.** Full control including
   deletion, but roughly 150 lines reimplementing what the CLI already does, to
@@ -58,12 +58,12 @@ Rejected alternatives:
 `.storyblok/components/baseline/components.baseline.json`, hand-authored and
 committed. Pushed with `components push --from baseline --suffix baseline`.
 
-| Component      | Kind                    | Fields                                                        |
-| -------------- | ----------------------- | ------------------------------------------------------------- |
+| Component      | Kind                    | Fields                                                                                       |
+| -------------- | ----------------------- | -------------------------------------------------------------------------------------------- |
 | `page`         | content type, `is_root` | `body` (bloks, restricted by tag `section`); `seo` (custom, `meta-fields`) inside an SEO tab |
-| `text_section` | nestable, tag `section` | `eyebrow` text, `headline` text, `lead` richtext, `link` multilink |
-| `redirects`    | content type, `is_root` | `entries` (bloks → `redirect`)                                |
-| `redirect`     | nestable                | `source` text, `destination` text, `permanent` boolean        |
+| `text_section` | nestable, tag `section` | `eyebrow` text, `headline` text, `lead` richtext, `link` multilink                           |
+| `redirects`    | content type, `is_root` | `entries` (bloks → `redirect`)                                                               |
+| `redirect`     | nestable                | `source` text, `destination` text, `permanent` boolean                                       |
 
 `text_section` uses the field vocabulary already documented in `CLAUDE.md`
 (`eyebrow`/`headline`/`lead`/`link`) and is whitelisted by tag per the same
@@ -82,7 +82,7 @@ It renders through `RichTextRenderer` and `SbLink`, which is exactly what the
 Phase 0 smoke test needs to cover.
 
 `feature`, `grid` and `teaser` stay in the codebase. They are deleted from
-*newly bootstrapped* spaces only; space `202685` still uses `grid` and `teaser`,
+_newly bootstrapped_ spaces only; space `202685` still uses `grid` and `teaser`,
 so removing them from code would break the live space.
 
 ### Content
@@ -154,7 +154,14 @@ None change the design's shape; each has an obvious fallback.
 
 ## Dependencies
 
-- The `redirects` and `redirect` components, and the `data/redirects` story, are
-  only meaningful once **PR #26** (`feat/cms-redirects`, Phase A2) merges. The
-  baseline can be authored before then, but the end-to-end redirect proof requires
-  it.
+- Phase A2's redirect resolution (**PR #26**, `feat/cms-redirects`) is merged, so
+  `lib/redirects.ts` and the 404-boundary lookup are on `main`. It is inert until
+  this bootstrap creates the `redirects` and `redirect` components and the
+  `data/redirects` story — which is what makes the demo space the first runtime
+  proof that A2 works.
+
+## Follow-up
+
+- Run `/simplify` across `lib/redirects.ts`, the catch-all integration, the
+  baseline JSON and `setup:space` once the bootstrap is fully implemented.
+  Deliberately deferred until the whole shape exists.
