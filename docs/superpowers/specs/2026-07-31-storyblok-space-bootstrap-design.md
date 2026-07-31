@@ -126,8 +126,10 @@ complete until that is done.
 - The resolved target space is echoed, and `--yes` is required to proceed.
   `components push` has no `--dry-run` (only `stories push` does), so explicit
   confirmation is the guard rather than preview.
-- Missing authentication fails early naming `STORYBLOK_OAUTH_TOKEN`, matching how
-  `lib/env.ts` reports missing configuration.
+- Missing authentication fails early naming `STORYBLOK_TOKEN`, matching how
+  `lib/env.ts` reports missing configuration. Note the CLI reads `STORYBLOK_TOKEN`
+  (it loads `.env` via `dotenv/config`); `.env.example` currently documents
+  `STORYBLOK_OAUTH_TOKEN`, which nothing reads.
 - Nothing writes to `.env`.
 
 ## Testing
@@ -157,7 +159,8 @@ None change the design's shape; each has an obvious fallback.
 
 - **Nothing here validates the file formats against Storyblok.** Only running the
   bootstrap once against a scratch space does. The first implementation step is
-  therefore: obtain `STORYBLOK_OAUTH_TOKEN`, run `components pull` and
+  therefore: obtain a Management API token as `STORYBLOK_TOKEN`, run
+  `components pull` and
   `stories pull` against a scratch space, observe the real formats, then author
   the baseline to match.
 - **Deleting the starter components is not automated.** `components push` has no
