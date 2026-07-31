@@ -81,9 +81,16 @@ requires:
 It renders through `RichTextRenderer` and `SbLink`, which is exactly what the
 Phase 0 smoke test needs to cover.
 
-`feature`, `grid` and `teaser` stay in the codebase. They are deleted from
-_newly bootstrapped_ spaces only; space `202685` still uses `grid` and `teaser`,
-so removing them from code would break the live space.
+`feature`, `grid` and `teaser` stay in the codebase — space `202685` still uses
+`grid` and `teaser`, so removing them from code would break the live space.
+
+Removing them from a _newly bootstrapped_ space is a **manual step**.
+`components push` creates and updates components but has no `--delete`, so the
+three Storyblok starters survive the push and must be deleted in the Storyblok
+UI afterwards. This is the accepted cost of choosing this approach over
+`schema push --delete` or a Management API script: deleting three bloks once per
+space does not justify either. `setup:space` prints the reminder as its closing
+output so the step is not silently skipped.
 
 ### Content
 
@@ -104,6 +111,10 @@ Together these cover every item on the unrun Phase 0 smoke test.
 ### Entry point
 
 `yarn setup:space --space <id> --yes`
+
+It runs the two push commands, then prints the manual follow-up: delete
+`feature`, `grid` and `teaser` in the Storyblok UI. The bootstrap is not
+complete until that is done.
 
 ## Guardrails
 
@@ -147,6 +158,10 @@ None change the design's shape; each has an obvious fallback.
   therefore: obtain `STORYBLOK_OAUTH_TOKEN`, run `components pull` and
   `stories pull` against a scratch space, observe the real formats, then author
   the baseline to match.
+- **Deleting the starter components is not automated.** `components push` has no
+  `--delete`; the step is manual and therefore skippable. If it proves annoying in
+  practice, the cheapest fix is a small Management API call in `setup:space`
+  rather than adopting `schema push`.
 - **The baseline will drift** as spaces evolve in the UI. This was an accepted
   trade-off of keeping the UI authoritative. The registry-coverage test limits the
   damage to code/schema mismatches; detecting genuine drift against a live space
