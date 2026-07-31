@@ -174,6 +174,21 @@ pulls its schema. `setup:space` refuses a target holding stories outside the
 baseline set, so it cannot quietly overwrite a space in use; `--force` overrides
 that, and should not be habitual.
 
+#### Smoke-testing a bootstrapped space
+
+`scripts/smoke.sh` checks a running dev server end to end — the page renders, rich
+text produces a bold mark, an internal link, a `mailto:` link and an embedded blok,
+and the CMS redirects fire with the query string preserved:
+
+```sh
+yarn dev
+./scripts/smoke.sh                        # or ./scripts/smoke.sh http://localhost:3003
+```
+
+Baseline stories may be unpublished drafts — `next dev` reads drafts, so that is
+fine. Preview editing in the visual editor is the one thing the script cannot
+cover; check that by hand.
+
 #### Which Storyblok credential does what
 
 Three similar names, three different jobs. They are not interchangeable:
