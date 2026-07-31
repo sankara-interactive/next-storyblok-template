@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { loadBaseline, whitelistedBloks } from './storyblok-baseline'
+import { components } from './storyblok'
+import { loadBaseline, whitelistedBloks, renderableBloks } from './storyblok-baseline'
 
 const baseline = loadBaseline()
 const byName = new Map(baseline.map(c => [c.name, c]))
@@ -38,5 +39,20 @@ describe('baseline schema', () => {
         }
       }
     }
+  })
+})
+
+describe('registry coverage', () => {
+  it('every renderable blok has a registry key', () => {
+    for (const name of renderableBloks()) {
+      expect(name in components, `${name} is renderable but missing from lib/storyblok.ts`).toBe(
+        true
+      )
+    }
+  })
+
+  it('exempts data-only bloks', () => {
+    expect(renderableBloks()).not.toContain('redirect')
+    expect(renderableBloks()).toContain('text_section')
   })
 })
