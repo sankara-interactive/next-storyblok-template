@@ -15,7 +15,8 @@
     "check": "yarn format:check && yarn lint && yarn typecheck && yarn test && yarn types:check",
     "sync": "storyblok components pull && storyblok types generate",
     "types:check": "node scripts/check-storyblok-types.mjs",
-    "scaffold": "node generators/cli.mjs"
+    "scaffold": "node generators/cli.mjs",
+    "setup:space": "node scripts/setup-space.mjs"
   },
   "dependencies": {
     "@storyblok/react": "^7.2.3",
