@@ -1,4 +1,7 @@
 @import 'tailwindcss';
+@import '@sankara-ui/core/styles.css';
+/* Tailwind v4 does not scan node_modules; without this the components render unstyled */
+@source '../node_modules/@sankara-ui/core';
 
 @theme {
   --font-sans: 'Roboto', 'sans-serif';
