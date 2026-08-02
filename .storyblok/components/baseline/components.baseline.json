@@ -10,7 +10,7 @@
         "pos": 0,
         "restrict_components": true,
         "restrict_type": "",
-        "component_whitelist": ["text_section"]
+        "component_whitelist": ["text_section", "faq_section"]
       },
       "tab-seo": {
         "type": "tab",
@@ -38,6 +38,36 @@
       "headline": { "type": "text", "pos": 1 },
       "lead": { "type": "richtext", "pos": 2 },
       "link": { "type": "multilink", "pos": 3 }
+    },
+    "internal_tags_list": [],
+    "internal_tag_ids": []
+  },
+  {
+    "name": "faq_section",
+    "display_name": "FAQ Section",
+    "is_root": false,
+    "is_nestable": true,
+    "schema": {
+      "headline": { "type": "text", "pos": 0 },
+      "items": {
+        "type": "bloks",
+        "pos": 1,
+        "restrict_components": true,
+        "restrict_type": "",
+        "component_whitelist": ["faq_item"]
+      }
+    },
+    "internal_tags_list": [],
+    "internal_tag_ids": []
+  },
+  {
+    "name": "faq_item",
+    "display_name": "FAQ Item",
+    "is_root": false,
+    "is_nestable": true,
+    "schema": {
+      "question": { "type": "text", "pos": 0 },
+      "answer": { "type": "richtext", "pos": 1 }
     },
     "internal_tags_list": [],
     "internal_tag_ids": []

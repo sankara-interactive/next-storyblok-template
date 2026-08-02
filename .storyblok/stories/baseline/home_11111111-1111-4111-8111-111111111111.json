@@ -81,6 +81,51 @@
             }
           ]
         }
+      },
+      {
+        "_uid": "aaaaaaaa-5555-4555-8555-aaaaaaaaaaaa",
+        "component": "faq_section",
+        "headline": "Häufige Fragen",
+        "items": [
+          {
+            "_uid": "aaaaaaaa-6666-4666-8666-aaaaaaaaaaaa",
+            "component": "faq_item",
+            "question": "Was ist dieses Template?",
+            "answer": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Ein Next-16-Starter mit Storyblok als CMS und @sankara-ui/core als UI-Bibliothek."
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "_uid": "aaaaaaaa-7777-4777-8777-aaaaaaaaaaaa",
+            "component": "faq_item",
+            "question": "Wie funktioniert das Akkordeon?",
+            "answer": {
+              "type": "doc",
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "Über natives <details name>: Öffnen eines Eintrags schliesst den anderen, ganz ohne JavaScript."
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
       }
     ]
   }
