@@ -358,32 +358,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fortawesome/fontawesome-common-types@npm:7.3.1":
-  version: 7.3.1
-  resolution: "@fortawesome/fontawesome-common-types@npm:7.3.1"
-  checksum: 10c0/f443a0109773e57ceab3c35021c4f26baf8c29afc79efbea2324bcd9f7dd326f5ac415e46ead17eaf6e935bc23fce83993d4211a4cff375c19100ee65ea9e5cc
-  languageName: node
-  linkType: hard
-
-"@fortawesome/fontawesome-svg-core@npm:^7.3.1":
-  version: 7.3.1
-  resolution: "@fortawesome/fontawesome-svg-core@npm:7.3.1"
-  dependencies:
-    "@fortawesome/fontawesome-common-types": "npm:7.3.1"
-  checksum: 10c0/07c84a5751999d13d875f63e059ec2b0ab6dbed9cfe363fe8a870fd64e045c049367ae55bdee18973b38255967593d6eef403170a1e70cf4400de8216a932654
-  languageName: node
-  linkType: hard
-
-"@fortawesome/react-fontawesome@npm:^3.5.0":
-  version: 3.5.0
-  resolution: "@fortawesome/react-fontawesome@npm:3.5.0"
-  peerDependencies:
-    "@fortawesome/fontawesome-svg-core": ~6 || ~7
-    react: ^18.0.0 || ^19.0.0
-  checksum: 10c0/b1b854095f9cbd52fe18f02461e594452fc70e3977ceab5fd1c9206ac98f89e40500e7fb5625426fa0cc2dc7e65d3d86bd07b70171d58dc5d54b0c74878d3b44
-  languageName: node
-  linkType: hard
-
 "@humanfs/core@npm:^0.19.1":
   version: 0.19.1
   resolution: "@humanfs/core@npm:0.19.1"
@@ -1491,16 +1465,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sankara-ui/core@npm:^0.2.0":
-  version: 0.2.0
-  resolution: "@sankara-ui/core@npm:0.2.0"
+"@sankara-ui/core@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "@sankara-ui/core@npm:0.3.0"
   peerDependencies:
     "@fortawesome/fontawesome-svg-core": ^6.7.0 || ^7.0.0
     "@fortawesome/react-fontawesome": ^0.2.0 || ^3.0.0
     react: ^19.0.0
     react-dom: ^19.0.0
     tailwindcss: ^4.0.0
-  checksum: 10c0/93a2345f978a6fec38ecaccf1fcaae51190cd5e2cc8b825d9274839059a20934ae4b543290570bf741cd5e086ab2cf52d6486f0a3b42fb755407fe2ae7b79d55
+  peerDependenciesMeta:
+    "@fortawesome/fontawesome-svg-core":
+      optional: true
+    "@fortawesome/react-fontawesome":
+      optional: true
+  checksum: 10c0/4892a53a1008fdd6e53bbcf278aed31c85e6a71c19d39ec4681bc3a5ad636d1064daebd8c9e756ff715b583acf83dc0a136c3d9290cdaaa5ffb01a1e945f6c18
   languageName: node
   linkType: hard
 
@@ -5745,9 +5724,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "next-storyblok@workspace:."
   dependencies:
-    "@fortawesome/fontawesome-svg-core": "npm:^7.3.1"
-    "@fortawesome/react-fontawesome": "npm:^3.5.0"
-    "@sankara-ui/core": "npm:^0.2.0"
+    "@sankara-ui/core": "npm:^0.3.0"
     "@storyblok/react": "npm:^7.2.3"
     "@t3-oss/env-nextjs": "npm:^0.13.11"
     "@tailwindcss/postcss": "npm:^4.3.3"
