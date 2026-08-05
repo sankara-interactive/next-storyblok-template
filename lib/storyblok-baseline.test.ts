@@ -10,6 +10,8 @@ describe('baseline schema', () => {
     expect([...byName.keys()].sort()).toEqual([
       'faq_item',
       'faq_section',
+      'footnote',
+      'gallery_section',
       'page',
       'redirect',
       'redirects',

@@ -30,9 +30,23 @@
             {
               "type": "paragraph",
               "content": [
-                { "type": "text", "text": "Dieser Text ist " },
-                { "type": "text", "text": "fett", "marks": [{ "type": "bold" }] },
-                { "type": "text", "text": " und verlinkt auf " },
+                {
+                  "type": "text",
+                  "text": "Dieser Text ist "
+                },
+                {
+                  "type": "text",
+                  "text": "fett",
+                  "marks": [
+                    {
+                      "type": "bold"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": " und verlinkt auf "
+                },
                 {
                   "type": "text",
                   "text": "die Über-uns-Seite",
@@ -48,7 +62,10 @@
                     }
                   ]
                 },
-                { "type": "text", "text": " sowie auf " },
+                {
+                  "type": "text",
+                  "text": " sowie auf "
+                },
                 {
                   "type": "text",
                   "text": "eine E-Mail-Adresse",
@@ -63,7 +80,10 @@
                     }
                   ]
                 },
-                { "type": "text", "text": "." }
+                {
+                  "type": "text",
+                  "text": "."
+                }
               ]
             },
             {
@@ -78,9 +98,38 @@
                   }
                 ]
               }
+            },
+            {
+              "type": "blok",
+              "attrs": {
+                "id": "aaaaaaaa-8888-4888-8888-aaaaaaaaaaaa",
+                "body": [
+                  {
+                    "_uid": "aaaaaaaa-8888-4888-8888-aaaaaaaaaaaa",
+                    "component": "footnote",
+                    "label": "Quelle",
+                    "text": {
+                      "type": "doc",
+                      "content": [
+                        {
+                          "type": "paragraph",
+                          "content": [
+                            {
+                              "type": "text",
+                              "text": "Diese Angabe stammt aus der Template-Dokumentation und dient als Popover-Demo."
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
             }
           ]
-        }
+        },
+        "level": "h2",
+        "label": "Mehr über uns"
       },
       {
         "_uid": "aaaaaaaa-5555-4555-8555-aaaaaaaaaaaa",
@@ -124,6 +173,52 @@
                 }
               ]
             }
+          }
+        ]
+      },
+      {
+        "_uid": "aaaaaaaa-9999-4999-8999-aaaaaaaaaaaa",
+        "component": "gallery_section",
+        "headline": "Galerie",
+        "images": [
+          {
+            "id": 205813932233567,
+            "alt": "Demo-Bild 1",
+            "name": "",
+            "focus": null,
+            "title": null,
+            "source": null,
+            "filename": "https://a.storyblok.com/f/294223376817452/800x600/52f15a20e2/gallery-1.jpg",
+            "copyright": null,
+            "fieldtype": "asset",
+            "meta_data": {},
+            "is_external_url": false
+          },
+          {
+            "id": 205813938701152,
+            "alt": "Demo-Bild 2",
+            "name": "",
+            "focus": null,
+            "title": null,
+            "source": null,
+            "filename": "https://a.storyblok.com/f/294223376817452/800x600/7ab5175296/gallery-2.jpg",
+            "copyright": null,
+            "fieldtype": "asset",
+            "meta_data": {},
+            "is_external_url": false
+          },
+          {
+            "id": 205813943030626,
+            "alt": "Demo-Bild 3",
+            "name": "",
+            "focus": null,
+            "title": null,
+            "source": null,
+            "filename": "https://a.storyblok.com/f/294223376817452/800x600/58955d58f1/gallery-3.jpg",
+            "copyright": null,
+            "fieldtype": "asset",
+            "meta_data": {},
+            "is_external_url": false
           }
         ]
       }
