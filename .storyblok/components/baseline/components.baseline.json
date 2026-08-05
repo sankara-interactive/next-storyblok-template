@@ -10,7 +10,7 @@
         "pos": 0,
         "restrict_components": true,
         "restrict_type": "",
-        "component_whitelist": ["text_section"]
+        "component_whitelist": ["text_section", "faq_section", "gallery_section"]
       },
       "tab-seo": {
         "type": "tab",
@@ -36,8 +36,72 @@
     "schema": {
       "eyebrow": { "type": "text", "pos": 0 },
       "headline": { "type": "text", "pos": 1 },
-      "lead": { "type": "richtext", "pos": 2 },
-      "link": { "type": "multilink", "pos": 3 }
+      "level": {
+        "type": "option",
+        "pos": 2,
+        "options": [
+          { "name": "H2", "value": "h2" },
+          { "name": "H3", "value": "h3" }
+        ],
+        "default_value": "h2"
+      },
+      "lead": { "type": "richtext", "pos": 3 },
+      "link": { "type": "multilink", "pos": 4 },
+      "label": { "type": "text", "pos": 5 }
+    },
+    "internal_tags_list": [],
+    "internal_tag_ids": []
+  },
+  {
+    "name": "faq_section",
+    "display_name": "FAQ Section",
+    "is_root": false,
+    "is_nestable": true,
+    "schema": {
+      "headline": { "type": "text", "pos": 0 },
+      "items": {
+        "type": "bloks",
+        "pos": 1,
+        "restrict_components": true,
+        "restrict_type": "",
+        "component_whitelist": ["faq_item"]
+      }
+    },
+    "internal_tags_list": [],
+    "internal_tag_ids": []
+  },
+  {
+    "name": "faq_item",
+    "display_name": "FAQ Item",
+    "is_root": false,
+    "is_nestable": true,
+    "schema": {
+      "question": { "type": "text", "pos": 0 },
+      "answer": { "type": "richtext", "pos": 1 }
+    },
+    "internal_tags_list": [],
+    "internal_tag_ids": []
+  },
+  {
+    "name": "gallery_section",
+    "display_name": "Gallery Section",
+    "is_root": false,
+    "is_nestable": true,
+    "schema": {
+      "headline": { "type": "text", "pos": 0 },
+      "images": { "type": "multiasset", "pos": 1, "filetypes": ["images"] }
+    },
+    "internal_tags_list": [],
+    "internal_tag_ids": []
+  },
+  {
+    "name": "footnote",
+    "display_name": "Footnote",
+    "is_root": false,
+    "is_nestable": true,
+    "schema": {
+      "label": { "type": "text", "pos": 0 },
+      "text": { "type": "richtext", "pos": 1 }
     },
     "internal_tags_list": [],
     "internal_tag_ids": []

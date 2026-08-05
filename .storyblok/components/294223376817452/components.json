@@ -1,5 +1,80 @@
 [
   {
+    "name": "faq_item",
+    "display_name": "FAQ Item",
+    "description": null,
+    "created_at": "2026-08-02T12:52:33.083Z",
+    "updated_at": "2026-08-02T12:52:33.083Z",
+    "id": 204740825433743,
+    "schema": {
+      "question": {
+        "type": "text",
+        "pos": 0,
+        "id": "e1n9Ok2_RQCGXxjhC2L2eA"
+      },
+      "answer": {
+        "type": "richtext",
+        "pos": 1,
+        "id": "QITFlYBBTPy5ST5s2jhW1w"
+      }
+    },
+    "image": null,
+    "preview_field": null,
+    "is_root": false,
+    "preview_tmpl": null,
+    "is_nestable": true,
+    "all_presets": [],
+    "preset_id": null,
+    "real_name": "FAQ Item",
+    "component_group_uuid": null,
+    "color": null,
+    "icon": null,
+    "internal_tags_list": [],
+    "internal_tag_ids": [],
+    "content_type_asset_preview": null,
+    "metadata": {}
+  },
+  {
+    "name": "faq_section",
+    "display_name": "FAQ Section",
+    "description": null,
+    "created_at": "2026-08-02T12:52:33.968Z",
+    "updated_at": "2026-08-02T12:52:33.968Z",
+    "id": 204740829058704,
+    "schema": {
+      "headline": {
+        "type": "text",
+        "pos": 0,
+        "id": "IRDzYoXFS2mFvmif-t1c1w"
+      },
+      "items": {
+        "type": "bloks",
+        "pos": 1,
+        "restrict_components": true,
+        "restrict_type": "",
+        "component_whitelist": [
+          "faq_item"
+        ],
+        "id": "UZJRH3jwQDeiEwx5_Rjt8A"
+      }
+    },
+    "image": null,
+    "preview_field": null,
+    "is_root": false,
+    "preview_tmpl": null,
+    "is_nestable": true,
+    "all_presets": [],
+    "preset_id": null,
+    "real_name": "FAQ Section",
+    "component_group_uuid": null,
+    "color": null,
+    "icon": null,
+    "internal_tags_list": [],
+    "internal_tag_ids": [],
+    "content_type_asset_preview": null,
+    "metadata": {}
+  },
+  {
     "name": "feature",
     "display_name": null,
     "description": null,
@@ -20,6 +95,79 @@
     "all_presets": [],
     "preset_id": null,
     "real_name": "feature",
+    "component_group_uuid": null,
+    "color": null,
+    "icon": null,
+    "internal_tags_list": [],
+    "internal_tag_ids": [],
+    "content_type_asset_preview": null,
+    "metadata": {}
+  },
+  {
+    "name": "footnote",
+    "display_name": "Footnote",
+    "description": null,
+    "created_at": "2026-08-05T13:32:50.992Z",
+    "updated_at": "2026-08-05T13:32:50.992Z",
+    "id": 205812412390693,
+    "schema": {
+      "label": {
+        "type": "text",
+        "pos": 0,
+        "id": "pZ5DwJoyTeCWEJHUN_8lIw"
+      },
+      "text": {
+        "type": "richtext",
+        "pos": 1,
+        "id": "jAsLRranQXSaXFGcBxighg"
+      }
+    },
+    "image": null,
+    "preview_field": null,
+    "is_root": false,
+    "preview_tmpl": null,
+    "is_nestable": true,
+    "all_presets": [],
+    "preset_id": null,
+    "real_name": "Footnote",
+    "component_group_uuid": null,
+    "color": null,
+    "icon": null,
+    "internal_tags_list": [],
+    "internal_tag_ids": [],
+    "content_type_asset_preview": null,
+    "metadata": {}
+  },
+  {
+    "name": "gallery_section",
+    "display_name": "Gallery Section",
+    "description": null,
+    "created_at": "2026-08-05T13:32:50.994Z",
+    "updated_at": "2026-08-05T13:32:50.994Z",
+    "id": 205812412398886,
+    "schema": {
+      "headline": {
+        "type": "text",
+        "pos": 0,
+        "id": "HhgkmXVtTSyuQ7xRtrGpKA"
+      },
+      "images": {
+        "type": "multiasset",
+        "pos": 1,
+        "filetypes": [
+          "images"
+        ],
+        "id": "v8woGHWDRZ6wp_d0RtgvNw"
+      }
+    },
+    "image": null,
+    "preview_field": null,
+    "is_root": false,
+    "preview_tmpl": null,
+    "is_nestable": true,
+    "all_presets": [],
+    "preset_id": null,
+    "real_name": "Gallery Section",
     "component_group_uuid": null,
     "color": null,
     "icon": null,
@@ -62,7 +210,7 @@
     "display_name": "Page",
     "description": null,
     "created_at": "2026-07-31T08:53:57.933Z",
-    "updated_at": "2026-07-31T10:05:13.957Z",
+    "updated_at": "2026-08-05T13:32:52.060Z",
     "id": 203974401781428,
     "schema": {
       "body": {
@@ -71,7 +219,9 @@
         "restrict_components": true,
         "restrict_type": "",
         "component_whitelist": [
-          "text_section"
+          "text_section",
+          "faq_section",
+          "gallery_section"
         ],
         "id": "RldUgFKkTSWAE8pnKK5PAg"
       },
@@ -218,7 +368,7 @@
     "display_name": "Text Section",
     "description": null,
     "created_at": "2026-07-31T10:01:40.186Z",
-    "updated_at": "2026-07-31T10:01:40.186Z",
+    "updated_at": "2026-08-05T13:32:51.112Z",
     "id": 203991040774109,
     "schema": {
       "eyebrow": {
@@ -231,15 +381,36 @@
         "pos": 1,
         "id": "czLJRZi3S4CuuaSA_o7TVg"
       },
+      "level": {
+        "type": "option",
+        "pos": 2,
+        "options": [
+          {
+            "name": "H2",
+            "value": "h2"
+          },
+          {
+            "name": "H3",
+            "value": "h3"
+          }
+        ],
+        "default_value": "h2",
+        "id": "xGCuHsKBRVuwPi_RLBIoVw"
+      },
       "lead": {
         "type": "richtext",
-        "pos": 2,
+        "pos": 3,
         "id": "12s7oGCASiehkO217edWYg"
       },
       "link": {
         "type": "multilink",
-        "pos": 3,
+        "pos": 4,
         "id": "19lEYxpvTTaN43lhcxzrJA"
+      },
+      "label": {
+        "type": "text",
+        "pos": 5,
+        "id": "Wg8KZDbwRsihzo8YKpAyTg"
       }
     },
     "image": null,

@@ -43,6 +43,18 @@ Record architectural decisions here as they are made, newest last.
   2026-07-30). `@sankara` and `@sankara-interactive` were both taken. The second
   segment avoids stuttering as `@sankara-ui/ui` and leaves room for
   `@sankara-ui/storyblok` when Phase A3's adapter layer becomes a package.
+- **Design-spec D3 (Base UI as the headless foundation) is retired** (decided
+  2026-08-05, recorded in `docs/superpowers/specs/2026-07-29-sankara-ui-design.md`).
+  Seven components shipped through `@sankara-ui/core` 0.6.0 with zero runtime
+  dependencies; every interactive behaviour landed on a native platform feature.
+  Base UI stays a per-component candidate (Menu, form primitives), not a
+  standing foundation.
+- **The `Heading` level mapping lives in the blok, not the package** (decided
+  2026-08-05). Storyblok delivers `level` as a string option (`"h2" | "h3"`),
+  `Heading` takes a numeric 1–6. The adapter restricts editors to a semantic
+  subset anyway, so the two-value mapping is a one-line ternary at the CMS
+  boundary (`TextSection.tsx`); a string-accepting `Heading` would widen the
+  package API to legitimise arbitrary levels for no consumer benefit.
 - **CMS redirects resolve at the 404 boundary, not in `proxy.ts`** (decided
   2026-07-30). The requirement is exact-path _retirement_, and a retired URL is
   by definition the 404 case, so the proxy's one real advantage — redirecting a
@@ -230,16 +242,20 @@ Exit criteria:
 
 ## Phase A4: Reusable Page Sections
 
-Status: `[ ]`
+Status: `[~]` FAQ, text (Heading/RichText/Button), gallery (Carousel + Dialog
+lightbox) and a richtext-embeddable footnote (Button + Popover) shipped with
+the 0.6.0 integration, 2026-08-05.
 
 Build sections from the shared UI and adapter layers:
 
 - [ ] Hero
-- [ ] Rich-text section
+- [x] Rich-text section — `text_section`: `Heading` (CMS `level` option),
+      `RichText` around the SDK renderer (`wrapper={false}`), `Button` over
+      `SbLink` via `render`
 - [ ] Image/text section
 - [ ] Card and card grid
 - [ ] CTA/banner
-- [ ] FAQ
+- [x] FAQ
 - [ ] Testimonials or quotes
 - [ ] Logo list
 - [ ] Media/video
@@ -300,7 +316,9 @@ Runs in its own repository. Nothing here depends on Track A until Phase A3.
 
 ## Phase B1: UI Foundation Decision
 
-Status: `[x]` Decided — see `docs/superpowers/specs/2026-07-29-sankara-ui-design.md`
+Status: `[x]` Decided — see `docs/superpowers/specs/2026-07-29-sankara-ui-design.md`.
+D3 (Base UI as the foundation) was retired 2026-08-05: everything shipped so
+far is native-platform, dependency-free — see Decisions.
 
 The planned Base UI versus Radix spike was dropped. It was scoped against
 `Expandable`, `CardSlider`, `Gallery` and `Reveal`, and three of those four have
@@ -361,7 +379,12 @@ Exit criteria:
 
 ## Phase B3: First Component Release
 
-Status: `[ ]`
+Status: `[~]` `@sankara-ui/core` 0.6.0 published: Icon, Carousel, Disclosure,
+Dialog, Popover, Button, RichText, Heading. This template consumes all of them
+end to end (verified 2026-08-05 against a production build — see the
+integration notes in
+`docs/superpowers/plans/2026-08-05-sankara-ui-0.6-integration.md`). Form
+primitives, Menu, and Tier 3 navigation components remain open.
 
 The catalogue is derived from five shipped projects — numbers.ch, fgpfister.ch,
 fairmed.ch-sb, nuwa.swiss and brillen-werk.ch — not from a generic design-system

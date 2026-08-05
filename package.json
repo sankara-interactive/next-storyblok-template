@@ -19,6 +19,7 @@
     "setup:space": "node scripts/setup-space.mjs"
   },
   "dependencies": {
+    "@sankara-ui/core": "^0.7.0",
     "@storyblok/react": "^7.2.3",
     "@t3-oss/env-nextjs": "^0.13.11",
     "next": "^16.2.12",

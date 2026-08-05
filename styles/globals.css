@@ -1,7 +1,12 @@
 @import 'tailwindcss';
+@import '@sankara-ui/core/styles.css';
+/* Tailwind v4 does not scan node_modules; without this the components render unstyled */
+@source '../node_modules/@sankara-ui/core';
 
 @theme {
-  --font-sans: 'Roboto', 'sans-serif';
+  /* Quoted 'sans-serif' is a font NAME, not the generic keyword — with Roboto
+     never loaded, the whole stack fell through to the browser serif default */
+  --font-sans: Roboto, sans-serif;
 
   --color-primary: #09b3af;
 }
@@ -15,5 +20,12 @@
     a {
       @apply text-primary hover:underline;
     }
+  }
+
+  /* The package's .h1–.h4 ship font-size/line-height only — weight is
+     deliberately the consumer's. Same-layer twin AFTER the package import,
+     so it also exercises the documented source-order contract (Heading D4). */
+  :is(.h1, .h2, .h3, .h4, .h5, .h6) {
+    font-weight: 500;
   }
 }
