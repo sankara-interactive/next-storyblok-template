@@ -71,6 +71,15 @@ discipline.
 
 ### D3 — Base UI as the headless foundation
 
+**Retired 2026-08-05.** Seven components have shipped through `@sankara-ui/core`
+0.6.0 (Icon, Carousel, Disclosure, Dialog, Popover, Button, RichText, Heading)
+and none consumes Base UI — the package has zero runtime dependencies; every
+interactive behaviour landed on a native platform feature instead (`<details
+name>`, `<dialog>`/`showModal()`, the Popover API with CSS anchor positioning,
+scroll-snap). Base UI remains a candidate for a future component that actually
+needs headless machinery (Menu, Listbox, form primitives), but it is no longer
+a standing foundation decision. Original rationale kept below for the record.
+
 Adopted by decision rather than by spike.
 
 The originally planned Base UI vs Radix spike was scoped against `Expandable`,
