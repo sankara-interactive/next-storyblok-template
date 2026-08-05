@@ -3,6 +3,8 @@ import { env } from './env'
 import page from '@/components/content_types/Page'
 import faq_item from '@/components/nestables/FaqItem'
 import faq_section from '@/components/nestables/FaqSection'
+import footnote from '@/components/nestables/Footnote'
+import gallery_section from '@/components/nestables/GallerySection'
 import privacy_bee from '@/components/nestables/PrivacyBee'
 import text_section from '@/components/nestables/TextSection'
 
@@ -10,6 +12,8 @@ export const components = {
   page,
   faq_item,
   faq_section,
+  footnote,
+  gallery_section,
   privacy_bee,
   text_section,
 }
