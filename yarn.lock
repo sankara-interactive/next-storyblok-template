@@ -1465,9 +1465,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sankara-ui/core@npm:^0.6.0":
-  version: 0.6.0
-  resolution: "@sankara-ui/core@npm:0.6.0"
+"@sankara-ui/core@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "@sankara-ui/core@npm:0.7.0"
   peerDependencies:
     "@fortawesome/fontawesome-svg-core": ^6.7.0 || ^7.0.0
     "@fortawesome/react-fontawesome": ^0.2.0 || ^3.0.0
@@ -1479,7 +1479,7 @@ __metadata:
       optional: true
     "@fortawesome/react-fontawesome":
       optional: true
-  checksum: 10c0/559455a58bf1630fa7d2cffe488903142244da9d743bc905c00ab1cd4efc3951a3c05477ce823fb641db14dc211ca9b718acb1926b5fdd1416fb90f52ee6902e
+  checksum: 10c0/51ae3148b932d005e5889779e5cefee5c5844c262e33534967317ff8bfa9d52463b005a3d353ba7a234a878b403d1ffc4371a26f75654d6d704a24c7d1cd4651
   languageName: node
   linkType: hard
 
@@ -5724,7 +5724,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "next-storyblok@workspace:."
   dependencies:
-    "@sankara-ui/core": "npm:^0.6.0"
+    "@sankara-ui/core": "npm:^0.7.0"
     "@storyblok/react": "npm:^7.2.3"
     "@t3-oss/env-nextjs": "npm:^0.13.11"
     "@tailwindcss/postcss": "npm:^4.3.3"
