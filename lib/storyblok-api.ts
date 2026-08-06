@@ -3,7 +3,7 @@ import { ISbStoryData } from '@storyblok/react/rsc'
 import StoryblokClient from 'storyblok-js-client'
 import { unstable_cache } from 'next/cache'
 import { draftMode } from 'next/headers'
-import { isPreview, STORYBLOK_CACHE_TAG, storyTag } from './config'
+import { isPreview, LINKS_CACHE_TAG, STORYBLOK_CACHE_TAG, storyTag } from './config'
 import { env } from './env'
 import { getStoryblokApi } from './storyblok'
 
@@ -18,9 +18,63 @@ export function resolveVersion(isDraft: boolean): 'draft' | 'published' {
 let previewClient: StoryblokClient | null = null
 function getPreviewClient(): StoryblokClient {
   if (!previewClient) {
-    previewClient = new StoryblokClient({ accessToken: env.STORYBLOK_PREVIEW_TOKEN })
+    // Draft mode refetches everything per request (no cross-request cache by
+    // design), so bursts hit the preview token's ~3 req/s limit and exhaust
+    // the SDK's default retries → error page. Throttle client-side instead.
+    previewClient = new StoryblokClient({
+      accessToken: env.STORYBLOK_PREVIEW_TOKEN,
+      rateLimit: 3,
+      maxRetries: 10,
+    })
   }
   return previewClient
+}
+
+function isBuildPhase(): boolean {
+  return process.env.NEXT_PHASE === 'phase-production-build'
+}
+
+/** Exported for tests. */
+export const buildMemoCache = new Map<string, Promise<unknown>>()
+
+/**
+ * Draft reads can't change mid-build, so share one fetch per key per worker —
+ * per-request otherwise, since the visual editor needs live drafts.
+ */
+export function memoizeDuringBuild<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
+  if (!isBuildPhase()) return fetcher()
+  const cached = buildMemoCache.get(key)
+  if (cached) return cached as Promise<T>
+  const promise = fetcher()
+  buildMemoCache.set(key, promise)
+  promise.catch(() => buildMemoCache.delete(key))
+  return promise
+}
+
+function httpStatus(error: unknown): number | undefined {
+  const e = error as { status?: number; response?: { status?: number } } | undefined
+  return e?.status ?? e?.response?.status
+}
+
+/**
+ * Retry reads that die below HTTP (fetch failed, socket reset) or after the
+ * SDK exhausts its 429 retries. The SDK absorbs rate limits itself, but a
+ * single network-level failure rethrows immediately — and during a static
+ * export that one throw kills the whole build. 404 and other client errors
+ * pass through untouched (a 404 misread as transient would retry real misses).
+ * Exported for tests.
+ */
+export async function withTransientRetry<T>(fn: () => Promise<T>): Promise<T> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await fn()
+    } catch (error) {
+      const status = httpStatus(error)
+      const transient = status === undefined || status === 429 || status >= 500
+      if (!transient || attempt >= 4) throw error
+      await new Promise(resolve => setTimeout(resolve, 500 * attempt))
+    }
+  }
 }
 
 // Built per-slug so the webhook can bust one story without flushing the rest.
@@ -28,10 +82,12 @@ function fetchPublishedStory(slug: string) {
   return unstable_cache(
     async () => {
       const api = getStoryblokApi()
-      const { data } = await api.get(`cdn/stories/${slug}`, {
-        version: 'published',
-        resolve_links: 'url',
-      })
+      const { data } = await withTransientRetry(() =>
+        api.get(`cdn/stories/${slug}`, {
+          version: 'published',
+          resolve_links: 'url',
+        })
+      )
       return data.story
     },
     ['storyblok-story', slug],
@@ -46,11 +102,15 @@ export async function getStory<T>(slug: string): Promise<ISbStoryData<T> | null>
   try {
     if (version === 'draft') {
       const api = getPreviewClient()
-      const { data } = await api.get(`cdn/stories/${slug}`, {
-        version: 'draft',
-        resolve_links: 'url',
-        cv: Date.now(),
-      })
+      const { data } = await memoizeDuringBuild(`storyblok-story-draft:${slug}`, () =>
+        withTransientRetry(() =>
+          api.get(`cdn/stories/${slug}`, {
+            version: 'draft',
+            resolve_links: 'url',
+            cv: Date.now(),
+          })
+        )
+      )
       return data.story as ISbStoryData<T>
     }
     return (await fetchPublishedStory(slug)) as ISbStoryData<T>
@@ -61,19 +121,17 @@ export async function getStory<T>(slug: string): Promise<ISbStoryData<T> | null>
 }
 
 export function isStoryblokNotFound(error: unknown): boolean {
-  if (!error || typeof error !== 'object') return false
-  const candidate = error as { status?: unknown; response?: { status?: unknown } }
-  return candidate.status === 404 || candidate.response?.status === 404
+  return httpStatus(error) === 404
 }
 
 const fetchLinks = unstable_cache(
   async () => {
     const api = getStoryblokApi()
-    const { data } = await api.get('cdn/links/', { version: 'published' })
+    const { data } = await withTransientRetry(() => api.get('cdn/links/', { version: 'published' }))
     return data.links as Record<string, SbLink>
   },
   ['storyblok-links'],
-  { tags: [STORYBLOK_CACHE_TAG] }
+  { tags: [STORYBLOK_CACHE_TAG, LINKS_CACHE_TAG] }
 )
 
 export async function getAllLinks(): Promise<Record<string, SbLink>> {

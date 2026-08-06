@@ -115,9 +115,13 @@ The endpoint verifies Storyblok's `webhook-signature` header (HMAC-SHA1). In the
 Storyblok webhook settings, set the webhook secret to the same value as
 `STORYBLOK_WEBHOOK_SECRET` in your env. Requests without a valid signature are
 rejected. On a valid webhook the cache is flushed surgically: a content publish
-busts only that story's tag, while a `data/` global, a structural change
-(move/delete/unpublish), or a missing slug flushes the whole `storyblok` tag
-(which also covers nav, sitemap, and links).
+busts that story's tag plus the links inventory (so a first publish shows up in
+nav and sitemap), while a `data/` global, a structural change
+(move/delete/unpublish), or a missing slug flushes the whole `storyblok` tag.
+
+Note: publishes made through the Management API (scripts, migrations) do **not**
+fire this webhook — Storyblok only sends it for editor actions. After scripted
+content changes, call `/api/revalidate` yourself or redeploy.
 
 ### 9. Editor-managed redirects
 

@@ -29,5 +29,9 @@ export const STORYBLOK_CACHE_TAG = 'storyblok'
 /** Per-story cache tag, so a single content publish busts only that story. */
 export const storyTag = (slug: string) => `${STORYBLOK_CACHE_TAG}:${slug}`
 
+/** Tag on the links inventory (nav, sitemap, static params). Flushed on every
+ * publish: a first publish adds a route the per-story tag can't cover. */
+export const LINKS_CACHE_TAG = `${STORYBLOK_CACHE_TAG}:links`
+
 /** Top-level Storyblok folder holding non-routable global stories. */
 export const DATA_PREFIX = 'data'

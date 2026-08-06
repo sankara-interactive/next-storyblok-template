@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isDataRoute, revalidationTag } from './storyblok-routes'
+import { isDataRoute, revalidationTags } from './storyblok-routes'
 
 describe('isDataRoute', () => {
   it('flags the data folder root', () => {
@@ -16,21 +16,24 @@ describe('isDataRoute', () => {
   })
 })
 
-describe('revalidationTag', () => {
-  it('busts only the story on a content publish', () => {
-    expect(revalidationTag('published', 'about')).toBe('storyblok:about')
-    expect(revalidationTag('published', 'home')).toBe('storyblok:home')
+describe('revalidationTags', () => {
+  it('busts the story and the links inventory on a content publish', () => {
+    expect(revalidationTags('published', 'about')).toEqual(['storyblok:about', 'storyblok:links'])
+    expect(revalidationTags('published', 'home')).toEqual(['storyblok:home', 'storyblok:links'])
+  })
+  it('normalizes the trailing slash of folder startpages', () => {
+    expect(revalidationTags('published', 'about/')).toEqual(['storyblok:about', 'storyblok:links'])
   })
   it('flushes everything for a data/ global', () => {
-    expect(revalidationTag('published', 'data/menu')).toBe('storyblok')
+    expect(revalidationTags('published', 'data/menu')).toEqual(['storyblok'])
   })
   it('flushes everything for structural actions', () => {
-    expect(revalidationTag('moved', 'about')).toBe('storyblok')
-    expect(revalidationTag('deleted', 'about')).toBe('storyblok')
-    expect(revalidationTag('unpublished', 'about')).toBe('storyblok')
+    expect(revalidationTags('moved', 'about')).toEqual(['storyblok'])
+    expect(revalidationTags('deleted', 'about')).toEqual(['storyblok'])
+    expect(revalidationTags('unpublished', 'about')).toEqual(['storyblok'])
   })
   it('flushes everything when the slug is missing', () => {
-    expect(revalidationTag('published', undefined)).toBe('storyblok')
-    expect(revalidationTag(undefined, undefined)).toBe('storyblok')
+    expect(revalidationTags('published', undefined)).toEqual(['storyblok'])
+    expect(revalidationTags(undefined, undefined)).toEqual(['storyblok'])
   })
 })
