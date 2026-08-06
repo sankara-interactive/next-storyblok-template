@@ -15,6 +15,7 @@
     "check": "yarn format:check && yarn lint && yarn typecheck && yarn test && yarn types:check",
     "sync": "storyblok components pull && storyblok types generate",
     "types:check": "node scripts/check-storyblok-types.mjs",
+    "assets:unused": "node scripts/find-unused-assets.mjs",
     "scaffold": "node generators/cli.mjs"
   },
   "dependencies": {
