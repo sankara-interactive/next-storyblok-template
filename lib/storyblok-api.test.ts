@@ -1,5 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { isStoryblokNotFound, resolveVersion } from './storyblok-api'
+import {
+  buildMemoCache,
+  isStoryblokNotFound,
+  memoizeDuringBuild,
+  resolveVersion,
+  withTransientRetry,
+} from './storyblok-api'
 
 const { get, draftMode } = vi.hoisted(() => ({
   get: vi.fn(),
@@ -69,6 +75,89 @@ describe('getStory failure semantics', () => {
     get.mockResolvedValue({ data: { story: { name: 'Home' } } })
     const mod = await import('./storyblok-api')
     await expect(mod.getStory('home')).resolves.toEqual({ name: 'Home' })
+  })
+})
+
+describe('withTransientRetry', () => {
+  it('retries network-level failures and 429s until success', async () => {
+    vi.useFakeTimers()
+    const fn = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('fetch failed'))
+      .mockRejectedValueOnce({ status: 429 })
+      .mockResolvedValue('ok')
+    const promise = withTransientRetry(fn)
+    await vi.runAllTimersAsync()
+    await expect(promise).resolves.toBe('ok')
+    expect(fn).toHaveBeenCalledTimes(3)
+    vi.useRealTimers()
+  })
+
+  it('passes 404 through without retrying', async () => {
+    const fn = vi.fn().mockRejectedValue({ status: 404 })
+    await expect(withTransientRetry(fn)).rejects.toEqual({ status: 404 })
+    expect(fn).toHaveBeenCalledTimes(1)
+  })
+
+  it('retries 5xx but gives up after 4 attempts', async () => {
+    vi.useFakeTimers()
+    const fn = vi.fn().mockRejectedValue({ response: { status: 502 } })
+    const promise = withTransientRetry(fn)
+    promise.catch(() => {}) // avoid unhandled rejection while timers run
+    await vi.runAllTimersAsync()
+    await expect(promise).rejects.toEqual({ response: { status: 502 } })
+    expect(fn).toHaveBeenCalledTimes(4)
+    vi.useRealTimers()
+  })
+})
+
+describe('memoizeDuringBuild', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    buildMemoCache.clear()
+  })
+
+  it('outside the build phase, fetches fresh every call', async () => {
+    vi.stubEnv('NEXT_PHASE', 'phase-production-server')
+    let calls = 0
+    const fetcher = async () => ++calls
+    await memoizeDuringBuild('k', fetcher)
+    await memoizeDuringBuild('k', fetcher)
+    expect(calls).toBe(2)
+  })
+
+  it('inside the build phase, an identical key hits the network once', async () => {
+    vi.stubEnv('NEXT_PHASE', 'phase-production-build')
+    let calls = 0
+    const fetcher = async () => ++calls
+    const [a, b] = await Promise.all([
+      memoizeDuringBuild('k', fetcher),
+      memoizeDuringBuild('k', fetcher),
+    ])
+    expect(calls).toBe(1)
+    expect(a).toBe(b)
+  })
+
+  it('inside the build phase, different keys do not share a memo entry', async () => {
+    vi.stubEnv('NEXT_PHASE', 'phase-production-build')
+    let calls = 0
+    const fetcher = async () => ++calls
+    await memoizeDuringBuild('k1', fetcher)
+    await memoizeDuringBuild('k2', fetcher)
+    expect(calls).toBe(2)
+  })
+
+  it('does not cache a rejected fetch — the next call retries', async () => {
+    vi.stubEnv('NEXT_PHASE', 'phase-production-build')
+    let calls = 0
+    const fetcher = async () => {
+      calls++
+      if (calls === 1) throw new Error('transient')
+      return 'ok'
+    }
+    await expect(memoizeDuringBuild('k', fetcher)).rejects.toThrow('transient')
+    await expect(memoizeDuringBuild('k', fetcher)).resolves.toBe('ok')
+    expect(calls).toBe(2)
   })
 })
 
