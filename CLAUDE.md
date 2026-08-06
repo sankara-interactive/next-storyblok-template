@@ -8,11 +8,13 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   per-story tag (`storyTag(slug)` → `storyblok:<slug>`). Never call the SDK directly
   from a component.
 - **Revalidation**: `/api/revalidate` verifies the webhook signature, then flushes
-  surgically (`revalidationTag` in `lib/storyblok-routes.ts`): a plain content
-  `published` busts only `storyblok:<full_slug>`; a `data/` global, a structural
-  action (unpublish/move/delete), or a missing slug flushes the whole `storyblok`
-  tag (nav/sitemap/links are global-tagged). Tag-flush only works because every
-  read is tagged.
+  surgically (`revalidationTags` in `lib/storyblok-routes.ts`): a plain content
+  `published` busts `storyblok:<full_slug>` plus the links inventory
+  (`storyblok:links` — a first publish adds a route only that tag can surface); a
+  `data/` global, a structural action (unpublish/move/delete), or a missing slug
+  flushes the whole `storyblok` tag. Tag-flush only works because every read is
+  tagged. Management-API publishes do NOT fire the webhook — scripted content
+  changes must call `/api/revalidate` (or redeploy) themselves.
 - **Bridge** is handled by the SDK: `<StoryblokStory>` (in `app/[[...slug]]/page.tsx`)
   renders `StoryblokLiveEditing`, which self-gates on `isVisualEditor()` and
   dynamically loads the bridge only inside the Storyblok editor iframe — so it

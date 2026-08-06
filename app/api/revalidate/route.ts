@@ -1,6 +1,6 @@
 import { revalidateTag } from 'next/cache'
 import { env } from '@/lib/env'
-import { revalidationTag } from '@/lib/storyblok-routes'
+import { revalidationTags } from '@/lib/storyblok-routes'
 import { verifyWebhookSignature } from '@/lib/webhook'
 
 export async function POST(req: Request) {
@@ -19,6 +19,8 @@ export async function POST(req: Request) {
   }
 
   // Next 16 requires a cacheLife profile; 'max' is the on-demand-purge drop-in.
-  revalidateTag(revalidationTag(payload.action, payload.full_slug), 'max')
+  for (const tag of revalidationTags(payload.action, payload.full_slug)) {
+    revalidateTag(tag, 'max')
+  }
   return new Response('Revalidated', { status: 200 })
 }
