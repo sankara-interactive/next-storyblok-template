@@ -81,8 +81,10 @@ requires:
 It renders through `RichTextRenderer` and `SbLink`, which is exactly what the
 Phase 0 smoke test needs to cover.
 
-`feature`, `grid` and `teaser` stay in the codebase — space `202685` still uses
-`grid` and `teaser`, so removing them from code would break the live space.
+`feature`, `grid` and `teaser` are deleted from the codebase. They were
+Storyblok's auto-provisioned starter bloks, kept only because space `202685`
+used them; that space is no longer tracked, the committed baseline never
+included them, and `text_section` is now the template's worked example.
 
 Removing them from a _newly bootstrapped_ space is a **manual step**.
 `components push` creates and updates components but has no `--delete`, so the
