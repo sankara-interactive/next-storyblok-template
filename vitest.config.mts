@@ -4,7 +4,12 @@ import path from 'path'
 export default defineConfig({
   test: {
     environment: 'node',
-    include: ['lib/**/*.test.ts', 'app/**/*.test.ts', 'generators/**/*.test.ts'],
+    include: [
+      'lib/**/*.test.ts',
+      'app/**/*.test.ts',
+      'generators/**/*.test.ts',
+      'scripts/**/*.test.ts',
+    ],
     env: {
       NEXT_PUBLIC_STORYBLOK_TOKEN: 'test-token',
       STORYBLOK_PREVIEW_TOKEN: 'test-token',

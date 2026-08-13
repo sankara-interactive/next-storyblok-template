@@ -81,8 +81,10 @@ requires:
 It renders through `RichTextRenderer` and `SbLink`, which is exactly what the
 Phase 0 smoke test needs to cover.
 
-`feature`, `grid` and `teaser` stay in the codebase — space `202685` still uses
-`grid` and `teaser`, so removing them from code would break the live space.
+`feature`, `grid` and `teaser` are deleted from the codebase. They were
+Storyblok's auto-provisioned starter bloks, kept only because space `202685`
+used them; that space is no longer tracked, the committed baseline never
+included them, and `text_section` is now the template's worked example.
 
 Removing them from a _newly bootstrapped_ space is a **manual step**.
 `components push` creates and updates components but has no `--delete`, so the
@@ -179,14 +181,31 @@ This is not interchangeable with a personal access token:
   `403 {"error":"This endpoint does not support this token type"}` on
   `/v1/spaces/<id>/internal_tags`, which aborts the whole command. This is not
   avoidable by keeping tags out of the baseline.
-- `STORYBLOK_TOKEN` in `.env` is ignored unless `STORYBLOK_LOGIN` **and**
-  `STORYBLOK_REGION` are also set — `getEnvCredentials()` requires all three or
-  falls through to the stored session in `~/.storyblok/credentials.json`.
-- `.env.example` documents `STORYBLOK_OAUTH_TOKEN`, which nothing reads.
+- Setting `STORYBLOK_TOKEN` in `.env` does not help: `getEnvCredentials()` uses it
+  only when `STORYBLOK_LOGIN` **and** `STORYBLOK_REGION` are set alongside it, and
+  otherwise falls through to the stored session in `~/.storyblok/credentials.json`.
 
-`setup:space` should therefore check for a working session rather than for an
-environment variable, and say "run `storyblok login -r eu` and choose email" when
-one is missing.
+`setup:space` therefore checks for a working session rather than an environment
+variable, and says "run `storyblok login -r eu` and choose email" when one is
+missing.
+
+### Three distinct credentials
+
+They are easy to confuse because the names are similar. They are not
+interchangeable:
+
+| Credential                       | Used for                                    | Supplied via                                     |
+| -------------------------------- | ------------------------------------------- | ------------------------------------------------ |
+| CLI session (OAuth, email login) | `components push/pull`, `stories push/pull` | `storyblok login -r eu`, stored outside the repo |
+| `STORYBLOK_MANAGEMENT_TOKEN`     | direct Management API reads, and deletes    | `.env`, sent as an `Authorization` header        |
+| `NEXT_PUBLIC_STORYBLOK_TOKEN`    | delivery/CDN reads from the app             | `.env`, validated by `lib/env.ts`                |
+
+The management token is a personal access token. It is sufficient for reading
+components and stories and for deleting them, but it cannot drive
+`components push`, because that command calls `/internal_tags` — which is the
+403 above. Deletion is the one schema operation the CLI cannot perform at all
+(`components push` creates and updates only), so removing a component needs
+either this token against the Management API or `schema push --delete`.
 
 ## Limitations, stated plainly
 

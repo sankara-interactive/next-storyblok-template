@@ -44,7 +44,7 @@ Record architectural decisions here as they are made, newest last.
   segment avoids stuttering as `@sankara-ui/ui` and leaves room for
   `@sankara-ui/storyblok` when Phase A3's adapter layer becomes a package.
 - **CMS redirects resolve at the 404 boundary, not in `proxy.ts`** (decided
-  2026-07-30). The requirement is exact-path *retirement*, and a retired URL is
+  2026-07-30). The requirement is exact-path _retirement_, and a retired URL is
   by definition the 404 case, so the proxy's one real advantage — redirecting a
   path that still resolves to a live story — buys nothing here. It would cost a
   lookup on every request plus a Storyblok read outside the RSC context, which
@@ -55,20 +55,38 @@ Record architectural decisions here as they are made, newest last.
 
 ## Phase 0: Land the Baseline PR Stack
 
-Status: `[~]` All PRs merged; manual smoke-testing remains
+Status: `[x]` All PRs merged; smoke test run against the Template space
 
 Tasks:
 
 - [x] Merge PR #9, `feat/storyblok-patterns-hardening`.
 - [x] Rebase or retarget PR #10, `chore/storyblok-react-v7-upgrade`, onto the
-  merged baseline and merge it.
+      merged baseline and merge it.
 - [x] Rebase PR #11, `feat/template-core-patterns`, onto PR #10.
 - [x] Resolve the rich-text implementation against the Storyblok v7 API.
 - [x] Run tests, typecheck, lint, and a production build. The production build is
-  covered by the CI job added in Phase 1.
+      covered by the CI job added in Phase 1.
 - [x] Merge PR #11.
-- [ ] Smoke-test rich text, embedded bloks, preview editing, internal links, and
-  email links against a real space.
+- [x] Smoke-test rich text, embedded bloks, internal links, and email links
+      against a real space. Run 2026-07-31 against the Template space
+      (294223376817452) via `scripts/smoke.sh`: 13/13, covering the headline and
+      eyebrow, a bold mark, an internal link resolving to `/about`, a `mailto:`
+      link, a blok embedded inside richtext, `/about`, and two negative cases
+      (unknown path 404s, `data/` non-routable). It also proved Phase A2 at
+      runtime for the first time — `/alt` → 308 `/about`, query preserved.
+- [x] Smoke-test **preview editing**. Verified 2026-07-31 end to end in the real
+      Storyblok editor, over an HTTPS tunnel, with live updates working.
+      `isVisualEditor()` gates on
+      `isBrowser() && isIframe() && search.includes('_storyblok')`, so the bridge
+      loads only inside the editor iframe and is absent for a normal visitor —
+      both directions confirmed. Three elements carry `data-blok-uid`, including
+      the blok nested inside richtext, so that one is individually selectable.
+      **Do not preview `yarn dev` through a tunnel.** Next's HMR WebSocket
+      cannot upgrade through cloudflared (502 on `wss://`), so dev retries every
+      second and reloads the page, destroying the JS context before the bridge
+      finishes initialising — the page renders but never updates, which looks
+      exactly like a broken bridge. Serve `yarn build && yarn start` instead;
+      there is no HMR socket and the bridge initialises normally.
 
 Exit criteria:
 
@@ -86,7 +104,7 @@ Tasks:
 - [x] Add `typecheck`, `format:check`, and combined `check` package scripts.
 - [x] Add server/client environment validation with production-safe failures.
 - [x] Return `null` only for real Storyblok 404 responses; surface unexpected
-  authentication, network, rate-limit, and server failures.
+      authentication, network, rate-limit, and server failures.
 - [x] Make the production build reproducible in CI.
 - [x] Add generated Storyblok schema/type drift detection.
 - [x] Configure grouped dependency updates.
@@ -111,17 +129,17 @@ One PR; all mechanical.
 Tasks:
 
 - [x] Fix per-page `openGraph` silently replacing the root layout's. Next does
-  not deep-merge that key, so `og:site_name`, `og:locale` and `og:type` are
-  missing on every content route. Export the defaults once from `lib/config.ts`
-  and spread into both; correct the now-false OG claim in `CLAUDE.md`.
+      not deep-merge that key, so `og:site_name`, `og:locale` and `og:type` are
+      missing on every content route. Export the defaults once from `lib/config.ts`
+      and spread into both; correct the now-false OG claim in `CLAUDE.md`.
 - [x] Delete `lib/storyblok-image.ts` and its test — no callers outside the test.
 - [x] Drop the unused `clsx` dependency.
 - [x] Remove the four inert restated ignores in `eslint.config.mjs`
-  (`eslint-config-next` already applies them).
+      (`eslint-config-next` already applies them).
 - [x] Replace `app/page.tsx` with an optional catch-all (`app/[[...slug]]`),
-  removing the duplicated `revalidate` export.
+      removing the duplicated `revalidate` export.
 - [x] Shrink `sitemapPaths` to filter/map; collapse the identical `url`/`asset`
-  branches in `getHref`.
+      branches in `getHref`.
 
 Exit criteria:
 
@@ -130,7 +148,8 @@ Exit criteria:
 
 ## Phase A2: CMS-Editable Redirects
 
-Status: `[~]` Code complete; blocked on the Storyblok schema existing
+Status: `[x]` Complete — verified at runtime on 2026-07-31 (`/alt` → 308
+`/about`, query preserved) once `yarn setup:space` created the schema
 
 Client requirement: editors change redirects in Storyblok and cannot trigger a
 redeploy. Resolved at the 404 boundary — see Decisions. The old build-time path
@@ -159,23 +178,23 @@ Tasks:
 
 - [x] Decide between (1) and (2) and record it under Decisions.
 - [x] Define the `data/redirects` schema (source, destination, permanent) —
-  documented in `README.md`.
-- [ ] Create the `redirect` blok and `redirects` content type in the Storyblok
-  space, then `yarn sync`. Needs a CLI session from `storyblok login -r eu` using
-  the **email** method — a personal access token 403s on `/internal_tags`, which
-  both `components pull` and `push` call unconditionally. `STORYBLOK_TOKEN` in
-  `.env` is ignored unless `STORYBLOK_LOGIN` and `STORYBLOK_REGION` accompany it,
-  and `.env.example`'s `STORYBLOK_OAUTH_TOKEN` is read by nothing. See
-  `docs/superpowers/specs/2026-07-31-storyblok-space-bootstrap-design.md`.
-  Until this lands `getRedirects()` reads a story that does not exist and returns
-  `[]`, so nothing redirects.
+      documented in `README.md`.
+- [x] Create the `redirect` blok and `redirects` content type in the Storyblok
+      space, then `yarn sync`. Needs a CLI session from `storyblok login -r eu` using
+      the **email** method — a personal access token 403s on `/internal_tags`, which
+      both `components pull` and `push` call unconditionally. A bare
+      `STORYBLOK_TOKEN` in `.env` is ignored unless `STORYBLOK_LOGIN` and
+      `STORYBLOK_REGION` accompany it; `STORYBLOK_MANAGEMENT_TOKEN` is the separate
+      personal token used for Management API reads and deletes. See
+      `docs/superpowers/specs/2026-07-31-storyblok-space-bootstrap-design.md`.
+      The `yarn setup:space` baseline now creates both on any target space.
 - [x] Implement, preserving query strings and never trusting the Host header.
-  Destinations come from the CMS as a path or absolute URL, so no origin is
-  ever derived from a request header.
+      Destinations come from the CMS as a path or absolute URL, so no origin is
+      ever derived from a request header.
 - [x] Keep developer-authored pattern redirects in `next.config.mjs`; the CMS
-  story is for exact-path retirement.
+      story is for exact-path retirement.
 - [x] Test: exact match, no match, prefix non-match, dotted paths, trailing
-  slashes, query preservation, permanent vs temporary.
+      slashes, query preservation, permanent vs temporary.
 
 Exit criteria:
 
@@ -200,7 +219,7 @@ Responsibilities:
 Tasks:
 
 - [ ] Add committed schemas and generated types for button, header, footer,
-  navigation links, and site settings.
+      navigation links, and site settings.
 - [ ] Add button, accordion, form, asset, link, and rich-text adapters.
 - [ ] Automate component registry generation from committed schemas.
 
@@ -245,7 +264,7 @@ Tasks:
 - [ ] Cover metadata, sitemap, robots, redirects, and 404 behavior.
 - [ ] Cover rich-text links and embedded bloks.
 - [ ] Cover webhook revalidation behavior, including the route handler itself —
-  currently only its helpers are tested.
+      currently only its helpers are tested.
 
 Exit criteria:
 
@@ -259,14 +278,14 @@ Status: `[ ]`
 Tasks:
 
 - [ ] Define locale routing, Storyblok language selection, `hreflang`, and
-  localized sitemap behavior.
+      localized sitemap behavior.
 - [ ] Add a `yarn setup` initializer for site identity, locale, Storyblok region,
-  analytics, consent integration, environment configuration, and starter bloks.
+      analytics, consent integration, environment configuration, and starter bloks.
 - [ ] Add security headers and a CSP compatible with preview and integrations.
 - [ ] Add vendor-neutral logging and error-reporting hooks.
 - [ ] Add release notes, semantic versioning, and template update automation.
 - [ ] Declare `storyblok-js-client` explicitly — three files import it while
-  relying on it staying a transitive dependency of `@storyblok/react`.
+      relying on it staying a transitive dependency of `@storyblok/react`.
 
 Exit criteria:
 
@@ -296,11 +315,11 @@ pagination, structurally the same component as `CardSlider`.)
 Decisions taken:
 
 - [x] Base UI as the headless foundation, used only where a component needs it.
-  No incumbent exists to standardise on — fgpfister.ch runs Radix,
-  fairmed.ch-sb runs Headless UI — so any choice migrates something.
+      No incumbent exists to standardise on — fgpfister.ch runs Radix,
+      fairmed.ch-sb runs Headless UI — so any choice migrates something.
 - [x] Distribution is a versioned package on public npm, not a copy-in registry.
 - [x] Styling ships as Tailwind v4 classes against a documented `@theme` token
-  contract.
+      contract.
 
 ## Phase B2: Foundation and Infrastructure
 
@@ -325,10 +344,10 @@ the contract is CSS, not a build step.
 Tasks:
 
 - [ ] Define semantic color, typography, spacing, radius, border, shadow,
-  motion, breakpoint, focus, and layering tokens.
+      motion, breakpoint, focus, and layering tokens.
 - [ ] Define theming and customer-brand override rules.
 - [ ] Document naming, composition, variants, refs, controlled state,
-  `className` escape hatches, and server/client boundaries.
+      `className` escape hatches, and server/client boundaries.
 - [ ] Establish reduced-motion and accessibility acceptance policies.
 - [ ] Add Storybook or an equivalent isolated component workbench.
 - [ ] Add unit, accessibility, and visual-regression test infrastructure.
@@ -352,15 +371,15 @@ substantially wrong; see the design spec for the survey.
 **Tier 1 — present in every project:**
 
 - [ ] Icon — FontAwesome in four of five; numbers.ch's hand-written
-  `icon-data.ts` is a reimplementation of it. Wrap FontAwesome, don't ship icon
-  data.
+      `icon-data.ts` is a reimplementation of it. Wrap FontAwesome, don't ship icon
+      data.
 - [ ] Carousel — every project has one. Build-or-wrap is open: three hand-rolled
-  scroll-snap, two use Splide. No headless library ships one.
+      scroll-snap, two use Splide. No headless library ships one.
 
 **Tier 2 — present in two or more:**
 
 - [ ] Disclosure (numbers.ch `Expandable`, fgpfister `ExpandableTableRows` and
-  `ShowMore`), on Base UI Collapsible/Accordion
+      `ShowMore`), on Base UI Collapsible/Accordion
 - [ ] Field, Input, Textarea, Checkbox, RadioGroup, Select
 - [ ] Dialog, Popover, Menu — the highest-frequency primitives in the survey
 
@@ -369,7 +388,7 @@ substantially wrong; see the design spec for the survey.
 - [ ] Typography, Container
 - [ ] Button and Link (shared variant surface)
 - [ ] Pagination, Breadcrumbs, mobile navigation, LanguageSwitcher, ShareBar,
-  VideoPlayer
+      VideoPlayer
 
 **Out of the first release:** `Reveal`, `CountUp`, `Glow`, `BgMark`, `Pill`,
 `IconBox`. Each appears only in numbers.ch — that site's visual language, not a

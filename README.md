@@ -106,6 +106,21 @@ To enable preview mode you have to add two preview URLs in Storyblok:
 `API_SECRET` is already set from step 3 — the app will not start without it.
 It might be helpful for the end user to set the preview URL as default.
 
+The `/api/draft` route validates the secret, confirms the story exists, enables
+draft mode, and forwards **only** the `_storyblok*` params onward — the secret
+never reaches the page URL. `data/` stories are rejected as non-previewable.
+
+**Previewing a local server over an HTTPS tunnel:** Storyblok's editor needs
+HTTPS, so a tunnel (`cloudflared tunnel --url http://localhost:3000`) is the usual
+way to preview locally. Serve a production build through it —
+`yarn build && yarn start` — **not `yarn dev`**. Next's HMR WebSocket cannot
+upgrade through a tunnel (502 on `wss://`), so the dev server retries every second
+and reloads the page, destroying the JS context before the Storyblok bridge
+finishes loading. The symptom is a page that renders but never reflects edits,
+which looks identical to a broken bridge. Note that with a production build,
+browsing the tunnel URL directly returns 404 for unpublished stories — only the
+`/api/draft` path shows them, which is exactly what the editor uses.
+
 ### 8. Webhook for revalidation
 
 To revalidate pages after publishing in Storyblok, set up a Webhook pointing to:
@@ -129,11 +144,11 @@ Editors retire an old URL by adding an entry to the `data/redirects` story — n
 deploy needed. Create a nestable `redirect` blok with three fields and a
 `redirects` content type holding them in a `entries` bloks field:
 
-| Field         | Type    | Notes                                                     |
-| ------------- | ------- | --------------------------------------------------------- |
-| `source`      | text    | Old path, e.g. `/impressum.html`. Exact match.             |
-| `destination` | text    | Path (`/impressum`) or absolute URL.                       |
-| `permanent`   | boolean | Unset/true → 308. False → 307.                             |
+| Field         | Type    | Notes                                          |
+| ------------- | ------- | ---------------------------------------------- |
+| `source`      | text    | Old path, e.g. `/impressum.html`. Exact match. |
+| `destination` | text    | Path (`/impressum`) or absolute URL.           |
+| `permanent`   | boolean | Unset/true → 308. False → 307.                 |
 
 Resolution happens at the 404 boundary in `app/[[...slug]]/page.tsx`: when a
 story is missing, `lib/redirects.ts` looks the path up and redirects. Live pages
@@ -151,22 +166,83 @@ Two consequences worth knowing:
 Pattern redirects (`/blog/:slug*`) are developer territory — add a standard Next
 `redirects()` to `next.config.mjs`. The CMS story is for exact-path retirement.
 
+### 10. Bootstrapping a new space
+
+To give a fresh Storyblok space this template's structure and demo content:
+
+```sh
+yarn storyblok login -r eu   # choose "With email" — a personal access token will not work,
+                              # it 403s on /internal_tags, which components push/pull call unconditionally
+yarn setup:space --space <space-id> --yes
+```
+
+This pushes the committed baseline from `.storyblok/components/baseline/` and
+`.storyblok/stories/baseline/`: a `page` content type with an SEO tab, a
+`text_section` blok, and the `data/redirects` global with one example entry.
+
+Afterwards, delete the Storyblok starter bloks (`feature`, `grid`, `teaser`) in
+the UI — `components push` creates and updates but cannot delete.
+
+The baseline bootstraps _new_ spaces; it does not govern existing ones. For a
+space already in use, the Storyblok UI stays the source of truth and `yarn sync`
+pulls its schema. `setup:space` refuses a target holding stories outside the
+baseline set, so it cannot quietly overwrite a space in use; `--force` overrides
+that, and should not be habitual.
+
+#### Smoke-testing a bootstrapped space
+
+`scripts/smoke.sh` checks a running dev server end to end — the page renders, rich
+text produces a bold mark, an internal link, a `mailto:` link and an embedded blok,
+and the CMS redirects fire with the query string preserved:
+
+```sh
+yarn dev
+./scripts/smoke.sh                        # or ./scripts/smoke.sh http://localhost:3003
+```
+
+Baseline stories may be unpublished drafts — `next dev` reads drafts, so that is
+fine. Preview editing in the visual editor is the one thing the script cannot
+cover; check that by hand.
+
+#### Which Storyblok credential does what
+
+Three similar names, three different jobs. They are not interchangeable:
+
+| Credential                       | Used for                                 | Supplied via                                     |
+| -------------------------------- | ---------------------------------------- | ------------------------------------------------ |
+| CLI session (OAuth, email login) | `components` / `stories` push and pull   | `storyblok login -r eu`, stored outside the repo |
+| `STORYBLOK_MANAGEMENT_TOKEN`     | direct Management API reads, and deletes | `.env`                                           |
+| `NEXT_PUBLIC_STORYBLOK_TOKEN`    | delivery reads from the app              | `.env`, validated by `lib/env.ts`                |
+
+The management token is a personal access token: fine for reading and deleting,
+but it cannot drive `components push`. Deleting a component is the one schema
+operation the CLI cannot do at all, which is why removing the starter bloks above
+is a manual step.
+
+Setting a bare `STORYBLOK_TOKEN` in `.env` does nothing — the CLI only reads it
+when `STORYBLOK_LOGIN` and `STORYBLOK_REGION` are set alongside it, and otherwise
+uses the stored login session.
+
 ## Conventions
 
 These rules keep the codebase predictable across components and contributors.
 
 **Component registry**
+
 - The registry key in `lib/storyblok.ts` must be the **exact snake_case technical name** from Storyblok (e.g. `privacy_bee`, `hero_section`). A one-character mismatch means the blok silently renders nothing.
 
 **Component hierarchy**
+
 - Pages are built as: `page` → `*Section` → `*Card`/`*Item`.
 - One file per blok, PascalCase filename, under `components/nestables/` or `components/content_types/`.
 
 **Whitelisting child bloks**
+
 - Filter shared/reusable child bloks by Storyblok **tag** (`section`, `shared`, `richtext`) — tag-based filtering stays correct as new bloks are added. Enumerate parent-specific children explicitly (a one-off tag per parent isn't worth it).
 
 **Field-name vocabulary**
 Use these field names consistently across bloks:
+
 - `headline` — heading text
 - `eyebrow` — small label above the headline (a.k.a. kicker)
 - `lead` / `text` — richtext intro or body copy
@@ -178,17 +254,21 @@ Use these field names consistently across bloks:
 - `is*` / `has*` — boolean toggles (e.g. `is_full_width`, `has_background`)
 
 **Globals and routing**
+
 - Stories under `data/` are non-routable (excluded from sitemap and static params). They are fetched as globals (nav, footer, settings) via `lib/storyblok-api.ts`.
 
 **Preview and live modes**
+
 - `MODE` (`preview` | `live`) gates draft content and `noindex`. It's derived from `VERCEL_ENV` by default (non-prod Vercel deploys → `preview`; production / non-Vercel → `live`); set the `MODE` env var to override (e.g. a draft-on-prod review site). Local `next dev` always reads drafts regardless of `MODE`.
 - The Storyblok bridge (live editing) is gated separately by the SDK (`isVisualEditor()`), **not** by `MODE` — it loads only inside the Storyblok editor iframe and never ships to the production bundle.
 
 **Analytics**
+
 - **Pirsch** (cookieless, no consent required) loads globally in the root layout via `<Pirsch />`. It uses `pirsch.js` with `id="pirschjs"`. In development it is skipped entirely.
 - **PrivacyBee** is a Storyblok **blok** (registry key `privacy_bee`), not a global script. Editors place it on the pages that need the consent widget. It renders the `<privacybee-widget>` custom element via `widget.js`; the `website_id` comes from the blok's own field.
 
 **SEO**
+
 - Root `metadata` in `app/layout.tsx` sets the title template (`%s · Site`) and OpenGraph defaults (`OG_DEFAULTS` in `lib/config.ts`, spread into every override because Next replaces `openGraph` rather than merging it); per-page `generateMetadata` in `app/[[...slug]]/page.tsx` overrides title, description, canonical, and images per story. `JsonLd` (`components/seo/JsonLd.tsx`) emits Organization + WebSite structured data sitewide.
 
 ## Resources

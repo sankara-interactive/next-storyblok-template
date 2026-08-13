@@ -1,0 +1,23 @@
+{
+  "id": 4,
+  "name": "Redirects",
+  "slug": "redirects",
+  "full_slug": "data/redirects",
+  "uuid": "44444444-4444-4444-8444-444444444444",
+  "is_folder": false,
+  "parent_id": 3,
+  "position": 0,
+  "content": {
+    "_uid": "cccccccc-1111-4111-8111-cccccccccccc",
+    "component": "redirects",
+    "entries": [
+      {
+        "_uid": "cccccccc-2222-4222-8222-cccccccccccc",
+        "component": "redirect",
+        "source": "/alt",
+        "destination": "/about",
+        "permanent": true
+      }
+    ]
+  }
+}

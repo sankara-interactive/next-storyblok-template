@@ -16,7 +16,8 @@
     "sync": "storyblok components pull && storyblok types generate",
     "types:check": "node scripts/check-storyblok-types.mjs",
     "assets:unused": "node scripts/find-unused-assets.mjs",
-    "scaffold": "node generators/cli.mjs"
+    "scaffold": "node generators/cli.mjs",
+    "setup:space": "node scripts/setup-space.mjs"
   },
   "dependencies": {
     "@storyblok/react": "^7.2.4",
