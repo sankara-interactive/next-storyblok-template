@@ -1573,6 +1573,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@storyblok/schema@npm:0.3.0":
+  version: 0.3.0
+  resolution: "@storyblok/schema@npm:0.3.0"
+  dependencies:
+    "@standard-schema/spec": "npm:^1.1.0"
+    zod: "npm:^4.3.6"
+  checksum: 10c0/e1b980d5a56b91ef2e484194dba33f7b7f97748a11a04f4687b9fa1bf15f13203f89ac7916c636d0b672504a896c85e8a6f3614adb85e400feebb99047274ecf
+  languageName: node
+  linkType: hard
+
 "@swc/helpers@npm:0.5.15":
   version: 0.5.15
   resolution: "@swc/helpers@npm:0.5.15"
@@ -5659,6 +5669,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nanoid@npm:^3.3.17":
+  version: 3.3.18
+  resolution: "nanoid@npm:3.3.18"
+  bin:
+    nanoid: bin/nanoid.cjs
+  checksum: 10c0/b994b4e396730f8be2520923284e2040d61eaee55cc6d4935ef6d38d34bafdc46133eda4d3faea5073bda545aa6079d82b886caeac5c731cf9ac18bcc1301425
+  languageName: node
+  linkType: hard
+
 "natural-compare@npm:^1.4.0":
   version: 1.4.0
   resolution: "natural-compare@npm:1.4.0"
@@ -5679,11 +5698,11 @@ __metadata:
     eslint: "npm:^9"
     eslint-config-next: "npm:^16.3.0"
     next: "npm:^16.3.0"
-    postcss: "npm:^8.5.25"
+    postcss: "npm:^8.5.26"
     prettier: "npm:3.9.6"
     react: "npm:^19.2.8"
     react-dom: "npm:^19.2.8"
-    storyblok: "npm:^4.21.2"
+    storyblok: "npm:^4.22.0"
     tailwindcss: "npm:^4.3.3"
     typescript: "npm:^5.9.3"
     vitest: "npm:^4.1.10"
@@ -6155,7 +6174,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.5.16, postcss@npm:^8.5.23, postcss@npm:^8.5.25":
+"postcss@npm:^8.5.16, postcss@npm:^8.5.23":
   version: 8.5.25
   resolution: "postcss@npm:8.5.25"
   dependencies:
@@ -6163,6 +6182,17 @@ __metadata:
     picocolors: "npm:^1.1.1"
     source-map-js: "npm:^1.2.1"
   checksum: 10c0/0a12c1e74b456c57122e81f684e02fd98ff4d57526f794d10c996df1147158808f5ae373ac82b988c8de6cbbaa82dbd7b13803b14f5dd3cf7cc6a42ccad5c9f2
+  languageName: node
+  linkType: hard
+
+"postcss@npm:^8.5.26":
+  version: 8.5.26
+  resolution: "postcss@npm:8.5.26"
+  dependencies:
+    nanoid: "npm:^3.3.17"
+    picocolors: "npm:^1.1.1"
+    source-map-js: "npm:^1.2.1"
+  checksum: 10c0/2bdafc00d96bd57b6649a52e458864a4bf58ee56cfdbe4aea1472b5cccc127e6c1ad653bd0bec50d211e650eb0b9270c80e1e72aff2e2fa40d9e7363234d6e43
   languageName: node
   linkType: hard
 
@@ -7042,14 +7072,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"storyblok@npm:^4.21.2":
-  version: 4.21.2
-  resolution: "storyblok@npm:4.21.2"
+"storyblok@npm:^4.22.0":
+  version: 4.22.0
+  resolution: "storyblok@npm:4.22.0"
   dependencies:
     "@inquirer/prompts": "npm:^7.5.1"
     "@storyblok/js": "npm:6.3.1"
     "@storyblok/management-api-client": "npm:0.7.0"
     "@storyblok/region-helper": "npm:1.5.0"
+    "@storyblok/schema": "npm:0.3.0"
     "@topcli/spinner": "npm:^2.1.2"
     async-sema: "npm:^3.1.1"
     c12: "npm:^3.3.0"
@@ -7070,7 +7101,7 @@ __metadata:
     storyblok-js-client: "npm:7.7.3"
   bin:
     storyblok: dist/index.mjs
-  checksum: 10c0/421a10f3a5db5c21dd760e4561c58fb8d446803e3014414ccd2fe9522791a32a40345a5de39ffb3469744634cedb3d08f4170a1d10e9c438d828e1f8fd86c4c4
+  checksum: 10c0/9e08d711cf2960dcb9e4b536fc954fd7d99721f5ed8fc99d68b089e6ac4bd29b974477a8c8bff9bbccebd7ce6b7d6b16522a9ff451fdc4e57905050d69adc002
   languageName: node
   linkType: hard
 
@@ -7994,7 +8025,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod@npm:^4.4.3":
+"zod@npm:^4.3.6, zod@npm:^4.4.3":
   version: 4.4.3
   resolution: "zod@npm:4.4.3"
   checksum: 10c0/7ea31b558e88f9faf44f31dd185e2e1cbf51fed3081787fb96cc2534749b50c0acfc6da7f0922a7353ed092dd358c7d50c28ea96c94d04af64191bd33152eca3
