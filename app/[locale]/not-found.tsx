@@ -1,20 +1,22 @@
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
+import { getTranslations } from 'next-intl/server'
 
 // Recovery links: a crawler landing here is otherwise at a dead end.
-export default function NotFound() {
+export default async function NotFound() {
+  const t = await getTranslations('NotFound')
   return (
     <main className="container mx-auto p-8 text-center">
-      <h1 className="text-4xl font-bold">404</h1>
-      <p className="mt-2">Diese Seite wurde nicht gefunden.</p>
+      <h1 className="text-4xl font-bold">{t('title')}</h1>
+      <p className="mt-2">{t('message')}</p>
       <ul className="mt-4 flex flex-wrap justify-center gap-4">
         <li>
           <Link href="/" className="underline">
-            Zur Startseite
+            {t('backHome')}
           </Link>
         </li>
         <li>
           <a href="/sitemap.xml" className="underline">
-            Alle Seiten
+            {t('sitemap')}
           </a>
         </li>
         <li>
