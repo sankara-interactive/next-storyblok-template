@@ -11,9 +11,7 @@ export function sitemapPaths(links: Record<string, SbLink>): string[] {
 const escape = (value: string) =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
-// ponytail: no <lastmod> — cdn/links/ doesn't carry published_at, and the old
-// `new Date()` claimed every URL changed on every render. Add it by switching
-// the inventory to a paginated cdn/stories query if crawl budget ever needs it.
+// ponytail: no <lastmod> — cdn/links/ carries no published_at.
 export function renderSitemap(paths: string[]): string {
   const urls = paths.map(
     path => `<url>\n<loc>${escape(new URL(path, SITE_URL).toString())}</loc>\n</url>`

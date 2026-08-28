@@ -26,13 +26,10 @@ export async function POST(req: Request) {
     revalidateTag(tag, 'max')
   }
 
-  // Hard-expire, not 'max': 'max' only marks the inventory stale, so the first
-  // crawler after the purge below could read pre-publish links and have that XML
-  // held at the CDN for a year with no further purge queued.
+  // Hard-expire, not 'max': a stale read here would be cached at the CDN for a year.
   revalidateTag(LINKS_CACHE_TAG, { expire: 0 })
 
   // Vercel's CDN tag namespace, not Next's — the only thing that reaches the XML.
-  // Absent off Vercel; a failure here must not fail the webhook.
   let sitemap = 'sitemap:skipped'
   try {
     await invalidateByTag(SITEMAP_CDN_TAG)
