@@ -1,8 +1,7 @@
 import { Link } from '@/i18n/navigation'
 import { getTranslations } from 'next-intl/server'
 
-// Recovery links, not just an apology: a crawler landing here otherwise hits a
-// dead end with no route back into the site.
+// Recovery links: a crawler landing here is otherwise at a dead end.
 export default async function NotFound() {
   const t = await getTranslations('NotFound')
   return (

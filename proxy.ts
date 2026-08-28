@@ -5,18 +5,11 @@ import { routing } from '@/i18n/routing'
 
 const handleI18nRouting = createMiddleware(routing)
 
-// Next 16 renamed `middleware.ts` → `proxy.ts` (function `middleware` → `proxy`).
-// Accept negotiation (acceptmarkdown.com) runs first: an agent asking for
-// text/markdown is rewritten to /api/md, which sets `Vary: Accept` itself. The
-// HTML variant carries no such header and can't — Next overwrites `vary` with
-// its RSC list on every page response, so neither a proxy header nor a
-// next.config `headers()` entry survives. Harmless: this runs before the CDN
-// cache lookup, so a markdown request never reads the cached HTML entry.
-// Everything else falls through to next-intl locale routing.
+// Next 16 renamed `middleware.ts` → `proxy.ts`. Accept negotiation runs first —
+// a markdown request is rewritten to /api/md — then next-intl locale routing.
 export default function proxy(request: NextRequest) {
-  // Only safe methods are negotiable. Server Actions POST to the page URL with
-  // `Accept: text/x-component` and RSC navigation GETs the same — Next's own
-  // traffic, which must never be negotiated or 406'd.
+  // Only safe methods are negotiable: Next's own RSC and Server Action traffic
+  // must never be negotiated or 406'd.
   const negotiable =
     (request.method === 'GET' || request.method === 'HEAD') && !request.headers.get('RSC')
 
@@ -41,7 +34,6 @@ export default function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Content routes only — skip API, Next internals, and anything with a file
-  // extension (static assets, /sitemap.xml, /robots.txt, /llms.txt).
+  // Content routes only — skips API, Next internals and anything with a file extension.
   matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)'],
 }

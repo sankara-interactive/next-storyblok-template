@@ -3,9 +3,8 @@ import { SITEMAP_CDN_TAG } from '@/lib/config'
 import { getAllLinks } from '@/lib/storyblok-api'
 import { renderSitemap, sitemapEntries } from '@/lib/sitemap'
 
-// Not the `sitemap.ts` metadata convention: that deploys as a static asset, and
-// neither revalidateTag nor revalidatePath reaches it — stories published between
-// deploys never appeared. force-dynamic keeps this a function; the CDN still caches.
+// Not the `sitemap.ts` convention: metadata routes deploy as static assets no
+// tag or path purge can reach. Dynamic keeps it a function; the CDN still caches.
 export const dynamic = 'force-dynamic'
 
 export async function GET() {

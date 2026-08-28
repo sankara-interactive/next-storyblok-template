@@ -13,8 +13,7 @@ const markdown = (body: string, status = 200) =>
     status,
     headers: {
       'content-type': 'text/markdown; charset=utf-8',
-      // This resource is always markdown, but it is what a shared cache could
-      // otherwise conflate with the HTML at the same logical URL.
+      // What a shared cache would otherwise conflate with the HTML at this URL.
       vary: 'Accept',
     },
   })
