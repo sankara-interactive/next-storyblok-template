@@ -16,6 +16,17 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   flushes the whole `storyblok` tag. Tag-flush only works because every read is
   tagged. Management-API publishes do NOT fire the webhook — scripted content
   changes must call `/api/revalidate` (or redeploy) themselves.
+- **Sitemap**: `app/sitemap.xml/route.ts`, deliberately NOT the `sitemap.ts`
+  metadata convention — that deploys as a static asset, and neither
+  `revalidateTag` nor `revalidatePath` reaches it, so stories published between
+  deploys never appear. `force-dynamic` keeps it a function; the rendered XML is
+  held at the edge under `Vercel-CDN-Cache-Control` and a Vercel CDN cache tag
+  (`SITEMAP_CDN_TAG`), which the webhook purges via `invalidateByTag` — Vercel's
+  tag namespace, not Next's, and the only thing that reaches the XML. The webhook
+  also hard-expires `storyblok:links` (`{ expire: 0 }`, not `'max'`): `'max'` only
+  marks it stale, so the first crawler after a purge could read pre-publish links
+  and have that XML cached at the edge for a year. Off Vercel the purge is a
+  no-op and is caught, never failing the webhook.
 - **Bridge** is handled by the SDK: `<StoryblokStory>` (in `app/[[...slug]]/page.tsx`)
   renders `StoryblokLiveEditing`, which self-gates on `isVisualEditor()` and
   dynamically loads the bridge only inside the Storyblok editor iframe — so it

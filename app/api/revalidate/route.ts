@@ -1,5 +1,7 @@
 import { revalidateTag } from 'next/cache'
+import { invalidateByTag } from '@vercel/functions'
 import { env } from '@/lib/env'
+import { LINKS_CACHE_TAG, SITEMAP_CDN_TAG } from '@/lib/config'
 import { revalidationTags } from '@/lib/storyblok-routes'
 import { verifyWebhookSignature } from '@/lib/webhook'
 
@@ -19,8 +21,25 @@ export async function POST(req: Request) {
   }
 
   // Next 16 requires a cacheLife profile; 'max' is the on-demand-purge drop-in.
-  for (const tag of revalidationTags(payload.action, payload.full_slug)) {
+  const tags = revalidationTags(payload.action, payload.full_slug)
+  for (const tag of tags) {
     revalidateTag(tag, 'max')
   }
-  return new Response('Revalidated', { status: 200 })
+
+  // Hard-expire, not 'max': 'max' only marks the inventory stale, so the first
+  // crawler after the purge below could read pre-publish links and have that XML
+  // held at the CDN for a year with no further purge queued.
+  revalidateTag(LINKS_CACHE_TAG, { expire: 0 })
+
+  // Vercel's CDN tag namespace, not Next's — the only thing that reaches the XML.
+  // Absent off Vercel; a failure here must not fail the webhook.
+  let sitemap = 'sitemap:skipped'
+  try {
+    await invalidateByTag(SITEMAP_CDN_TAG)
+    sitemap = 'sitemap:invalidated'
+  } catch (error) {
+    console.warn('CDN sitemap purge failed', error)
+  }
+
+  return new Response(`Revalidated: ${tags.join(', ')} + ${sitemap}`, { status: 200 })
 }
