@@ -12,11 +12,8 @@ export function isDataRoute(slug: string): boolean {
   return slug === DATA_PREFIX || slug.startsWith(`${DATA_PREFIX}/`)
 }
 
-/**
- * True if the webhook slug is a non-default-locale one (`fr/accueil`). Storyblok
- * sends the translated slug, which matches no cache tag — reads are tagged with
- * the default-language slug — so a surgical flush would invalidate nothing.
- */
+/** A translated webhook slug (`fr/accueil`) matches no cache tag — reads are
+ *  tagged with the default-language slug — so a surgical flush would do nothing. */
 export function isTranslatedSlug(slug: string): boolean {
   const first = slug.split('/')[0]
   return first !== DEFAULT_LOCALE && (LOCALES as readonly string[]).includes(first)

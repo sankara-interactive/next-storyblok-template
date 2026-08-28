@@ -84,8 +84,7 @@ export async function withTransientRetry<T>(fn: () => Promise<T>): Promise<T> {
 }
 
 // Built per-slug so the webhook can bust one story without flushing the rest.
-// The cache key carries the language; the tag does not — one story holds all
-// its translations, so a publish busts every locale variant at once.
+// The key carries the language, the tag doesn't: one story holds all translations.
 function fetchPublishedStory(slug: string, language?: string) {
   return unstable_cache(
     async () => {
