@@ -5,6 +5,7 @@ import { unstable_cache } from 'next/cache'
 import { draftMode } from 'next/headers'
 import { isPreview, LINKS_CACHE_TAG, STORYBLOK_CACHE_TAG, storyTag } from './config'
 import { env } from './env'
+import { DEFAULT_LOCALE } from './config'
 import { getStoryblokApi } from './storyblok'
 
 export type SbLink = { slug: string; is_folder: boolean }
@@ -13,6 +14,15 @@ const isDev = env.NODE_ENV === 'development'
 
 export function resolveVersion(isDraft: boolean): 'draft' | 'published' {
   return isDev || isPreview || isDraft ? 'draft' : 'published'
+}
+
+/**
+ * CDN `language` param: only set for a non-default locale. The default locale is
+ * the base content, and passing it explicitly would ask Storyblok for a
+ * translation dimension that does not exist.
+ */
+export function resolveLanguage(locale?: string): string | undefined {
+  return locale && locale !== DEFAULT_LOCALE ? locale : undefined
 }
 
 let previewClient: StoryblokClient | null = null
@@ -78,7 +88,9 @@ export async function withTransientRetry<T>(fn: () => Promise<T>): Promise<T> {
 }
 
 // Built per-slug so the webhook can bust one story without flushing the rest.
-function fetchPublishedStory(slug: string) {
+// The cache KEY carries the language, but the TAG does not: one story holds all
+// its translations, so a publish busts every locale variant at once.
+function fetchPublishedStory(slug: string, language?: string) {
   return unstable_cache(
     async () => {
       const api = getStoryblokApi()
@@ -86,34 +98,39 @@ function fetchPublishedStory(slug: string) {
         api.get(`cdn/stories/${slug}`, {
           version: 'published',
           resolve_links: 'url',
+          ...(language ? { language } : {}),
         })
       )
       return data.story
     },
-    ['storyblok-story', slug],
+    ['storyblok-story', slug, language ?? 'default'],
     { tags: [STORYBLOK_CACHE_TAG, storyTag(slug)] }
   )()
 }
 
-export async function getStory<T>(slug: string): Promise<ISbStoryData<T> | null> {
+export async function getStory<T>(slug: string, locale?: string): Promise<ISbStoryData<T> | null> {
   if (env.STORYBLOK_SKIP_FETCH) return null
   const { isEnabled: isDraft } = await draftMode()
   const version = resolveVersion(isDraft)
+  const language = resolveLanguage(locale)
   try {
     if (version === 'draft') {
       const api = getPreviewClient()
-      const { data } = await memoizeDuringBuild(`storyblok-story-draft:${slug}`, () =>
-        withTransientRetry(() =>
-          api.get(`cdn/stories/${slug}`, {
-            version: 'draft',
-            resolve_links: 'url',
-            cv: Date.now(),
-          })
-        )
+      const { data } = await memoizeDuringBuild(
+        `storyblok-story-draft:${slug}:${language ?? 'default'}`,
+        () =>
+          withTransientRetry(() =>
+            api.get(`cdn/stories/${slug}`, {
+              version: 'draft',
+              resolve_links: 'url',
+              cv: Date.now(),
+              ...(language ? { language } : {}),
+            })
+          )
       )
       return data.story as ISbStoryData<T>
     }
-    return (await fetchPublishedStory(slug)) as ISbStoryData<T>
+    return (await fetchPublishedStory(slug, language)) as ISbStoryData<T>
   } catch (error) {
     if (isStoryblokNotFound(error)) return null
     throw error

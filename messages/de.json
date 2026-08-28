@@ -1,0 +1,11 @@
+{
+  "NotFound": {
+    "title": "404",
+    "message": "Diese Seite wurde nicht gefunden.",
+    "backHome": "Zur Startseite",
+    "sitemap": "Alle Seiten"
+  },
+  "SkipLink": {
+    "toContent": "Zum Inhalt springen"
+  }
+}

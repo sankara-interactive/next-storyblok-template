@@ -1,7 +1,7 @@
 import { addCacheTag } from '@vercel/functions'
 import { SITEMAP_CDN_TAG } from '@/lib/config'
 import { getAllLinks } from '@/lib/storyblok-api'
-import { renderSitemap, sitemapPaths } from '@/lib/sitemap'
+import { renderSitemap, sitemapEntries } from '@/lib/sitemap'
 
 // Not the `sitemap.ts` metadata convention: that deploys as a static asset, and
 // neither revalidateTag nor revalidatePath reaches it — stories published between
@@ -9,7 +9,7 @@ import { renderSitemap, sitemapPaths } from '@/lib/sitemap'
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  const body = renderSitemap(sitemapPaths(await getAllLinks()))
+  const body = renderSitemap(sitemapEntries(await getAllLinks()))
   await addCacheTag(SITEMAP_CDN_TAG)
 
   return new Response(body, {

@@ -44,6 +44,34 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   dynamically loads the bridge only inside the Storyblok editor iframe — so it
   never ships in the production bundle. There is no `StoryblokProvider`; the SDK
   exports none, and one isn't needed (all bloks are server components).
+- **i18n**: `next-intl`. Locales are declared once in `lib/config.ts`
+  (`LOCALES`, `DEFAULT_LOCALE`, `HTML_LANG`, `OG_LOCALE`) and consumed by
+  `i18n/routing.ts`. `localePrefix: 'as-needed'` leaves the default locale
+  unprefixed (`/about`, never `/de/about`), so a single-locale site pays nothing
+  for the `[locale]` segment. `localeDetection: false` on purpose: an unprefixed
+  URL is ALWAYS the default locale — otherwise the `NEXT_LOCALE` cookie 307s a
+  language switcher's own link back where it came from, and auto locale
+  redirects hurt SEO. The root layout is `app/[locale]/layout.tsx`, not
+  `app/layout.tsx`: `<html lang>` needs the locale, and only a segment below
+  `[locale]` can read it. Route handlers (sitemap, llms.txt, robots, api/) sit
+  outside it and need no layout. Reads pass the locale to `getStory`;
+  `resolveLanguage` sends Storyblok a `language` param only for a non-default
+  locale, since the default IS the base content. A story's cache KEY carries the
+  language but its TAG does not — one story holds every translation, so a
+  publish busts all locale variants at once.
+- **UI strings** live in `messages/<locale>.json` (next-intl), not in Storyblok.
+  They are developer strings — aria labels, pagination, form validation — owned
+  by the code that renders them and type-checked with it. Editor-owned copy
+  belongs in a `data/` global instead. Keep the catalogue even at one locale:
+  it is where a hardcoded string goes the moment someone writes one.
+- **Translated slugs are NOT implemented.** A non-default locale reuses the
+  default slug under its prefix (`/fr/about`, not `/fr/a-propos`). Storyblok can
+  carry per-locale `translated_slugs`; wire them into `lib/locale.ts` and
+  `sitemapEntries` if a project needs per-language URLs. Relatedly, a
+  non-default-locale publish flushes the **whole** `storyblok` tag
+  (`isTranslatedSlug`): Storyblok's webhook sends the translated slug
+  (`fr/accueil`), which matches no cache tag, so a surgical flush would
+  invalidate nothing at all.
 - **Globals** live under `data/` and are non-routable (rejected by the page
   loader and excluded from sitemap/static params).
 - **Redirects**: editor-owned exact-path retirement lives in `data/redirects` and
