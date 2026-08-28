@@ -1,7 +1,6 @@
 import Link from 'next/link'
 
-// Recovery links, not just an apology: a crawler landing here otherwise hits a
-// dead end with no route back into the site.
+// Recovery links: a crawler landing here is otherwise at a dead end.
 export default function NotFound() {
   return (
     <main className="container mx-auto p-8 text-center">

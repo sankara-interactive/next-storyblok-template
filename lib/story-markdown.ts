@@ -1,8 +1,6 @@
 /**
- * Renders a Storyblok story as markdown for agents (Accept negotiation in
- * `proxy.ts`, and `/llms.txt`). Deliberately generic: it walks the blok tree by
- * the field-name vocabulary in CLAUDE.md rather than mapping every component,
- * so a new blok that follows the vocabulary needs no code here.
+ * Storyblok story → markdown for agents. Walks the blok tree by the field-name
+ * vocabulary in CLAUDE.md, so a blok that follows it needs no code here.
  */
 import { SITE_NAME } from './config'
 
@@ -147,8 +145,7 @@ function blokToMarkdown(blok: Blok, depth: number, baseUrl: string): string[] {
   const children: string[] = []
   const used = new Set<string>(SKIP_FIELDS)
 
-  // One heading per blok. A second heading-ish field reads as a kicker, so it
-  // becomes prose rather than a competing heading.
+  // One heading per blok; a second heading-ish field reads as a kicker.
   for (const field of HEADING_FIELDS) {
     used.add(field)
     const value = blok[field]
@@ -193,8 +190,7 @@ function blokToMarkdown(blok: Blok, depth: number, baseUrl: string): string[] {
   return [...headings, ...texts, ...(links.length ? [links.join('\n')] : []), ...children]
 }
 
-// `object`, not `Blok`: generated story interfaces have no index signature, so
-// they don't satisfy Record<string, unknown> at the call site.
+// `object`, not `Blok`: generated story interfaces have no index signature.
 export type MarkdownStory = { name?: string; content?: object }
 
 /** Markdown for one story: H1 from the SEO title, then the body bloks. */

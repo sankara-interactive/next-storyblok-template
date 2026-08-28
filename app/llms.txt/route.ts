@@ -3,9 +3,7 @@ import { SITE_NAME, SITE_URL, SITEMAP_CDN_TAG } from '@/lib/config'
 import { getAllLinks } from '@/lib/storyblok-api'
 import { sitemapPaths } from '@/lib/sitemap'
 
-// Same reasoning as sitemap.xml: a static file goes stale the moment an editor
-// publishes and nothing can purge it. Same inventory, same CDN tag — the
-// webhook's existing purge covers both with no second round trip.
+// Same inventory and CDN tag as sitemap.xml, so one webhook purge covers both.
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
