@@ -1,6 +1,9 @@
 import { SITE_NAME, SITE_URL } from '@/lib/config'
 
-// Sitewide structured data; extend Organization with `logo`/`sameAs` per project.
+// Sitewide structured data. Extend Organization per project — agents verifying a
+// business look for logo, sameAs, description, legalName, address (PostalAddress),
+// contactPoint, email, telephone and vatID. Source them from a Storyblok global
+// so an editor owns them; the template ships no `global` blok to guess at.
 export default function JsonLd() {
   const graph = [
     { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },

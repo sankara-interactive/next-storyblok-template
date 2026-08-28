@@ -27,6 +27,18 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   marks it stale, so the first crawler after a purge could read pre-publish links
   and have that XML cached at the edge for a year. Off Vercel the purge is a
   no-op and is caught, never failing the webhook.
+- **Agent readiness**: pages are also served as Markdown. `proxy.ts` negotiates
+  `Accept` (`lib/accept.ts`, RFC 9110 — most specific range wins, so
+  `text/markdown;q=0, */*` refuses markdown) and rewrites a markdown request to
+  `app/api/md/[[...slug]]`; a client accepting neither type gets 406.
+  `text/x-component` counts as HTML so Server Actions and RSC navigation are
+  never negotiated. `lib/story-markdown.ts` walks the blok tree by the
+  **field-name vocabulary below** rather than mapping components, so a new blok
+  that follows the vocabulary needs no code there — one that invents field names
+  renders as an empty section. `/llms.txt` shares the sitemap's inventory and CDN
+  tag. `Vary: Accept` is set on the Markdown response only: Next overwrites
+  `vary` with its RSC list on every page response, so it cannot be set on the
+  HTML variant — harmless, because the proxy runs before the CDN cache lookup.
 - **Bridge** is handled by the SDK: `<StoryblokStory>` (in `app/[[...slug]]/page.tsx`)
   renders `StoryblokLiveEditing`, which self-gates on `isVisualEditor()` and
   dynamically loads the bridge only inside the Storyblok editor iframe — so it
