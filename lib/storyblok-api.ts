@@ -16,11 +16,7 @@ export function resolveVersion(isDraft: boolean): 'draft' | 'published' {
   return isDev || isPreview || isDraft ? 'draft' : 'published'
 }
 
-/**
- * CDN `language` param: only set for a non-default locale. The default locale is
- * the base content, and passing it explicitly would ask Storyblok for a
- * translation dimension that does not exist.
- */
+/** CDN `language` param: only for a non-default locale — the default IS the base content. */
 export function resolveLanguage(locale?: string): string | undefined {
   return locale && locale !== DEFAULT_LOCALE ? locale : undefined
 }
@@ -88,7 +84,7 @@ export async function withTransientRetry<T>(fn: () => Promise<T>): Promise<T> {
 }
 
 // Built per-slug so the webhook can bust one story without flushing the rest.
-// The cache KEY carries the language, but the TAG does not: one story holds all
+// The cache key carries the language; the tag does not — one story holds all
 // its translations, so a publish busts every locale variant at once.
 function fetchPublishedStory(slug: string, language?: string) {
   return unstable_cache(

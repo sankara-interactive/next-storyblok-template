@@ -13,14 +13,9 @@ export function isDataRoute(slug: string): boolean {
 }
 
 /**
- * True if the webhook slug is a non-default-locale one (`fr/accueil`).
- * Storyblok sends the *translated* slug on a translated publish, which matches
- * no cache tag — every read is tagged with the default-language slug — so a
- * surgical flush would silently invalidate nothing. It also defeats the
- * `data/` prefix check, since the prefix is no longer first.
- *
- * ponytail: a global flush covers it. Map translated → default via the links
- * inventory if the extra invalidation ever costs more than it saves.
+ * True if the webhook slug is a non-default-locale one (`fr/accueil`). Storyblok
+ * sends the translated slug, which matches no cache tag — reads are tagged with
+ * the default-language slug — so a surgical flush would invalidate nothing.
  */
 export function isTranslatedSlug(slug: string): boolean {
   const first = slug.split('/')[0]

@@ -6,14 +6,8 @@ export function localePath(locale: string, slug: string): string {
   return locale === DEFAULT_LOCALE ? path || '/' : `/${locale}${path}`
 }
 
-/**
- * hreflang map for one story, plus x-default on the default locale.
- *
- * ponytail: every configured locale is assumed published. Storyblok can carry
- * per-locale `translated_slugs` and an unpublished-translation flag; wire those
- * in here (and in sitemapPaths) if a project needs per-language URLs or has
- * stories translated only partially.
- */
+// ponytail: assumes every configured locale is published. Wire Storyblok's
+// `translated_slugs` in here for per-language URLs or partial translations.
 export function hreflangAlternates(slug: string): Record<string, string> | undefined {
   if (LOCALES.length < 2) return undefined
   const alternates: Record<string, string> = {}

@@ -9,9 +9,8 @@ import { HTML_LANG, OG_DEFAULTS, OG_LOCALE, SITE_NAME, SITE_URL } from '@/lib/co
 import { routing } from '@/i18n/routing'
 import '@/styles/globals.css'
 
-// The root layout lives here, not at app/layout.tsx: <html lang> needs the
-// locale, and only a segment below [locale] can read it. Route handlers
-// (sitemap.xml, llms.txt, robots, api/) sit outside and need no layout.
+// The root layout, not app/layout.tsx: <html lang> needs the locale, and only a
+// segment below [locale] can read it. Route handlers sit outside and need none.
 export function generateStaticParams() {
   return routing.locales.map(locale => ({ locale }))
 }

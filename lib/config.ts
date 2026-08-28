@@ -13,9 +13,7 @@ export const MODE: Mode =
       : 'live'
 export const isPreview = MODE === 'preview'
 
-// Single source of truth for locales; i18n/routing.ts consumes these. One
-// locale is the supported default — `localePrefix: 'as-needed'` then emits no
-// prefix at all, so a single-language site pays nothing for the [locale] segment.
+// Single source of truth for locales; i18n/routing.ts consumes these.
 export const LOCALES = ['de'] as const
 export const DEFAULT_LOCALE: (typeof LOCALES)[number] = 'de'
 
