@@ -6,8 +6,17 @@ const baseline = loadBaseline()
 const byName = new Map(baseline.map(c => [c.name, c]))
 
 describe('baseline schema', () => {
-  it('contains the four expected components', () => {
-    expect([...byName.keys()].sort()).toEqual(['page', 'redirect', 'redirects', 'text_section'])
+  it('contains the expected components', () => {
+    expect([...byName.keys()].sort()).toEqual([
+      'faq_item',
+      'faq_section',
+      'footnote',
+      'gallery_section',
+      'page',
+      'redirect',
+      'redirects',
+      'text_section',
+    ])
   })
 
   it('every whitelisted blok exists in the file', () => {
