@@ -35,3 +35,6 @@ export const LINKS_CACHE_TAG = `${STORYBLOK_CACHE_TAG}:links`
 
 /** Top-level Storyblok folder holding non-routable global stories. */
 export const DATA_PREFIX = 'data'
+
+/** Vercel CDN cache tag on /sitemap.xml — reached by `invalidateByTag`, not Next tags. */
+export const SITEMAP_CDN_TAG = 'sitemap'
