@@ -20,26 +20,26 @@
     "setup:space": "node scripts/setup-space.mjs"
   },
   "dependencies": {
-    "@storyblok/react": "^7.2.4",
+    "@storyblok/react": "^7.3.1",
     "@t3-oss/env-nextjs": "^0.13.11",
-    "next": "^16.3.0",
+    "next": "^16.3.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "zod": "^4.4.3"
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^22.20.1",
     "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.4",
+    "@types/react-dom": "^19.2.5",
     "eslint": "^9",
-    "eslint-config-next": "^16.3.0",
-    "postcss": "^8.5.25",
+    "eslint-config-next": "^16.3.4",
+    "postcss": "^8.5.26",
     "prettier": "3.9.6",
-    "storyblok": "^4.21.2",
+    "storyblok": "^4.22.4",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   },
   "engines": {
     "node": "^22.14.0"
