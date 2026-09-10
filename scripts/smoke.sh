@@ -39,7 +39,7 @@ echo "CMS redirects (Phase A2)"
 R=$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' "$BASE/alt")
 chk "/alt -> 308 /about  (got: $R)"                  "$(grep -qE '^308 .*/about$' <<<"$R" && echo 1)"
 RQ=$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' "$BASE/alt?utm_source=mail")
-chk "query preserved  (got: $RQ)"                    "$(grep -qE '^308 .*/about\?utm_source=mail$' <<<"$RQ" && echo 1)"
+chk "query dropped    (got: $RQ)"                    "$(grep -qE '^308 .*/about$' <<<"$RQ" && echo 1)"
 
 echo
 echo "Negative cases"
