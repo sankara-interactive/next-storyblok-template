@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { findRedirect, queryString, toRedirectEntries, withQuery } from './redirects'
+import { findRedirect, toRedirectEntries } from './redirects'
 
 describe('toRedirectEntries', () => {
   it('maps valid entries and defaults to permanent', () => {
@@ -64,39 +64,5 @@ describe('findRedirect', () => {
 
   it('does not match on a prefix', () => {
     expect(findRedirect(entries, '/alt/tiefer')).toBeNull()
-  })
-})
-
-describe('withQuery', () => {
-  it('carries the incoming query onto the destination', () => {
-    expect(withQuery('/neu', 'utm_source=mail')).toBe('/neu?utm_source=mail')
-  })
-
-  it('appends when the destination has its own query', () => {
-    expect(withQuery('/neu?ref=alt', 'utm_source=mail')).toBe('/neu?ref=alt&utm_source=mail')
-  })
-
-  it('leaves the destination alone without a query', () => {
-    expect(withQuery('/neu', '')).toBe('/neu')
-  })
-
-  it('inserts the query before a fragment', () => {
-    expect(withQuery('/neu#details', 'utm_source=mail')).toBe('/neu?utm_source=mail#details')
-  })
-
-  it('inserts the query before a fragment when the destination has its own', () => {
-    expect(withQuery('/neu?ref=alt#details', 'utm_source=mail')).toBe(
-      '/neu?ref=alt&utm_source=mail#details'
-    )
-  })
-})
-
-describe('queryString', () => {
-  it('serializes scalars, repeats arrays, and skips undefined', () => {
-    expect(queryString({ a: '1', b: ['x', 'y'], c: undefined })).toBe('a=1&b=x&b=y')
-  })
-
-  it('encodes reserved characters', () => {
-    expect(queryString({ q: 'a b&c' })).toBe('q=a+b%26c')
   })
 })

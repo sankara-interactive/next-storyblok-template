@@ -34,24 +34,6 @@ export function findRedirect(entries: RedirectEntry[], pathname: string): Redire
   return entries.find(entry => entry.source === target) ?? null
 }
 
-/** Carry the incoming query onto the destination, ahead of any fragment. */
-export function withQuery(destination: string, query: string): string {
-  if (!query) return destination
-  const hash = destination.indexOf('#')
-  const path = hash === -1 ? destination : destination.slice(0, hash)
-  const fragment = hash === -1 ? '' : destination.slice(hash)
-  return `${path}${path.includes('?') ? '&' : '?'}${query}${fragment}`
-}
-
-export function queryString(params: Record<string, string | string[] | undefined>): string {
-  const search = new URLSearchParams()
-  for (const [key, value] of Object.entries(params)) {
-    if (Array.isArray(value)) value.forEach(entry => search.append(key, entry))
-    else if (value !== undefined) search.append(key, value)
-  }
-  return search.toString()
-}
-
 /** Read at the 404 boundary only, so live pages never pay for the lookup. */
 export async function getRedirects(): Promise<RedirectEntry[]> {
   const story = await getStory<{ entries?: unknown }>(`${DATA_PREFIX}/redirects`)
