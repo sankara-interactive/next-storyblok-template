@@ -13,13 +13,21 @@ export const MODE: Mode =
       : 'live'
 export const isPreview = MODE === 'preview'
 
+// Single source of truth for locales; i18n/routing.ts consumes these.
+export const LOCALES = ['de'] as const
+export const DEFAULT_LOCALE: (typeof LOCALES)[number] = 'de'
+
+/** Regional variants for `<html lang>` and og:locale; hreflang stays language-only. */
+export const HTML_LANG: Record<string, string> = { de: 'de-CH', fr: 'fr-CH', it: 'it-CH', en: 'en' }
+export const OG_LOCALE: Record<string, string> = { de: 'de_CH', fr: 'fr_CH', it: 'it_CH', en: 'en' }
+
 export const SITE_URL = env.SITE_URL
 export const SITE_NAME = env.SITE_NAME
 
 /** Next replaces `openGraph` wholesale instead of merging — spread this into every override. */
 export const OG_DEFAULTS = {
   siteName: SITE_NAME,
-  locale: 'de_CH',
+  locale: OG_LOCALE[DEFAULT_LOCALE] ?? DEFAULT_LOCALE,
   type: 'website',
 } as const
 
