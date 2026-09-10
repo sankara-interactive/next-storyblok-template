@@ -28,9 +28,6 @@ export function RichTextRenderer({
   ...props
 }: {
   text: any
-  /* `wrapper={false}` renders the nodes without the SDK's wrapper <div> — required
-     when composing into `<RichText>`, whose flow spacing needs direct children */
-  wrapper?: false
 } & DivProps) {
   return <StoryblokServerRichText document={text} components={{ link: RichTextLink }} {...props} />
 }

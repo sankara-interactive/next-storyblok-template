@@ -38,16 +38,15 @@ test('scaffold CLI generates a stub covering all field types', () => {
     execFileSync('node', ['generators/cli.mjs', tmp], { cwd: repoRoot })
     const src = fs.readFileSync(outFile, 'utf8')
     // required field renders bare, optional field is guarded
-    expect(src).toContain('<Heading level={2}>{blok.headline}</Heading>')
+    expect(src).toContain('<h2>{blok.headline}</h2>')
     expect(src).toContain('{blok.eyebrow && <p>{blok.eyebrow}</p>}')
     // imports appear only when the matching field type exists
-    expect(src).toContain("import { Heading, RichText } from '@sankara-ui/core'")
+    expect(src).not.toContain('@sankara-ui/core')
     expect(src).toContain("import Image from 'next/image'")
     expect(src).toContain('StoryblokServerComponent')
     expect(src).toContain('<SbLink link={blok.link}>')
-    // the package's container, and no SDK wrapper div inside it
-    expect(src).toContain('<RichText>')
-    expect(src).toContain('<RichTextRenderer text={blok.text} wrapper={false} />')
+    // the package stylesheet's richtext class on the SDK wrapper, no extra container
+    expect(src).toContain('<RichTextRenderer text={blok.text} className="sankara-richtext" />')
     expect(src).not.toContain('className="richtext"')
     expect(src).toContain('storyblokEditable(blok as unknown as SbBlokData)')
     // UI/plugin fields are skipped entirely

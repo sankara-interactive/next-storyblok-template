@@ -1,6 +1,6 @@
 import { FaqItemStoryblok } from '@storyblok-component-types'
 import { SbBlokData, storyblokEditable } from '@storyblok/react/rsc'
-import { Disclosure, Heading, RichText } from '@sankara-ui/core'
+import { Disclosure } from '@sankara-ui/core'
 import { RichTextRenderer } from '@/components/helpers/RichTextRenderer'
 
 export default function FaqItem({
@@ -15,9 +15,9 @@ export default function FaqItem({
     <Disclosure
       name={groupName}
       summary={
-        <Heading level={3} visual={4} itemProp="name">
+        <h3 className="h4" itemProp="name">
           {blok.question}
-        </Heading>
+        </h3>
       }
       itemScope
       itemProp="mainEntity"
@@ -26,9 +26,7 @@ export default function FaqItem({
     >
       <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
         {blok.answer && (
-          <RichText itemProp="text">
-            <RichTextRenderer text={blok.answer} wrapper={false} />
-          </RichText>
+          <RichTextRenderer text={blok.answer} className="sankara-richtext" itemProp="text" />
         )}
       </div>
     </Disclosure>

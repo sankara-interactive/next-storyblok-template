@@ -95,18 +95,6 @@
     "internal_tag_ids": []
   },
   {
-    "name": "footnote",
-    "display_name": "Footnote",
-    "is_root": false,
-    "is_nestable": true,
-    "schema": {
-      "label": { "type": "text", "pos": 0 },
-      "text": { "type": "richtext", "pos": 1 }
-    },
-    "internal_tags_list": [],
-    "internal_tag_ids": []
-  },
-  {
     "name": "redirects",
     "display_name": "Redirects",
     "is_root": true,

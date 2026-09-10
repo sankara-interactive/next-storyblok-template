@@ -1,6 +1,6 @@
 'use client'
 
-import { Button, Carousel, Dialog } from '@sankara-ui/core'
+import { Carousel, Dialog } from '@sankara-ui/core'
 import Image from 'next/image'
 import { useState } from 'react'
 
@@ -13,8 +13,9 @@ export function GalleryCarousel({ images, label }: { images: GalleryImage[]; lab
     <>
       <Carousel label={label} perView={2.5} gap={16}>
         {images.map(image => (
-          <Button
+          <button
             key={image.src}
+            type="button"
             aria-haspopup="dialog"
             onClick={() => setActive(image)}
             className="block w-full"
@@ -26,7 +27,7 @@ export function GalleryCarousel({ images, label }: { images: GalleryImage[]; lab
               height={480}
               className="rounded-card h-auto w-full object-cover"
             />
-          </Button>
+          </button>
         ))}
       </Carousel>
       <Dialog

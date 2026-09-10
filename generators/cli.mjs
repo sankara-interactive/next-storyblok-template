@@ -63,19 +63,12 @@ const generateContent = componentSchema => {
       switch (field.type) {
         case 'text':
         case 'textarea': {
-          const element = isHeadline(field)
-            ? `<Heading level={2}>{${f}}</Heading>`
-            : `<p>{${f}}</p>`
+          const element = isHeadline(field) ? `<h2>{${f}}</h2>` : `<p>{${f}}</p>`
           return field.required ? element : `{${f} && ${element}}`
         }
         case 'richtext':
-          // wrapper={false}: the SDK renderer's own <div> breaks RichText's flow
-          // spacing, which only reaches direct children.
-          return `{${f} && (
-            <RichText>
-              <RichTextRenderer text={${f}} wrapper={false} />
-            </RichText>
-          )}`
+          // sankara-richtext: the package stylesheet's flow spacing and measure.
+          return `{${f} && <RichTextRenderer text={${f}} className="sankara-richtext" />}`
         case 'asset':
           if (!isImageAsset(field)) {
             return `{${f}?.filename && (
@@ -111,10 +104,6 @@ schema.forEach(componentSchema => {
   const fields = Object.entries(componentSchema.schema).map(([name, value]) => ({ name, ...value }))
   const fieldTypes = new Set(fields.map(f => f.type))
   const hasImage = fields.some(isImageAsset)
-  const packageImports = [
-    fields.some(isHeadline) && 'Heading',
-    fieldTypes.has('richtext') && 'RichText',
-  ].filter(Boolean)
 
   const filePath = path.join(
     repoRoot,
@@ -132,7 +121,6 @@ schema.forEach(componentSchema => {
   const imports = [
     `import { SbBlokData, ${fieldTypes.has('bloks') ? 'StoryblokServerComponent, ' : ''}storyblokEditable } from '@storyblok/react/rsc'`,
     `import { ${componentName}Storyblok } from '@storyblok-component-types'`,
-    packageImports.length > 0 && `import { ${packageImports.join(', ')} } from '@sankara-ui/core'`,
     hasImage && `import Image from 'next/image'`,
     fieldTypes.has('richtext') &&
       `import { RichTextRenderer } from '@/components/helpers/RichTextRenderer'`,

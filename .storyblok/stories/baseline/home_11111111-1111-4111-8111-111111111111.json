@@ -98,33 +98,6 @@
                   }
                 ]
               }
-            },
-            {
-              "type": "blok",
-              "attrs": {
-                "id": "aaaaaaaa-8888-4888-8888-aaaaaaaaaaaa",
-                "body": [
-                  {
-                    "_uid": "aaaaaaaa-8888-4888-8888-aaaaaaaaaaaa",
-                    "component": "footnote",
-                    "label": "Quelle",
-                    "text": {
-                      "type": "doc",
-                      "content": [
-                        {
-                          "type": "paragraph",
-                          "content": [
-                            {
-                              "type": "text",
-                              "text": "Diese Angabe stammt aus der Template-Dokumentation und dient als Popover-Demo."
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
             }
           ]
         },

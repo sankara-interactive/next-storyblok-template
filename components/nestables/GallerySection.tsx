@@ -1,7 +1,6 @@
 import { GallerySectionStoryblok } from '@storyblok-component-types'
 import { SbBlokData, storyblokEditable } from '@storyblok/react/rsc'
-import { Heading } from '@sankara-ui/core'
-import { GalleryCarousel } from '@/components/helpers/GalleryCarousel'
+import { GalleryCarousel } from './GallerySection.client'
 
 export default function GallerySection({ blok }: { blok: GallerySectionStoryblok }) {
   /* Adapter boundary: CMS assets become plain serialisable props before the
@@ -15,11 +14,7 @@ export default function GallerySection({ blok }: { blok: GallerySectionStoryblok
       className="container mx-auto px-4 py-12"
       {...storyblokEditable(blok as unknown as SbBlokData)}
     >
-      {blok.headline && (
-        <Heading level={2} className="mb-4">
-          {blok.headline}
-        </Heading>
-      )}
+      {blok.headline && <h2 className="mb-4">{blok.headline}</h2>}
       {images.length > 0 && <GalleryCarousel images={images} label={blok.headline || 'Galerie'} />}
     </section>
   )

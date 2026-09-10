@@ -24,14 +24,6 @@ export interface FeatureStoryblok {
   _editable?: string | undefined;
 }
 
-export interface FootnoteStoryblok {
-  label?: string;
-  text?: StoryblokRichtext;
-  component: "footnote";
-  _uid: string;
-  _editable?: string | undefined;
-}
-
 export interface GallerySectionStoryblok {
   headline?: string;
   images?: StoryblokMultiasset;
@@ -45,7 +37,6 @@ export interface GridStoryblok {
     | FaqItemStoryblok
     | FaqSectionStoryblok
     | FeatureStoryblok
-    | FootnoteStoryblok
     | GallerySectionStoryblok
     | GridStoryblok
     | PageStoryblok
