@@ -1,7 +1,16 @@
 @import 'tailwindcss';
+@import '@sankara-ui/core/styles.css';
+/* Tailwind v4 does not scan node_modules. Since 0.9.0 the components take their
+   layout from styles.css above, so this only still covers `Icon` (@core/icon),
+   which keeps its two utilities inline. Scoped to dist/components on purpose:
+   pointed at the package root it also scans README.md and emits ~2 KB of
+   utilities that exist only in the docs prose. */
+@source '../node_modules/@sankara-ui/core/dist/components';
 
 @theme {
-  --font-sans: 'Roboto', 'sans-serif';
+  /* Quoted 'sans-serif' is a font NAME, not the generic keyword — with Roboto
+     never loaded, the whole stack fell through to the browser serif default */
+  --font-sans: Roboto, sans-serif;
 
   --color-primary: #09b3af;
 }
@@ -15,5 +24,26 @@
     a {
       @apply text-primary hover:underline;
     }
+  }
+
+  /* Heading scale as tag/class twins: plain tags in markup, the class where
+     the outline level and the visual size differ (<h3 class="h4">). The
+     package's .h1–.h4 ship font-size/line-height only; this same-layer twin
+     after the package import wins on source order and adds the weight. */
+  h1,
+  .h1 {
+    @apply text-4xl font-medium md:text-5xl;
+  }
+  h2,
+  .h2 {
+    @apply text-3xl font-medium;
+  }
+  h3,
+  .h3 {
+    @apply text-2xl font-medium;
+  }
+  h4,
+  .h4 {
+    @apply text-xl font-medium;
   }
 }

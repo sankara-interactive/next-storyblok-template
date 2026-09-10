@@ -108,3 +108,7 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   non-zero exit code on failure, and reports "Updated" for components it just
   created. Read the CLI's `reports/<space>/*.json` `status`, or pull and inspect.
 - Never edit `.env*`; never commit on `main`.
+- Design rationale lives in PR descriptions (what was decided, what was rejected and
+  why), not in the repo. Do not add `docs/superpowers/` specs or plans — the directory
+  is gitignored on purpose; an agent's brainstorming/planning output stays local. The
+  only planning document is `docs/enhancement-roadmap.md`.
