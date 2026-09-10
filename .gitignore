@@ -62,3 +62,6 @@ test-timings.json
 
 # Agent scratch
 .superpowers
+
+# Playwright MCP page snapshots (browser-session byproducts)
+.playwright-mcp/

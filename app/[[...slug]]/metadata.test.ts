@@ -12,7 +12,6 @@ describe('generateMetadata', () => {
 
     const metadata = await generateMetadata({
       params: Promise.resolve({ slug: ['about'] }),
-      searchParams: Promise.resolve({}),
     })
 
     expect(metadata.openGraph).toMatchObject({
