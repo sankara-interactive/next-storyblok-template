@@ -3,7 +3,7 @@ import { Metadata } from 'next'
 import { notFound, permanentRedirect, redirect } from 'next/navigation'
 import Logo from '@/components/layout/Logo'
 import { isPreview, OG_DEFAULTS } from '@/lib/config'
-import { findRedirect, getRedirects, queryString, withQuery } from '@/lib/redirects'
+import { findRedirect, getRedirects } from '@/lib/redirects'
 import { getAllLinks, getStory } from '@/lib/storyblok-api'
 import { isDataRoute } from '@/lib/storyblok-routes'
 import { PageStoryblok } from '@storyblok-component-types'
@@ -14,7 +14,6 @@ export const revalidate = 3600
 
 type Props = {
   params: Promise<{ slug?: string[] }>
-  searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
 function slugFromParams(slug?: string[]): string {
@@ -74,12 +73,14 @@ export default async function Home(props: Props) {
 
   const story = await getStory<ContentType>(slug)
   if (!story) {
-    // Only awaited here, so live pages stay statically rendered.
+    // An unknown path is rendered as an on-demand static generation, so no
+    // dynamic API (searchParams, headers) may be read in this branch — it
+    // throws DYNAMIC_SERVER_USAGE and the redirect becomes a 500. The query
+    // string of a retired URL is therefore dropped, not carried over.
     const match = findRedirect(await getRedirects(), pathFromSlug(slug))
     if (match) {
-      const target = withQuery(match.destination, queryString(await props.searchParams))
-      if (match.permanent) permanentRedirect(target)
-      redirect(target)
+      if (match.permanent) permanentRedirect(match.destination)
+      redirect(match.destination)
     }
     notFound()
   }
