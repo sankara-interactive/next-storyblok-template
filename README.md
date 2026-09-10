@@ -160,8 +160,9 @@ Two consequences worth knowing:
 - **The source must actually be gone.** A path that still resolves to a published
   story renders that story; the redirect never fires. Unpublish or delete first,
   then add the entry.
-- **Query strings are preserved.** `/alt?utm_source=mail` → `/neu?utm_source=mail`.
-  A destination carrying its own query keeps it and the incoming one is appended.
+- **Query strings are dropped.** `/alt?utm_source=mail` → `/neu`. A miss is rendered as an
+  on-demand static generation, where reading `searchParams` throws `DYNAMIC_SERVER_USAGE`
+  and would turn the redirect into a 500.
 
 Pattern redirects (`/blog/:slug*`) are developer territory — add a standard Next
 `redirects()` to `next.config.mjs`. The CMS story is for exact-path retirement.
