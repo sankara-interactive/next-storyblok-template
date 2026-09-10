@@ -23,6 +23,11 @@ function RichTextLink({ attrs, children }: SbReactRichTextProps<'link'>) {
   )
 }
 
-export function RichTextRenderer({ text, ...props }: { text: any } & DivProps) {
+export function RichTextRenderer({
+  text,
+  ...props
+}: {
+  text: any
+} & DivProps) {
   return <StoryblokServerRichText document={text} components={{ link: RichTextLink }} {...props} />
 }

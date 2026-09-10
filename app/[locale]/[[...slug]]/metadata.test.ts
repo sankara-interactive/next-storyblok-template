@@ -8,7 +8,6 @@ const metadataFor = async (locale: string, slug?: string[]) => {
   const { generateMetadata } = await import('./page')
   return generateMetadata({
     params: Promise.resolve({ locale, slug }),
-    searchParams: Promise.resolve({}),
   })
 }
 

@@ -1,9 +1,10 @@
-import { addCacheTag } from '@vercel/functions'
-import { SITE_NAME, SITE_URL, SITEMAP_CDN_TAG } from '@/lib/config'
+import { SITE_NAME, SITE_URL } from '@/lib/config'
 import { getAllLinks } from '@/lib/storyblok-api'
 import { sitemapPaths } from '@/lib/sitemap'
 
-// Same inventory and CDN tag as sitemap.xml, so one webhook purge covers both.
+// Same inventory as sitemap.xml, dynamic for the same reason: a GET Route
+// Handler without dynamic APIs prerenders to a static file that no purge
+// reaches. The links read still comes from the tagged data cache.
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
@@ -27,13 +28,7 @@ export async function GET() {
     '',
   ].join('\n')
 
-  await addCacheTag(SITEMAP_CDN_TAG)
-
   return new Response(body, {
-    headers: {
-      'content-type': 'text/plain; charset=utf-8',
-      'vercel-cdn-cache-control': 'public, max-age=31536000',
-      'cache-control': 'public, max-age=0, must-revalidate',
-    },
+    headers: { 'content-type': 'text/plain; charset=utf-8' },
   })
 }

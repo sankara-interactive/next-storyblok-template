@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { renderSitemap, sitemapEntries, sitemapPaths } from './sitemap'
+import { sitemapEntries, sitemapPaths } from './sitemap'
 
 const links = {
   a: { slug: 'home', is_folder: false },
@@ -10,7 +10,14 @@ const links = {
 }
 
 describe('sitemapPaths', () => {
-  it('keeps public pages, drops folders/data, maps home to /', () => {
+  it('keeps public pages, drops folders/home/data', () => {
+    const links = {
+      a: { slug: 'home', is_folder: false },
+      b: { slug: 'about', is_folder: false },
+      c: { slug: 'blog', is_folder: true },
+      d: { slug: 'data/menu', is_folder: false },
+      e: { slug: 'leistungen/seo', is_folder: false },
+    }
     expect(sitemapPaths(links).sort()).toEqual(['/', '/about', '/leistungen/seo'])
   })
 })
@@ -26,45 +33,6 @@ describe('sitemapEntries', () => {
 
   it('carries no hreflang alternates at a single locale', () => {
     expect(sitemapEntries(links).every(e => e.alternates === undefined)).toBe(true)
-  })
-})
-
-describe('renderSitemap', () => {
-  it('renders absolute URLs', () => {
-    expect(renderSitemap(sitemapEntries(links))).toBe(
-      `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-<url>
-<loc>http://localhost:3000/</loc>
-</url>
-<url>
-<loc>http://localhost:3000/about</loc>
-</url>
-<url>
-<loc>http://localhost:3000/leistungen/seo</loc>
-</url>
-</urlset>
-`
-    )
-  })
-
-  it('escapes XML-significant characters in the URL', () => {
-    expect(renderSitemap([{ path: '/suche?q=a&b' }])).toContain('?q=a&amp;b')
-  })
-
-  it('renders a valid empty document when nothing is published', () => {
-    expect(renderSitemap([])).toContain('<urlset')
-    expect(renderSitemap([])).not.toContain('<loc>')
-  })
-
-  it('renders hreflang links when an entry has alternates', () => {
-    const xml = renderSitemap([
-      { path: '/about', alternates: { de: '/about', fr: '/fr/about', 'x-default': '/about' } },
-    ])
-    expect(xml).toContain(
-      '<xhtml:link rel="alternate" hreflang="fr" href="http://localhost:3000/fr/about" />'
-    )
-    expect(xml).toContain('hreflang="x-default"')
   })
 })
 

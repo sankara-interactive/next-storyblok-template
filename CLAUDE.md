@@ -16,17 +16,13 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   flushes the whole `storyblok` tag. Tag-flush only works because every read is
   tagged. Management-API publishes do NOT fire the webhook — scripted content
   changes must call `/api/revalidate` (or redeploy) themselves.
-- **Sitemap**: `app/sitemap.xml/route.ts`, deliberately NOT the `sitemap.ts`
-  metadata convention — that deploys as a static asset, and neither
-  `revalidateTag` nor `revalidatePath` reaches it, so stories published between
-  deploys never appear. `force-dynamic` keeps it a function; the rendered XML is
-  held at the edge under `Vercel-CDN-Cache-Control` and a Vercel CDN cache tag
-  (`SITEMAP_CDN_TAG`), which the webhook purges via `invalidateByTag` — Vercel's
-  tag namespace, not Next's, and the only thing that reaches the XML. The webhook
-  also hard-expires `storyblok:links` (`{ expire: 0 }`, not `'max'`): `'max'` only
-  marks it stale, so the first crawler after a purge could read pre-publish links
-  and have that XML cached at the edge for a year. Off Vercel the purge is a
-  no-op and is caught, never failing the webhook.
+- **Sitemap**: `app/sitemap.ts` exports `dynamic = 'force-dynamic'`. Without it the
+  metadata route prerenders to a static file that neither `revalidateTag` nor
+  `revalidatePath` reaches, so stories published between deploys never appear
+  (`revalidate = N` does not help either — it only changes the build annotation).
+  Dynamic makes it a function; the links inventory still comes from the tagged data
+  cache, because `force-dynamic` only uncaches bare `fetch()` calls, not
+  `unstable_cache`. No `lastModified`: `cdn/links/` has no `published_at`.
 - **Agent readiness**: pages are also served as Markdown. `proxy.ts` negotiates
   `Accept` (`lib/accept.ts`, RFC 9110 — most specific range wins, so
   `text/markdown;q=0, */*` refuses markdown) and rewrites a markdown request to
@@ -35,8 +31,8 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   never negotiated. `lib/story-markdown.ts` walks the blok tree by the
   **field-name vocabulary below** rather than mapping components, so a new blok
   that follows the vocabulary needs no code there — one that invents field names
-  renders as an empty section. `/llms.txt` shares the sitemap's inventory and CDN
-  tag. `Vary: Accept` is set on the Markdown response only: Next overwrites
+  renders as an empty section. `/llms.txt` is a Route Handler on the sitemap's inventory, `force-dynamic`
+  for the same reason as the sitemap. `Vary: Accept` is set on the Markdown response only: Next overwrites
   `vary` with its RSC list on every page response, so it cannot be set on the
   HTML variant — harmless, because the proxy runs before the CDN cache lookup.
 - **Bridge** is handled by the SDK: `<StoryblokStory>` (in `app/[[...slug]]/page.tsx`)
@@ -152,3 +148,7 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   non-zero exit code on failure, and reports "Updated" for components it just
   created. Read the CLI's `reports/<space>/*.json` `status`, or pull and inspect.
 - Never edit `.env*`; never commit on `main`.
+- Design rationale lives in PR descriptions (what was decided, what was rejected and
+  why), not in the repo. Do not add `docs/superpowers/` specs or plans — the directory
+  is gitignored on purpose; an agent's brainstorming/planning output stays local. The
+  only planning document is `docs/enhancement-roadmap.md`.

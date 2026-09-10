@@ -6,7 +6,7 @@ export default async function NotFound() {
   const t = await getTranslations('NotFound')
   return (
     <main className="container mx-auto p-8 text-center">
-      <h1 className="text-4xl font-bold">{t('title')}</h1>
+      <h1>{t('title')}</h1>
       <p className="mt-2">{t('message')}</p>
       <ul className="mt-4 flex flex-wrap justify-center gap-4">
         <li>
