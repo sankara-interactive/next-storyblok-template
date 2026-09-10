@@ -65,3 +65,6 @@ test-timings.json
 
 # Playwright MCP page snapshots (browser-session byproducts)
 .playwright-mcp/
+
+# Agent brainstorming/planning output — rationale goes in PR descriptions (see CLAUDE.md)
+docs/superpowers/

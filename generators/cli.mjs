@@ -43,6 +43,13 @@ const schema = JSON.parse(fs.readFileSync(resolveSchemaPath(), 'utf8'))
 // Shared so the markup and the <Image> import can't disagree.
 const isImageAsset = field => field.type === 'asset' && !field.filetypes?.includes('videos')
 
+// `headline` is the field-name vocabulary's word for a heading (see CLAUDE.md),
+// so a text field called that gets the component rather than a <p>. level={2} is
+// the common case — a section heading under the page's h1 — and wrong often
+// enough that it is meant to be edited, like every other line of a stub.
+const isHeadline = field =>
+  field.name === 'headline' && (field.type === 'text' || field.type === 'textarea')
+
 const generateContent = componentSchema => {
   const fields = Object.entries(componentSchema.schema).map(([key, value]) => ({
     name: key,
@@ -55,14 +62,13 @@ const generateContent = componentSchema => {
       const f = `blok.${field.name}`
       switch (field.type) {
         case 'text':
-        case 'textarea':
-          return field.required ? `<p>{${f}}</p>` : `{${f} && <p>{${f}}</p>}`
+        case 'textarea': {
+          const element = isHeadline(field) ? `<h2>{${f}}</h2>` : `<p>{${f}}</p>`
+          return field.required ? element : `{${f} && ${element}}`
+        }
         case 'richtext':
-          return `{${f} && (
-            <div className="richtext">
-              <RichTextRenderer text={${f}} />
-            </div>
-          )}`
+          // sankara-richtext: the package stylesheet's flow spacing and measure.
+          return `{${f} && <RichTextRenderer text={${f}} className="sankara-richtext" />}`
         case 'asset':
           if (!isImageAsset(field)) {
             return `{${f}?.filename && (
@@ -95,8 +101,9 @@ const generateContent = componentSchema => {
 }
 schema.forEach(componentSchema => {
   const componentName = toPascalCase(componentSchema.name)
-  const fieldTypes = new Set(Object.values(componentSchema.schema).map(f => f.type))
-  const hasImage = Object.values(componentSchema.schema).some(isImageAsset)
+  const fields = Object.entries(componentSchema.schema).map(([name, value]) => ({ name, ...value }))
+  const fieldTypes = new Set(fields.map(f => f.type))
+  const hasImage = fields.some(isImageAsset)
 
   const filePath = path.join(
     repoRoot,
