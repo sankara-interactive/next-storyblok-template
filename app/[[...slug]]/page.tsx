@@ -8,7 +8,7 @@ import { getAllLinks, getStory } from '@/lib/storyblok-api'
 import { isDataRoute } from '@/lib/storyblok-routes'
 import { PageStoryblok } from '@storyblok-component-types'
 
-export type ContentType = PageStoryblok // add more content types if needed
+export type ContentType = PageStoryblok
 
 export const revalidate = 3600
 
@@ -73,10 +73,8 @@ export default async function Home(props: Props) {
 
   const story = await getStory<ContentType>(slug)
   if (!story) {
-    // An unknown path is rendered as an on-demand static generation, so no
-    // dynamic API (searchParams, headers) may be read in this branch — it
-    // throws DYNAMIC_SERVER_USAGE and the redirect becomes a 500. The query
-    // string of a retired URL is therefore dropped, not carried over.
+    // Missing paths are generated on demand and cannot read request APIs.
+    // Query strings are therefore intentionally not preserved.
     const match = findRedirect(await getRedirects(), pathFromSlug(slug))
     if (match) {
       if (match.permanent) permanentRedirect(match.destination)

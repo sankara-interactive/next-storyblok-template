@@ -13,7 +13,7 @@ export function getHref(link: StoryblokMultilink): string {
     case 'story': {
       const slug =
         link.story && 'full_slug' in link.story ? link.story.full_slug : (link.cached_url ?? '')
-      // `/` before the anchor, or the root story's would render as a bare `#cta`.
+      // Add `/` before the anchor so the root story does not become a bare `#cta`.
       const path = storyPath(slug) || '/'
       return `${path}${anchor}`
     }

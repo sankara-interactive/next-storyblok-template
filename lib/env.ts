@@ -3,7 +3,7 @@ import { z } from 'zod'
 
 const nonEmpty = z.string().trim().min(1)
 
-/** Mandatory in production, defaulted outside it. */
+/** Require a value in production and use a fallback in other environments. */
 export const devDefault = (isProduction: boolean, fallback: string) =>
   isProduction ? nonEmpty : nonEmpty.default(fallback)
 
@@ -23,11 +23,11 @@ export const env = createEnv({
     SITE_NAME: devDefault(isProduction, 'Site'),
     MODE: z.enum(['preview', 'live']).optional(),
     VERCEL_ENV: z.enum(['production', 'preview', 'development']).optional(),
-    // Needed for local work: the editor points at localhost, dev reads drafts.
+    // The editor and local draft mode use the preview token.
     STORYBLOK_PREVIEW_TOKEN: nonEmpty,
     API_SECRET: nonEmpty,
-    // Unknowable before deploying, but a known HMAC secret on a real host lets
-    // anyone forge a revalidation webhook.
+    // The webhook URL does not exist until deployment, so local development
+    // uses a placeholder while production requires an explicit secret.
     STORYBLOK_WEBHOOK_SECRET: devDefault(isProduction, 'local-dev-unsigned'),
     STORYBLOK_SKIP_FETCH: z.stringbool({ truthy: ['true'], falsy: ['false'] }).default(false),
   },
@@ -39,7 +39,7 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     SITE_URL: process.env.SITE_URL,
     SITE_NAME: process.env.SITE_NAME,
-    // Vite/Vitest reserves MODE for its own `test` value.
+    // Vitest reserves MODE=test for its own environment.
     MODE: process.env.MODE === 'test' ? undefined : process.env.MODE,
     VERCEL_ENV: process.env.VERCEL_ENV,
     STORYBLOK_PREVIEW_TOKEN: process.env.STORYBLOK_PREVIEW_TOKEN,

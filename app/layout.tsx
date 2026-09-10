@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-  // <StoryblokStory> handles the bridge via the SDK; no provider needed.
+  // StoryblokStory loads the visual-editor bridge through the SDK.
   return (
     <html lang="de-CH">
       <body>

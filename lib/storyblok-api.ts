@@ -18,9 +18,8 @@ export function resolveVersion(isDraft: boolean): 'draft' | 'published' {
 let previewClient: StoryblokClient | null = null
 function getPreviewClient(): StoryblokClient {
   if (!previewClient) {
-    // Draft mode refetches everything per request (no cross-request cache by
-    // design), so bursts hit the preview token's ~3 req/s limit and exhaust
-    // the SDK's default retries → error page. Throttle client-side instead.
+    // Draft mode refetches per request, so bursts can exceed the preview token's
+    // rate limit and exhaust the SDK retries. Throttle requests client-side.
     previewClient = new StoryblokClient({
       accessToken: env.STORYBLOK_PREVIEW_TOKEN,
       rateLimit: 3,
