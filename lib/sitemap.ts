@@ -5,7 +5,7 @@ import type { SbLink } from './storyblok-api'
 
 export type SitemapEntry = { path: string; alternates?: Record<string, string> }
 
-/** Routable slugs, default locale only — the inventory llms.txt and the 404 use. */
+/** Return routable slugs in the default locale for llms.txt and 404 responses. */
 export function sitemapPaths(links: Record<string, SbLink>): string[] {
   return Object.values(links)
     .filter(link => !link.is_folder && !isDataRoute(link.slug))

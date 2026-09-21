@@ -1,9 +1,8 @@
-/** Accept negotiation per RFC 9110 §12.5.1 (acceptmarkdown.com). Used by proxy.ts. */
+/** Accept negotiation per RFC 9110 section 12.5.1. */
 export type Negotiated = 'markdown' | 'html' | 'none'
 
 const MARKDOWN_TYPES = ['text/markdown', 'text/x-markdown']
-// `text/x-component` is HTML: Server Actions and RSC send it, and the `RSC`
-// header does not always reach the proxy.
+// Server Actions and RSC requests use text/x-component.
 const HTML_TYPES = ['text/html', 'application/xhtml+xml', 'text/x-component']
 
 type Range = { range: string; q: number }
@@ -23,7 +22,7 @@ function parseRanges(header: string): Range[] {
     .filter(r => r.range.includes('/'))
 }
 
-/** Quality for one media type; the most specific matching range wins over the highest q. */
+/** Return the quality for a media type using the most specific matching range. */
 function qualityOf(ranges: Range[], mime: string): number {
   const type = mime.split('/')[0]
   let bestSpecificity = 0
@@ -40,7 +39,7 @@ function qualityOf(ranges: Range[], mime: string): number {
   return bestQ
 }
 
-/** `html` when there is no usable Accept header — never break a plain request. */
+/** Use HTML when the Accept header is absent or invalid. */
 export function negotiate(header: string | null | undefined): Negotiated {
   if (!header?.trim()) return 'html'
   const ranges = parseRanges(header)
@@ -48,6 +47,6 @@ export function negotiate(header: string | null | undefined): Negotiated {
   const markdown = Math.max(...MARKDOWN_TYPES.map(t => qualityOf(ranges, t)))
   const html = Math.max(...HTML_TYPES.map(t => qualityOf(ranges, t)))
   if (markdown === 0 && html === 0) return 'none'
-  // Ties go to HTML: a browser sending `*/*` must never get markdown.
+  // Prefer HTML when both formats have the same quality.
   return markdown > html ? 'markdown' : 'html'
 }

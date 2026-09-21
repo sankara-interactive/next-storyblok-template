@@ -13,7 +13,7 @@ const markdown = (body: string, status = 200) =>
     status,
     headers: {
       'content-type': 'text/markdown; charset=utf-8',
-      // What a shared cache would otherwise conflate with the HTML at this URL.
+      // Keep Markdown and HTML variants separate in shared caches.
       vary: 'Accept',
     },
   })
@@ -29,7 +29,7 @@ function splitLocale(segments: string[]): { locale: string; slug: string } {
   }
 }
 
-/** A 404 an agent can recover from: where the map is, and every page on it. */
+/** Return a Markdown 404 response with site navigation. */
 async function notFoundBody(): Promise<string> {
   const paths = sitemapPaths(await getAllLinks()).sort()
   return [
@@ -47,7 +47,7 @@ export async function GET(_req: Request, props: { params: Promise<{ slug?: strin
   const { slug: segments } = await props.params
   const { locale, slug } = splitLocale(segments ?? [])
 
-  // `data/` globals are non-routable, exactly as in the page loader.
+  // `data/` globals are not routable.
   if (isDataRoute(slug)) return markdown(await notFoundBody(), 404)
 
   const story = await getStory<ContentType>(slug, locale)

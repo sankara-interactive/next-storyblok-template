@@ -6,8 +6,8 @@ export function localePath(locale: string, slug: string): string {
   return locale === DEFAULT_LOCALE ? path || '/' : `/${locale}${path}`
 }
 
-// ponytail: assumes every configured locale is published. Wire Storyblok's
-// `translated_slugs` in here for per-language URLs or partial translations.
+// Assumes every configured locale is published. Use Storyblok's
+// `translated_slugs` for locale-specific URLs or partial translations.
 export function hreflangAlternates(slug: string): Record<string, string> | undefined {
   if (LOCALES.length < 2) return undefined
   const alternates: Record<string, string> = {}

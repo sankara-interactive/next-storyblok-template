@@ -2,9 +2,7 @@ import { SITE_NAME, SITE_URL } from '@/lib/config'
 import { getAllLinks } from '@/lib/storyblok-api'
 import { sitemapPaths } from '@/lib/sitemap'
 
-// Same inventory as sitemap.xml, dynamic for the same reason: a GET Route
-// Handler without dynamic APIs prerenders to a static file that no purge
-// reaches. The links read still comes from the tagged data cache.
+// Use the sitemap inventory and keep this route dynamic so cache purges apply.
 export const dynamic = 'force-dynamic'
 
 export async function GET() {

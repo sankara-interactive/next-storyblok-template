@@ -7,7 +7,7 @@ import { SITE_NAME } from './config'
 type Json = unknown
 type Blok = Record<string, Json>
 
-/** Presentational, technical or asset-only fields — never prose. */
+/** Fields excluded from prose output. */
 const SKIP_FIELDS = new Set([
   '_uid',
   '_editable',
@@ -32,7 +32,7 @@ const HEADING_FIELDS = ['headline', 'title', 'question', 'name', 'label']
 /** Prose fields in render order; anything left over follows alphabetically. */
 const TEXT_ORDER = ['eyebrow', 'lead', 'text', 'description', 'answer', 'quote']
 
-/** `is_*` / `has_*` are display flags by convention, never prose. */
+/** Display flags are not prose fields. */
 const isFlag = (field: string) => /^(is|has)_/.test(field)
 
 const isBlok = (v: Json): v is Blok =>
@@ -55,14 +55,14 @@ function linkHref(link: Blok, baseUrl: string): string {
   if (link.linktype === 'asset') return String(link.url ?? '')
   if (link.linktype === 'story') {
     const story = link.story as { full_slug?: string } | undefined
-    // `/`, not `/home` — the canonical URL the sitemap and page route use.
+    // The home story uses `/` as its canonical URL.
     const slug = story?.full_slug ?? link.cached_url ?? ''
     return absolute(`${slug === 'home' ? '/' : slug}${anchor}`, baseUrl)
   }
   return `${absolute(String(link.url || link.cached_url || ''), baseUrl)}${anchor}`
 }
 
-/** A multi-line textarea is a plain-line list, so it becomes a bullet list. */
+/** Convert multiline text to a Markdown list. */
 function plainText(value: string): string {
   const lines = value
     .split('\n')
@@ -145,7 +145,7 @@ function blokToMarkdown(blok: Blok, depth: number, baseUrl: string): string[] {
   const children: string[] = []
   const used = new Set<string>(SKIP_FIELDS)
 
-  // One heading per blok; a second heading-ish field reads as a kicker.
+  // Render the first heading field as the heading; later ones become text.
   for (const field of HEADING_FIELDS) {
     used.add(field)
     const value = blok[field]
@@ -185,12 +185,12 @@ function blokToMarkdown(blok: Blok, depth: number, baseUrl: string): string[] {
     }
   }
 
-  // A link-only blok (a button) is a link, not a section: drop its label heading.
+  // Render link-only bloks without a heading.
   if (links.length && headings.length === 1 && !texts.length && !children.length) return links
   return [...headings, ...texts, ...(links.length ? [links.join('\n')] : []), ...children]
 }
 
-// `object`, not `Blok`: generated story interfaces have no index signature.
+// Generated story interfaces do not have an index signature.
 export type MarkdownStory = { name?: string; content?: object }
 
 /** Markdown for one story: H1 from the SEO title, then the body bloks. */

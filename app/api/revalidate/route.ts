@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     return new Response('Invalid body', { status: 400 })
   }
 
-  // Next 16 requires a cacheLife profile; 'max' is the on-demand-purge drop-in.
+  // Next 16 requires a cacheLife profile for on-demand purges.
   for (const tag of revalidationTags(payload.action, payload.full_slug)) {
     revalidateTag(tag, 'max')
   }

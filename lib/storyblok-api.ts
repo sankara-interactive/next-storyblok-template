@@ -15,7 +15,7 @@ export function resolveVersion(isDraft: boolean): 'draft' | 'published' {
   return isDev || isPreview || isDraft ? 'draft' : 'published'
 }
 
-/** CDN `language` param: only for a non-default locale — the default IS the base content. */
+/** CDN `language` parameter for non-default locales; the default is the base content. */
 export function resolveLanguage(locale?: string): string | undefined {
   return locale && locale !== DEFAULT_LOCALE ? locale : undefined
 }

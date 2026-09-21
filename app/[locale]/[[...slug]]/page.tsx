@@ -23,8 +23,7 @@ function slugFromParams(slug?: string[]): string {
   return slug && slug.length ? slug.join('/') : 'home'
 }
 
-// Only this segment's params — Next builds the product with the [locale] ones
-// generateStaticParams in the layout returns.
+// Generate params for this segment; the layout supplies the locale params.
 export async function generateStaticParams() {
   const links = await getAllLinks()
   const paths: { slug: string[] }[] = []
@@ -78,10 +77,8 @@ export default async function Home(props: Props) {
 
   const story = await getStory<ContentType>(slug, locale)
   if (!story) {
-    // An unknown path is rendered as an on-demand static generation, so no
-    // dynamic API (searchParams, headers) may be read in this branch — it
-    // throws DYNAMIC_SERVER_USAGE and the redirect becomes a 500. The query
-    // string of a retired URL is therefore dropped, not carried over.
+    // Dynamic APIs trigger DYNAMIC_SERVER_USAGE during on-demand generation.
+    // Query strings are not preserved for retired URLs.
     const match = findRedirect(await getRedirects(), localePath(locale, slug))
     if (match) {
       if (match.permanent) permanentRedirect(match.destination)

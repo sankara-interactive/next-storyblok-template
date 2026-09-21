@@ -5,11 +5,10 @@ import { routing } from '@/i18n/routing'
 
 const handleI18nRouting = createMiddleware(routing)
 
-// Next 16 renamed `middleware.ts` → `proxy.ts`. Accept negotiation runs first —
-// a markdown request is rewritten to /api/md — then next-intl locale routing.
+// Accept negotiation runs before next-intl routing and rewrites Markdown
+// requests to /api/md.
 export default function proxy(request: NextRequest) {
-  // Only safe methods are negotiable: Next's own RSC and Server Action traffic
-  // must never be negotiated or 406'd.
+  // Only GET and HEAD requests without RSC headers are negotiable.
   const negotiable =
     (request.method === 'GET' || request.method === 'HEAD') && !request.headers.get('RSC')
 
@@ -22,8 +21,7 @@ export default function proxy(request: NextRequest) {
       })
     }
     if (wanted === 'markdown') {
-      // The locale prefix stays in the path; the markdown route splits it off,
-      // so /fr/x is served as French markdown rather than 404ing.
+      // Preserve the locale prefix for the Markdown route.
       const url = request.nextUrl.clone()
       url.pathname = `/api/md${url.pathname === '/' ? '' : url.pathname}`
       return NextResponse.rewrite(url)
@@ -34,6 +32,6 @@ export default function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Content routes only — skips API, Next internals and anything with a file extension.
+  // Match content routes; exclude API, Next internals, and file paths.
   matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)'],
 }

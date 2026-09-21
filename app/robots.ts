@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
     return { rules: { userAgent: '*', disallow: '/' } }
   }
   return {
-    // /api/md/ is a public page's Markdown twin — carved back out of the /api/ disallow.
+    // Allow the public Markdown route within the API path.
     rules: { userAgent: '*', allow: ['/', '/api/md/'], disallow: '/api/' },
     sitemap: new URL('/sitemap.xml', SITE_URL).toString(),
   }

@@ -9,8 +9,7 @@ import { HTML_LANG, OG_DEFAULTS, OG_LOCALE, SITE_NAME, SITE_URL } from '@/lib/co
 import { routing } from '@/i18n/routing'
 import '@/styles/globals.css'
 
-// The root layout, not app/layout.tsx: <html lang> needs the locale, and only a
-// segment below [locale] can read it. Route handlers sit outside and need none.
+// This layout owns <html lang>; route handlers are outside the layout tree.
 export function generateStaticParams() {
   return routing.locales.map(locale => ({ locale }))
 }
@@ -35,10 +34,10 @@ export default async function RootLayout({
 }) {
   const { locale } = await params
   if (!hasLocale(routing.locales, locale)) notFound()
-  // Opts the segment into static rendering; without it every page goes dynamic.
+  // Enables static rendering for the segment.
   setRequestLocale(locale)
 
-  // <StoryblokStory> handles the bridge via the SDK; no provider needed.
+  // The SDK handles the Storyblok bridge; no provider is required.
   return (
     <html lang={HTML_LANG[locale] ?? locale}>
       <body>
