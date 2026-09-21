@@ -8,7 +8,7 @@ export type RedirectEntry = {
   permanent: boolean
 }
 
-/** A trailing slash or a missing leading one is an editor typo, not a distinct path. */
+/** Normalize editor-entered paths so leading and trailing slashes are equivalent. */
 function normalize(path: string): string {
   const withLeading = path.startsWith('/') ? path : `/${path}`
   return withLeading.length > 1 ? withLeading.replace(/\/+$/, '') : withLeading
@@ -22,8 +22,7 @@ export function toRedirectEntries(entries: unknown): RedirectEntry[] {
     }
     const source = entry.source.trim()
     const destination = entry.destination.trim()
-    // A blank source would normalize to '/' and claim the homepage; a blank
-    // destination would redirect onto the current URL.
+    // Reject empty values to avoid claiming `/` or redirecting to the current URL.
     if (!source || !destination) return []
     return [{ source: normalize(source), destination, permanent: entry.permanent !== false }]
   })

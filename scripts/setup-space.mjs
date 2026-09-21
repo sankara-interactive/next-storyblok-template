@@ -57,7 +57,7 @@ export function readLatestReport(dir, commandSuffix) {
   }
 }
 
-/** Reports for a command+space, newest first. Empty when the directory is absent. */
+/** Return matching reports in newest-first order. */
 function matchingReports(dir, commandSuffix) {
   let files
   try {
@@ -73,7 +73,7 @@ function matchingReports(dir, commandSuffix) {
     .sort((a, b) => b.runId - a.runId)
 }
 
-/** Prints the report status plus, when available, the CLI's own per-story error list. */
+/** Format a failed CLI report, including per-story errors when available. */
 function describeReportFailure(report) {
   if (!report) return 'no report was written'
   const failedStories = report.meta?.failedStories
@@ -111,25 +111,15 @@ export function isLikelyPublishQuotaFailure(report) {
   )
 }
 
-/**
- * Highest existing runId for a command+space, or null if none exist yet.
- * Report filenames are `storyblok-<commandSuffix>-<runId>.json` and runId is
- * a timestamp, so "highest" and "most recent" coincide.
- */
+/** Return the newest report run ID, or null when no report exists. */
 function latestRunId(dir, commandSuffix) {
   const [latest] = matchingReports(dir, commandSuffix)
   return latest ? latest.runId : null
 }
 
 /**
- * `stories push` early-returns WITHOUT writing a report when
- * `requireAuthentication` fails mid-run (e.g. an expired CLI session) or if
- * the process dies before its `finally`. Without this check, a plain
- * `readLatestReport` call after such a run would silently return a
- * PREVIOUS run's report -- very likely SUCCESS on a repeat bootstrap -- and
- * the caller would wrongly conclude success. Require the post-push report's
- * runId to be strictly newer than whatever existed before the push;
- * anything else means the push produced no new report at all.
+ * Require a report newer than the one recorded before the command started.
+ * This prevents a missing report from being mistaken for a previous success.
  * @param {string} dir
  * @param {string} commandSuffix
  * @param {number | null} beforeRunId
@@ -179,16 +169,9 @@ export function requireSession({ checkSession = defaultCheckSession } = {}) {
 }
 
 /**
- * Reuses the CLI session `requireSession` already established, rather than a
- * raw API token: `storyblok stories pull` into a throwaway directory, then
- * reads back whatever story JSON files it wrote. No network call of our own,
- * and no second auth mechanism to document.
- *
- * Success is determined from the pull's own report, never from
- * `spawnSync`'s exit code (see `readLatestReport`). A missing report, an
- * unreadable one, or a non-SUCCESS status means the check itself failed —
- * that is NOT the same as the space being empty, and must not be treated as
- * such.
+ * Pull stories with the authenticated CLI session and return their identifiers.
+ * A missing or unsuccessful report means the safety check failed, not that the
+ * space is empty.
  */
 function defaultListStories(space) {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'setup-space-check-'))
@@ -215,7 +198,7 @@ function defaultListStories(space) {
   }
 }
 
-/** Slugs the baseline itself ships (home, about, data, data/redirects), derived from the committed story fixtures so this can't drift from the baseline set defined elsewhere. */
+/** Return the story slugs included in the committed baseline. */
 function defaultBaselineSlugs() {
   return fs
     .readdirSync(BASELINE_STORIES_DIR)
@@ -226,18 +209,9 @@ function defaultBaselineSlugs() {
 }
 
 /**
- * `stories push --from baseline --space <id>` treats this as a cross-space push
- * (the source alias "baseline" never equals the target space id). In that mode
- * the CLI's findSlugMatch accepts a slug match in the TARGET space WITHOUT
- * checking uuid equality, so a target space that already has stories at
- * home/about/data/data/redirects gets those stories silently claimed and
- * overwritten. Refuse unless the target only contains stories at baseline
- * slugs (a starter space, or a repeat run against an already-bootstrapped
- * space); anything else — a slug the baseline doesn't ship — hard-stops.
- *
- * A failed pre-check (see `defaultListStories`) is always an ERROR, never
- * "empty": `--force` can still override it, but the message makes clear the
- * check FAILED rather than passed.
+ * Refuse to push into a space containing stories outside the baseline set.
+ * `--force` can override the check, but a failed pre-check is still reported
+ * as an error rather than being treated as an empty space.
  * @param {string} space
  * @param {boolean} force
  * @param {{ listStories?: (space: string) => Array<{ full_slug: string, id: number }>, baselineSlugs?: () => string[] }} [options]

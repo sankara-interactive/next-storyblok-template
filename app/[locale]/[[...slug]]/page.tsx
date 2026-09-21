@@ -11,7 +11,7 @@ import { routing } from '@/i18n/routing'
 import { setRequestLocale } from 'next-intl/server'
 import { PageStoryblok } from '@storyblok-component-types'
 
-export type ContentType = PageStoryblok // add more content types if needed
+export type ContentType = PageStoryblok
 
 export const revalidate = 3600
 

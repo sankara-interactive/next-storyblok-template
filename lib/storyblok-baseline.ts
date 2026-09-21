@@ -24,7 +24,7 @@ export function loadBaseline(): BaselineComponent[] {
   return JSON.parse(fs.readFileSync(BASELINE_PATH, 'utf8'))
 }
 
-/** Blok names a component's bloks fields allow, across every field. */
+/** Return all child bloks allowed by a component's fields. */
 export function whitelistedBloks(component: BaselineComponent): string[] {
   return Object.values(component.schema).flatMap(field => field.component_whitelist ?? [])
 }
@@ -44,7 +44,7 @@ export function loadBaselineStories(): BaselineStory[] {
     .map(file => JSON.parse(fs.readFileSync(path.join(STORIES_DIR, file), 'utf8')))
 }
 
-/** Bloks reachable from a routable story, so they must render. Data-only bloks are excluded. */
+/** Return bloks reachable from routable baseline stories. */
 export function renderableBloks(): string[] {
   const byName = new Map(loadBaseline().map(c => [c.name, c]))
   const roots = loadBaselineStories()

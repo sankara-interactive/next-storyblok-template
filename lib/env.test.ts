@@ -2,8 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { devDefault, siteUrlSchema } from './env'
 
 describe('required secrets', () => {
-  // t3-env logs the offending variable before throwing — wanted in production,
-  // noise here.
+  // Suppress expected validation output during these tests.
   beforeEach(() => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
   })
@@ -14,7 +13,7 @@ describe('required secrets', () => {
     vi.resetModules()
   })
 
-  // Needed for local work, so a bad setup fails at boot, not at /api/draft.
+  // These values are required so configuration errors fail during startup.
   it.each(['API_SECRET', 'STORYBLOK_PREVIEW_TOKEN'])('refuses to load without %s', async name => {
     vi.resetModules()
     vi.stubEnv(name, '')
@@ -29,8 +28,7 @@ describe('required secrets', () => {
 })
 
 describe('environment validation', () => {
-  // Shared by SITE_NAME and the webhook secret. The placeholder must never
-  // survive into production — see the schema's comment for why.
+  // Both settings use development fallbacks but require explicit production values.
   it('defaults outside production and demands a value in it', () => {
     expect(devDefault(false, 'Site').parse(undefined)).toBe('Site')
     expect(() => devDefault(true, 'Site').parse(undefined)).toThrow()
