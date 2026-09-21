@@ -18,13 +18,13 @@ const markdown = (body: string, status = 200) =>
     },
   })
 
-/** Splits a leading locale segment off the path, mirroring `localePrefix: 'as-needed'`. */
 function splitLocale(segments: string[]): { locale: string; slug: string } {
   const [first, ...rest] = segments
-  const isLocale = first !== DEFAULT_LOCALE && (LOCALES as readonly string[]).includes(first)
-  const parts = isLocale ? rest : segments
+  const hasLeadingLocale = !!first && (LOCALES as readonly string[]).includes(first)
+  const locale = hasLeadingLocale ? first : DEFAULT_LOCALE
+  const parts = hasLeadingLocale ? rest : segments
   return {
-    locale: isLocale ? first : DEFAULT_LOCALE,
+    locale,
     slug: parts.length ? parts.join('/') : 'home',
   }
 }

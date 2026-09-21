@@ -3,9 +3,8 @@ import { ISbStoryData } from '@storyblok/react/rsc'
 import StoryblokClient from 'storyblok-js-client'
 import { unstable_cache } from 'next/cache'
 import { draftMode } from 'next/headers'
-import { isPreview, LINKS_CACHE_TAG, STORYBLOK_CACHE_TAG, storyTag } from './config'
+import { DEFAULT_LOCALE, isPreview, LINKS_CACHE_TAG, STORYBLOK_CACHE_TAG, storyTag } from './config'
 import { env } from './env'
-import { DEFAULT_LOCALE } from './config'
 import { getStoryblokApi } from './storyblok'
 
 export type SbLink = { slug: string; is_folder: boolean }
