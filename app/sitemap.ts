@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
-import { SITE_URL } from '@/lib/config'
+import { absoluteUrl } from '@/lib/locale'
 import { getAllLinks } from '@/lib/storyblok-api'
-import { sitemapPaths } from '@/lib/sitemap'
+import { sitemapEntries } from '@/lib/sitemap'
 
 // Metadata routes prerender to a static file that no tag or path purge reaches,
 // so stories published between deploys never appeared. Dynamic keeps it a
@@ -12,6 +12,14 @@ export const dynamic = 'force-dynamic'
 // No lastModified: cdn/links/ carries no published_at, and a fabricated date
 // on every URL makes crawlers discount the whole sitemap.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const links = await getAllLinks()
-  return sitemapPaths(links).map(path => ({ url: new URL(path, SITE_URL).toString() }))
+  return sitemapEntries(await getAllLinks()).map(entry => ({
+    url: absoluteUrl(entry.path),
+    ...(entry.alternates && {
+      alternates: {
+        languages: Object.fromEntries(
+          Object.entries(entry.alternates).map(([lang, href]) => [lang, absoluteUrl(href)])
+        ),
+      },
+    }),
+  }))
 }
