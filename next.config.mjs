@@ -1,12 +1,13 @@
+import createNextIntlPlugin from 'next-intl/plugin'
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   images: {
     remotePatterns: [{ protocol: 'https', hostname: '*.storyblok.com' }],
   },
-  // Pattern redirects (`:slug*`) belong here, as a normal Next `redirects()`.
-  // Exact-path retirement is editor-owned and resolved at the 404 boundary
-  // instead — see lib/redirects.ts.
+  // Keep developer-owned pattern redirects here. CMS exact-path redirects are
+  // resolved at the 404 boundary in lib/redirects.ts.
 }
 
-export default nextConfig
+export default createNextIntlPlugin()(nextConfig)

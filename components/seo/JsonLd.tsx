@@ -1,6 +1,6 @@
 import { SITE_NAME, SITE_URL } from '@/lib/config'
 
-// Sitewide structured data; extend Organization with `logo`/`sameAs` per project.
+// Sitewide structured data. Extend Organization with project-specific fields.
 export default function JsonLd() {
   const graph = [
     { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },

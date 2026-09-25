@@ -5,7 +5,7 @@ import path from 'node:path'
 
 const repoRoot = path.resolve(import.meta.dirname, '..')
 
-// hero_section -> HeroSection, matching Storyblok's `<Name>Storyblok` type names.
+// Convert Storyblok's snake_case names to the generated PascalCase type names.
 const toPascalCase = name =>
   name
     .split(/[_-]/)
@@ -13,8 +13,7 @@ const toPascalCase = name =>
     .map(part => part.charAt(0).toUpperCase() + part.slice(1))
     .join('')
 
-// Explicit arg, else the single pulled set under .storyblok/components/<space>/,
-// so `yarn scaffold` needs no $STORYBLOK_SPACE_ID.
+// Prefer an explicit schema path; otherwise use the single pulled component set.
 function resolveSchemaPath() {
   const arg = process.argv[2]
   if (arg) return path.resolve(repoRoot, arg)
@@ -39,14 +38,10 @@ function resolveSchemaPath() {
 
 const schema = JSON.parse(fs.readFileSync(resolveSchemaPath(), 'utf8'))
 
-// Unrestricted assets render as images; only explicit `videos` gets <video>.
-// Shared so the markup and the <Image> import can't disagree.
+// Treat assets as videos only when Storyblok explicitly marks them as video files.
 const isImageAsset = field => field.type === 'asset' && !field.filetypes?.includes('videos')
 
-// `headline` is the field-name vocabulary's word for a heading (see CLAUDE.md),
-// so a text field called that gets the component rather than a <p>. level={2} is
-// the common case — a section heading under the page's h1 — and wrong often
-// enough that it is meant to be edited, like every other line of a stub.
+// Use the template's heading convention for text fields named `headline`.
 const isHeadline = field =>
   field.name === 'headline' && (field.type === 'text' || field.type === 'textarea')
 
@@ -67,7 +62,7 @@ const generateContent = componentSchema => {
           return field.required ? element : `{${f} && ${element}}`
         }
         case 'richtext':
-          // sankara-richtext: the package stylesheet's flow spacing and measure.
+          // Use the package's rich-text flow styles.
           return `{${f} && <RichTextRenderer text={${f}} className="sankara-richtext" />}`
         case 'asset':
           if (!isImageAsset(field)) {

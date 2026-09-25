@@ -3,7 +3,7 @@ import { ISbStoryData } from '@storyblok/react/rsc'
 import StoryblokClient from 'storyblok-js-client'
 import { unstable_cache } from 'next/cache'
 import { draftMode } from 'next/headers'
-import { isPreview, LINKS_CACHE_TAG, STORYBLOK_CACHE_TAG, storyTag } from './config'
+import { DEFAULT_LOCALE, isPreview, LINKS_CACHE_TAG, STORYBLOK_CACHE_TAG, storyTag } from './config'
 import { env } from './env'
 import { getStoryblokApi } from './storyblok'
 
@@ -15,12 +15,16 @@ export function resolveVersion(isDraft: boolean): 'draft' | 'published' {
   return isDev || isPreview || isDraft ? 'draft' : 'published'
 }
 
+/** CDN `language` parameter for non-default locales; the default is the base content. */
+export function resolveLanguage(locale?: string): string | undefined {
+  return locale && locale !== DEFAULT_LOCALE ? locale : undefined
+}
+
 let previewClient: StoryblokClient | null = null
 function getPreviewClient(): StoryblokClient {
   if (!previewClient) {
-    // Draft mode refetches everything per request (no cross-request cache by
-    // design), so bursts hit the preview token's ~3 req/s limit and exhaust
-    // the SDK's default retries → error page. Throttle client-side instead.
+    // Draft mode refetches per request, so bursts can exceed the preview token's
+    // rate limit and exhaust the SDK retries. Throttle requests client-side.
     previewClient = new StoryblokClient({
       accessToken: env.STORYBLOK_PREVIEW_TOKEN,
       rateLimit: 3,
@@ -77,43 +81,49 @@ export async function withTransientRetry<T>(fn: () => Promise<T>): Promise<T> {
   }
 }
 
-// Per-slug wrap for per-story tags; `slug` stays an argument so it's in the cache key.
-function fetchPublishedStory(slug: string) {
+// Per-slug wrap for per-story tags. `slug` and `language` stay arguments so they're
+// in the cache key; the tag omits the language: one story holds all translations.
+function fetchPublishedStory(slug: string, language?: string) {
   return unstable_cache(
-    async (slug: string) => {
+    async (slug: string, language?: string) => {
       const api = getStoryblokApi()
       const { data } = await withTransientRetry(() =>
         api.get(`cdn/stories/${slug}`, {
           version: 'published',
           resolve_links: 'url',
+          ...(language ? { language } : {}),
         })
       )
       return data.story
     },
     undefined,
     { tags: [STORYBLOK_CACHE_TAG, storyTag(slug)] }
-  )(slug)
+  )(slug, language)
 }
 
-export async function getStory<T>(slug: string): Promise<ISbStoryData<T> | null> {
+export async function getStory<T>(slug: string, locale?: string): Promise<ISbStoryData<T> | null> {
   if (env.STORYBLOK_SKIP_FETCH) return null
   const { isEnabled: isDraft } = await draftMode()
   const version = resolveVersion(isDraft)
+  const language = resolveLanguage(locale)
   try {
     if (version === 'draft') {
       const api = getPreviewClient()
-      const { data } = await memoizeDuringBuild(`storyblok-story-draft:${slug}`, () =>
-        withTransientRetry(() =>
-          api.get(`cdn/stories/${slug}`, {
-            version: 'draft',
-            resolve_links: 'url',
-            cv: Date.now(),
-          })
-        )
+      const { data } = await memoizeDuringBuild(
+        `storyblok-story-draft:${slug}:${language ?? 'default'}`,
+        () =>
+          withTransientRetry(() =>
+            api.get(`cdn/stories/${slug}`, {
+              version: 'draft',
+              resolve_links: 'url',
+              cv: Date.now(),
+              ...(language ? { language } : {}),
+            })
+          )
       )
       return data.story as ISbStoryData<T>
     }
-    return (await fetchPublishedStory(slug)) as ISbStoryData<T>
+    return (await fetchPublishedStory(slug, language)) as ISbStoryData<T>
   } catch (error) {
     if (isStoryblokNotFound(error)) return null
     throw error

@@ -2,7 +2,7 @@ import Script from 'next/script'
 import { pirschAttributes } from '@/lib/analytics'
 import { env } from '@/lib/env'
 
-/** Cookieless analytics — safe to load without consent. */
+/** Load Pirsch's cookieless analytics outside development. */
 export default function Pirsch() {
   if (env.NODE_ENV === 'development') return null
   const attrs = pirschAttributes(env.NEXT_PUBLIC_PIRSCH_CODE)
