@@ -77,9 +77,7 @@ export async function withTransientRetry<T>(fn: () => Promise<T>): Promise<T> {
   }
 }
 
-// Built per-slug so the webhook can bust one story without flushing the rest
-// (tags are fixed at wrap time). `slug` must stay an argument, not a closure:
-// with no keyParts the cache key is the function source plus its arguments.
+// Per-slug wrap for per-story tags; `slug` stays an argument so it's in the cache key.
 function fetchPublishedStory(slug: string) {
   return unstable_cache(
     async (slug: string) => {
