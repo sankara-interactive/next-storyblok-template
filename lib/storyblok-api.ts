@@ -77,10 +77,12 @@ export async function withTransientRetry<T>(fn: () => Promise<T>): Promise<T> {
   }
 }
 
-// Built per-slug so the webhook can bust one story without flushing the rest.
+// Built per-slug so the webhook can bust one story without flushing the rest
+// (tags are fixed at wrap time). `slug` must stay an argument, not a closure:
+// with no keyParts the cache key is the function source plus its arguments.
 function fetchPublishedStory(slug: string) {
   return unstable_cache(
-    async () => {
+    async (slug: string) => {
       const api = getStoryblokApi()
       const { data } = await withTransientRetry(() =>
         api.get(`cdn/stories/${slug}`, {
@@ -90,9 +92,9 @@ function fetchPublishedStory(slug: string) {
       )
       return data.story
     },
-    ['storyblok-story', slug],
+    undefined,
     { tags: [STORYBLOK_CACHE_TAG, storyTag(slug)] }
-  )()
+  )(slug)
 }
 
 export async function getStory<T>(slug: string): Promise<ISbStoryData<T> | null> {
@@ -130,7 +132,7 @@ const fetchLinks = unstable_cache(
     const { data } = await withTransientRetry(() => api.get('cdn/links/', { version: 'published' }))
     return data.links as Record<string, SbLink>
   },
-  ['storyblok-links'],
+  undefined,
   { tags: [STORYBLOK_CACHE_TAG, LINKS_CACHE_TAG] }
 )
 
