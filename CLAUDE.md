@@ -35,7 +35,7 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   for the same reason as the sitemap. `Vary: Accept` is set on the Markdown response only: Next overwrites
   `vary` with its RSC list on every page response, so it cannot be set on the
   HTML variant — harmless, because the proxy runs before the CDN cache lookup.
-- **Bridge** is handled by the SDK: `<StoryblokStory>` (in `app/[[...slug]]/page.tsx`)
+- **Bridge** is handled by the SDK: `<StoryblokStory>` (in `app/[locale]/[[...slug]]/page.tsx`)
   renders `StoryblokLiveEditing`, which self-gates on `isVisualEditor()` and
   dynamically loads the bridge only inside the Storyblok editor iframe — so it
   never ships in the production bundle. There is no `StoryblokProvider`; the SDK
@@ -88,7 +88,7 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   Zod), never `process.env` — one access pattern, `env.X`, always typed, so nothing
   needs narrowing at the call site. Build-time config that loads outside the Next
   bundle is the exception and must use `process.env` directly:
-  `next.config.mjs`, `storyblok.config.mjs`, `lib/redirects.mjs`, `scripts/`. `NEXT_PUBLIC_STORYBLOK_TOKEN`,
+  `next.config.mjs`, `storyblok.config.mjs`, `scripts/`. `NEXT_PUBLIC_STORYBLOK_TOKEN`,
   `STORYBLOK_PREVIEW_TOKEN` and `API_SECRET` are required everywhere: a missing one
   fails at boot naming the variable. `SITE_URL`, `SITE_NAME` and
   `STORYBLOK_WEBHOOK_SECRET` default outside production and are mandatory in it —
@@ -103,10 +103,18 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   from `https://www.privacybee.ch/widget.js`; it is placed in page content, not the
   layout. Its `website_id` comes from the blok field — there is no global env var for it.
 - **SEO**: structured data (Organization + WebSite JSON-LD) is emitted sitewide from
-  `components/seo/JsonLd.tsx`; root `metadata` in `app/layout.tsx` provides the
-  title-template and OG defaults; per-page metadata in `app/[[...slug]]/page.tsx`
+  `components/seo/JsonLd.tsx`; root `metadata` in `app/[locale]/layout.tsx` provides the
+  title-template and OG defaults; per-page metadata in `app/[locale]/[[...slug]]/page.tsx`
   overrides title/description/canonical/images. Next _replaces_ `openGraph` rather
   than merging it, so every override spreads `OG_DEFAULTS` (`lib/config.ts`).
+- **Styling**: Tailwind v4 + `@sankara-ui/core`. `styles/globals.css` `@theme` is
+  the starter theme — a brand palette, then the package's shadcn-named roles
+  (`background`, `primary`, `card`, `border`, `ring`, …) mapped from it. Components
+  use role utilities (`bg-card`, `text-muted-foreground`), never palette names, so
+  a rebrand is a palette edit. A section that re-colours its contents uses
+  `band-accent` (or a copy re-declaring every role — see the package README,
+  "Themed sections"). Tokens a package component reads belong to sankara-ui;
+  blok-only tokens stay here.
 
 ## Conventions
 
@@ -125,6 +133,12 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
 
 - `yarn check` — the gate CI runs: formatting, ESLint, TypeScript, tests, and
   Storyblok type drift. Run it before opening a PR.
+- `yarn build` rewrites `next-env.d.ts`; `git checkout -- next-env.d.ts` before
+  committing.
+- **Descendant sites** receive template changes differently: djalicunda.com is a
+  git fork (`template` remote → `git merge template/main`); numbers.ch and
+  fgpfister.ch are copies without shared history (changes are ported by hand).
+  Check that a change lands on all three before merging it here.
 - `yarn sync` — pull schemas + regenerate types. Commit `components.json`.
 - `yarn scaffold` — generate stubs for missing components (deliberate, separate).
 - `yarn setup:space --space <id> --yes` — bootstrap a **new** space from the
