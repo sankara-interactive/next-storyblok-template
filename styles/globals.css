@@ -7,18 +7,67 @@
    utilities that exist only in the docs prose. */
 @source '../node_modules/@sankara-ui/core/dist/components';
 
+/* Starter theme. Rebranding a site = editing the palette and the two fonts;
+   the roles below map the palette onto @sankara-ui/core's contract (its
+   README, "Theming"). Components read roles, never the palette. */
 @theme {
+  /* Palette -- the brand's own names. */
+  --color-brand: #09b3af;
+  --color-ink: #1f2933;
+  --color-paper: #ffffff;
+  --color-stone: #6b7280;
+  --color-line: #e5e7eb;
+  --color-alert: #b42318;
+
   /* Keep the generic family unquoted so it remains a fallback keyword. */
   --font-sans: Roboto, sans-serif;
+  --font-display: Roboto, sans-serif;
 
-  --color-primary: #09b3af;
+  /* Roles. Ink, not paper, on brand: white on #09b3af is ~2.6:1 and fails
+     WCAG AA for text. */
+  --color-background: var(--color-paper);
+  --color-foreground: var(--color-ink);
+  --color-primary: var(--color-brand);
+  --color-primary-foreground: var(--color-ink);
+  --color-card: var(--color-paper);
+  --color-card-foreground: var(--color-ink);
+  --color-muted-foreground: var(--color-stone);
+  --color-border: var(--color-line);
+  --color-input: var(--color-line);
+  --color-ring: var(--color-brand);
+  --color-destructive: var(--color-alert);
+  --color-accent: var(--color-brand);
+  --color-accent-foreground: var(--color-ink);
 }
 
 @utility container {
   @apply mx-auto max-w-7xl p-5 md:p-8;
 }
 
+/* Accent band: re-declares every role the package reads, so its components
+   follow the band. Copied from @sankara-ui/core's README, "Themed sections". */
+@utility band-accent {
+  --color-background: var(--color-accent);
+  --color-foreground: var(--color-accent-foreground);
+  --color-primary: var(--color-accent-foreground);
+  --color-border: color-mix(in oklch, var(--color-accent-foreground) 30%, transparent);
+  --color-input: var(--color-border);
+  --color-ring: var(--color-accent-foreground);
+  --color-card: var(--color-accent);
+  --color-card-foreground: var(--color-accent-foreground);
+  --color-muted-foreground: color-mix(in oklch, var(--color-accent-foreground) 70%, transparent);
+  --carousel-dot: var(--color-muted-foreground);
+  --carousel-dot-active: var(--color-accent-foreground);
+  --field-accent: var(--color-accent-foreground);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
 @layer base {
+  body {
+    @apply bg-background text-foreground;
+  }
+
   p {
     a {
       @apply text-primary hover:underline;
