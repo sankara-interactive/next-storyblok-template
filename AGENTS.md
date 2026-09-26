@@ -12,6 +12,3 @@ Before making changes:
    when a roadmap item is started or completed.
 3. Preserve the separation between reusable UI components, Storyblok adapters,
    and project-specific page sections.
-
-Do not start roadmap implementation until the stacked baseline pull requests are
-approved and landed, unless explicitly requested by the user.
