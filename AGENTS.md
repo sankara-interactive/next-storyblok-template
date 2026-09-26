@@ -10,8 +10,6 @@ Before making changes:
 2. Read [docs/enhancement-roadmap.md](./docs/enhancement-roadmap.md) before
    starting enhancement work. Follow its dependency order and update its status
    when a roadmap item is started or completed.
-3. Preserve the separation between reusable UI components, Storyblok adapters,
-   and project-specific page sections.
-
-Do not start roadmap implementation until the stacked baseline pull requests are
-approved and landed, unless explicitly requested by the user.
+3. Preserve the separation between reusable UI (`@sankara-ui/core`, its own
+   repository), Storyblok adapters, and project-specific page sections. A
+   component every project needs belongs in the package, not here.
