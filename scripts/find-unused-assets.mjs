@@ -7,7 +7,7 @@ import { stdin, stdout } from 'node:process'
  * content. Prompts before deleting anything.
  *
  * Usage: set -a; source .env; set +a; node scripts/find-unused-assets.mjs
- * Needs STORYBLOK_SPACE_ID, STORYBLOK_OAUTH_TOKEN, STORYBLOK_PREVIEW_TOKEN.
+ * Needs STORYBLOK_SPACE_ID, STORYBLOK_MANAGEMENT_TOKEN, STORYBLOK_PREVIEW_TOKEN.
  *
  * Blind spots: only story content is scanned. References in datasources,
  * component presets, hardcoded URLs in app code, or older story versions
@@ -15,7 +15,7 @@ import { stdin, stdout } from 'node:process'
  */
 
 const space = process.env.STORYBLOK_SPACE_ID
-const managementToken = process.env.STORYBLOK_OAUTH_TOKEN
+const managementToken = process.env.STORYBLOK_MANAGEMENT_TOKEN
 const previewToken = process.env.STORYBLOK_PREVIEW_TOKEN
 
 if (!space || !managementToken || !previewToken) {
