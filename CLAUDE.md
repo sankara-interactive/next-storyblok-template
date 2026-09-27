@@ -133,8 +133,11 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
 
 - `yarn check` — the gate CI runs: formatting, ESLint, TypeScript, tests, and
   Storyblok type drift. Run it before opening a PR.
-- `yarn build` rewrites `next-env.d.ts`; `git checkout -- next-env.d.ts` before
-  committing.
+- `.mcp.json` runs Next's `next-devtools-mcp` (version pinned — bump it
+  deliberately): with `yarn dev` running, it gives agents the dev server's
+  build/runtime errors, routes, and the version-matched docs.
+- Pushes to `main`, force-pushes and remote-branch deletes go through
+  `.claude/hooks/guard-push.sh`, which makes Claude Code ask for approval.
 - **Descendant sites** receive template changes by `git merge` (forks with a
   `template` remote) or by hand-porting (copies without shared history). Check
   that a change lands on them before merging it here — the `sync-template`
@@ -158,7 +161,7 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   only with `STORYBLOK_LOGIN` and `STORYBLOK_REGION` set too.
 - Agents: prefer the CLI for schema and content writes (it uses the session);
   use the Management API for read-back verification and for deletes, which the
-  CLI cannot do — `components push` creates and updates only. Not the MCP.
+  CLI cannot do — `components push` creates and updates only. Not the Storyblok MCP.
 - Verify server-side, not by exit status: the Storyblok CLI does not set a
   non-zero exit code on failure, and reports "Updated" for components it just
   created. Read the CLI's `reports/<space>/*.json` `status`, or pull and inspect.

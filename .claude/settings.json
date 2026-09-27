@@ -1,4 +1,25 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(yarn check)",
+      "Bash(yarn test:*)",
+      "Bash(yarn vitest:*)",
+      "Bash(yarn lint:*)",
+      "Bash(yarn typecheck)",
+      "Bash(yarn format:check)",
+      "Bash(yarn types:check)",
+      "Bash(yarn build)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(gh pr checks:*)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {
@@ -16,6 +37,15 @@
           {
             "type": "command",
             "command": "c=$(jq -r '.tool_input.command // empty'); echo \"$c\" | grep -Eq 'git +commit' && git rev-parse --abbrev-ref HEAD | grep -Eqx 'main|master' && { echo 'Refusing to commit on main; use a feature branch' >&2; exit 2; }; exit 0"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-push.sh"
           }
         ]
       }
