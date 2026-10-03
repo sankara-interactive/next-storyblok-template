@@ -1,25 +1,4 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(yarn check)",
-      "Bash(yarn test:*)",
-      "Bash(yarn vitest:*)",
-      "Bash(yarn lint:*)",
-      "Bash(yarn typecheck)",
-      "Bash(yarn format:check)",
-      "Bash(yarn types:check)",
-      "Bash(yarn build)",
-      "Bash(git status:*)",
-      "Bash(git diff:*)",
-      "Bash(git log:*)",
-      "Bash(git show:*)",
-      "Bash(git branch:*)",
-      "Bash(gh pr view:*)",
-      "Bash(gh pr list:*)",
-      "Bash(gh pr diff:*)",
-      "Bash(gh pr checks:*)"
-    ]
-  },
   "hooks": {
     "PreToolUse": [
       {

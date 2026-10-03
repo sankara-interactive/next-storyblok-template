@@ -70,3 +70,6 @@ test-timings.json
 
 # Agent brainstorming/planning output — rationale goes in PR descriptions (see CLAUDE.md)
 docs/superpowers/
+
+# Claude Code: personal settings (permissions etc.) stay local
+.claude/settings.local.json
