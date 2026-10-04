@@ -28,6 +28,8 @@ coverage
 
 # test output
 test/**/out*
+# Managed by Next (next dev/build/typegen); its docs say not to track it.
+next-env.d.ts
 test/**/next-env.d.ts
 .DS_Store
 /e2e-tests
@@ -68,3 +70,6 @@ test-timings.json
 
 # Agent brainstorming/planning output — rationale goes in PR descriptions (see CLAUDE.md)
 docs/superpowers/
+
+# Claude Code: personal settings (permissions etc.) stay local
+.claude/settings.local.json
