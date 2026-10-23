@@ -20,25 +20,25 @@
     "setup:space": "node scripts/setup-space.mjs"
   },
   "dependencies": {
-    "@sankara-ui/core": "^0.9.0",
-    "@storyblok/react": "^7.2.4",
+    "@sankara-ui/core": "^0.10.0",
+    "@storyblok/react": "^7.3.1",
     "@t3-oss/env-nextjs": "^0.13.11",
-    "next": "^16.3.0",
-    "next-intl": "^4.14.1",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0",
-    "zod": "^4.4.3"
+    "next": "^16.4.2",
+    "next-intl": "^4.14.9",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
-    "@types/node": "^22.20.1",
+    "@types/node": "^22.20.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "eslint": "^9",
-    "eslint-config-next": "^16.3.0",
-    "postcss": "^8.5.25",
-    "prettier": "3.9.6",
-    "storyblok": "^4.21.2",
+    "eslint-config-next": "^16.4.2",
+    "postcss": "^8.5.31",
+    "prettier": "3.9.10",
+    "storyblok": "^4.24.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.3",
     "vitest": "^4.1.10"
