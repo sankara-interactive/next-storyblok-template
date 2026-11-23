@@ -156,7 +156,7 @@ function defaultCheckSession() {
  */
 export function requireSession({ checkSession = defaultCheckSession } = {}) {
   const result = checkSession()
-  if (result.status !== 0 || !/logged in/i.test(result.stdout ?? '')) {
+  if (result.status !== 0 || !/logged in/i.test(`${result.stdout ?? ''}${result.stderr ?? ''}`)) {
     console.error(
       'No Storyblok CLI session.\n' +
         'Run `storyblok login -r eu` and choose "With email".\n' +
