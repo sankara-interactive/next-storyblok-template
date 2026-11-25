@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { StoryblokMultilink } from '@/.storyblok/types/storyblok'
-import { getHref } from './getHref'
+import { getHref, hasLink } from './getHref'
 
 const link = (o: Partial<StoryblokMultilink>) => o as StoryblokMultilink
 const story = (o: Partial<StoryblokMultilink>) => link({ linktype: 'story', ...o })
@@ -46,5 +46,19 @@ describe('getHref', () => {
     it('does not special-case a story merely named home inside a folder', () => {
       expect(getHref(story({ cached_url: 'about/home' }))).toBe('/about/home')
     })
+  })
+})
+
+describe('hasLink', () => {
+  it('rejects an unset link and one an editor cleared', () => {
+    expect(hasLink(undefined)).toBe(false)
+    expect(hasLink(null)).toBe(false)
+    expect(hasLink(story({ id: '', url: '', cached_url: '' }))).toBe(false)
+  })
+
+  it('accepts story, url and email links', () => {
+    expect(hasLink(story({ id: 'uuid', cached_url: 'about' }))).toBe(true)
+    expect(hasLink(link({ linktype: 'url', url: 'https://example.test' }))).toBe(true)
+    expect(hasLink(link({ linktype: 'email', email: 'hi@example.test' }))).toBe(true)
   })
 })
