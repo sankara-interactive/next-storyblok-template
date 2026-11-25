@@ -18,6 +18,15 @@
             "command": "c=$(jq -r '.tool_input.command // empty'); echo \"$c\" | grep -Eq 'git +commit' && git rev-parse --abbrev-ref HEAD | grep -Eqx 'main|master' && { echo 'Refusing to commit on main; use a feature branch' >&2; exit 2; }; exit 0"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-push.sh"
+          }
+        ]
       }
     ]
   }
