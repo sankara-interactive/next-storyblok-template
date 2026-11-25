@@ -1,6 +1,6 @@
 import type { StoryblokMultilink } from '@/.storyblok/types/storyblok'
+import { Link } from '@/i18n/navigation'
 import { getHref } from '@/lib/getHref'
-import Link from 'next/link'
 import type { HTMLAttributes, ReactNode } from 'react'
 
 export function SbLink({
