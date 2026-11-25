@@ -47,7 +47,7 @@ export default async function RootLayout({
       <body>
         <a
           href="#content"
-          className="sr-only bg-white p-4 focus:not-sr-only focus:fixed focus:top-0 focus:left-0 focus:z-50"
+          className="bg-background sr-only p-4 focus:not-sr-only focus:fixed focus:top-0 focus:left-0 focus:z-50"
         >
           {t('toContent')}
         </a>

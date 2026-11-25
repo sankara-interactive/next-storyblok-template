@@ -107,6 +107,12 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   title-template and OG defaults; per-page metadata in `app/[[...slug]]/page.tsx`
   overrides title/description/canonical/images. Next _replaces_ `openGraph` rather
   than merging it, so every override spreads `OG_DEFAULTS` (`lib/config.ts`).
+- **Styling**: Tailwind v4 + `@sankara-ui/core`. `styles/globals.css` `@theme` is
+  the starter theme: a brand palette, then the package's roles (`background`,
+  `primary`, `card`, `border`, `ring`, …) mapped from it. Shared and template
+  components use role utilities (`bg-card`, `text-muted-foreground`), so a rebrand
+  is a palette edit. Site-specific markup may use palette names. Tokens a package
+  component reads belong to sankara-ui; blok-only tokens stay here.
 
 ## Conventions
 
