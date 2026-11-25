@@ -6491,6 +6491,7 @@ __metadata:
     react: "npm:^19.3.1"
     react-dom: "npm:^19.3.1"
     storyblok: "npm:^4.21.2"
+    storyblok-js-client: "npm:^7.9.1"
     tailwindcss: "npm:^4.3.5"
     typescript: "npm:^5.9.3"
     vitest: "npm:^4.1.10"
@@ -7976,7 +7977,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"storyblok-js-client@npm:^7.9.0":
+"storyblok-js-client@npm:^7.9.0, storyblok-js-client@npm:^7.9.1":
   version: 7.9.1
   resolution: "storyblok-js-client@npm:7.9.1"
   checksum: 10c0/2a5554f2fa996c129bb233aa2599efb0bfeed3b0a8bb7008ef41b21ec30207c4dc2adb1e3d227bcf8ef99c864af17f1c13a01aa238fd5d5d8abf27c8cc285fbb

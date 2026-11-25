@@ -1,7 +1,10 @@
 import { draftMode } from 'next/headers'
 import { redirect } from 'next/navigation'
 import StoryblokClient from 'storyblok-js-client'
+import { DEFAULT_LOCALE } from '@/lib/config'
 import { env } from '@/lib/env'
+import { localePath } from '@/lib/locale'
+import { isStoryblokNotFound } from '@/lib/storyblok-api'
 import { isDataRoute } from '@/lib/storyblok-routes'
 
 export async function GET(request: Request) {
@@ -16,15 +19,19 @@ export async function GET(request: Request) {
   const storyblok = new StoryblokClient({
     accessToken: env.STORYBLOK_PREVIEW_TOKEN,
   })
-  const { data } = await storyblok.get(`cdn/stories/${slug}`, {
-    version: 'draft',
-    excluding_fields: 'body',
-  })
-  if (!data?.story) {
-    return new Response('Invalid slug', { status: 401 })
+  let fullSlug: string
+  try {
+    const { data } = await storyblok.get(`cdn/stories/${slug}`, {
+      version: 'draft',
+      excluding_fields: 'body',
+    })
+    fullSlug = data.story.full_slug
+  } catch (error) {
+    // The client rejects on 404 rather than returning an empty story.
+    if (isStoryblokNotFound(error)) return new Response('Invalid slug', { status: 401 })
+    throw error
   }
 
-  const fullSlug: string = data.story.full_slug
   if (isDataRoute(fullSlug)) {
     return new Response('Not previewable as a page', { status: 400 })
   }
@@ -38,5 +45,5 @@ export async function GET(request: Request) {
     if (key.startsWith('_storyblok')) bridge.append(key, value)
   }
   const qs = bridge.toString()
-  redirect(`/${fullSlug}${qs ? `?${qs}` : ''}`)
+  redirect(`${localePath(DEFAULT_LOCALE, fullSlug)}${qs ? `?${qs}` : ''}`)
 }
