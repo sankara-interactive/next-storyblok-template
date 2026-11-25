@@ -83,6 +83,22 @@ describe('storyToMarkdown', () => {
     expect(md).not.toContain('Gone')
   })
 
+  it('keeps option values and link labels out of the prose', () => {
+    const md = storyToMarkdown(
+      story([
+        {
+          component: 'text_section',
+          headline: 'Our work',
+          level: 'h2',
+          label: 'More about us',
+          link: { fieldtype: 'multilink', linktype: 'story', cached_url: 'about' },
+        },
+      ]),
+      BASE
+    )
+    expect(md).toBe(`# Fallback name\n\n## Our work\n\n- [More about us](${BASE}/about)\n`)
+  })
+
   it('absolutises story links and labels them', () => {
     const md = storyToMarkdown(
       story([

@@ -45,6 +45,7 @@ echo
 echo "Negative cases"
 NF=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/definitely-not-a-page")
 chk "unknown path 404s (got $NF)"                    "$([ "$NF" = 404 ] && echo 1)"
+chk "legacy .html path reaches the site 404"         "$(curl -s "$BASE/definitely-not-a-page.html" | grep -qF 'nicht gefunden' && echo 1)"
 DR=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/data/redirects")
 chk "data/ route not routable (got $DR)"             "$([ "$DR" = 404 ] && echo 1)"
 

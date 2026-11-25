@@ -79,7 +79,7 @@ const generateContent = componentSchema => {
           )}`
         case 'multilink':
         case 'link':
-          return `{${f} && <SbLink link={${f}}>{/* label */}</SbLink>}`
+          return `{hasLink(${f}) && <SbLink link={${f}}>{/* label */}</SbLink>}`
         case 'bloks':
           return `{${f}?.map(nestedBlok => (
             <StoryblokServerComponent blok={nestedBlok} key={nestedBlok._uid} />
@@ -120,7 +120,7 @@ schema.forEach(componentSchema => {
     fieldTypes.has('richtext') &&
       `import { RichTextRenderer } from '@/components/helpers/RichTextRenderer'`,
     (fieldTypes.has('multilink') || fieldTypes.has('link')) &&
-      `import { SbLink } from '@/components/helpers/SbLink'`,
+      `import { SbLink } from '@/components/helpers/SbLink'\nimport { hasLink } from '@/lib/getHref'`,
   ].filter(Boolean)
 
   const component = `${imports.join('\n')}

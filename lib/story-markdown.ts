@@ -16,6 +16,8 @@ const SKIP_FIELDS = new Set([
   'seo',
   'anchor',
   'variant',
+  'level',
+  'label',
   'theme',
   'image',
   'images',
@@ -27,7 +29,7 @@ const SKIP_FIELDS = new Set([
 ])
 
 /** Rendered as the blok's heading, first match wins. */
-const HEADING_FIELDS = ['headline', 'title', 'question', 'name', 'label']
+const HEADING_FIELDS = ['headline', 'title', 'question', 'name']
 
 /** Prose fields in render order; anything left over follows alphabetically. */
 const TEXT_ORDER = ['eyebrow', 'lead', 'text', 'description', 'answer', 'quote']
@@ -186,7 +188,7 @@ function blokToMarkdown(blok: Blok, depth: number, baseUrl: string): string[] {
   }
 
   // Render link-only bloks without a heading.
-  if (links.length && headings.length === 1 && !texts.length && !children.length) return links
+  if (links.length && !headings.length && !texts.length && !children.length) return links
   return [...headings, ...texts, ...(links.length ? [links.join('\n')] : []), ...children]
 }
 

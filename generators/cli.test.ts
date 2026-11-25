@@ -44,7 +44,7 @@ test('scaffold CLI generates a stub covering all field types', () => {
     expect(src).not.toContain('@sankara-ui/core')
     expect(src).toContain("import Image from 'next/image'")
     expect(src).toContain('StoryblokServerComponent')
-    expect(src).toContain('<SbLink link={blok.link}>')
+    expect(src).toContain('{hasLink(blok.link) && <SbLink link={blok.link}>')
     // the package stylesheet's richtext class on the SDK wrapper, no extra container
     expect(src).toContain('<RichTextRenderer text={blok.text} className="sankara-richtext" />')
     expect(src).not.toContain('className="richtext"')
