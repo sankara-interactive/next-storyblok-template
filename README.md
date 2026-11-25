@@ -183,8 +183,14 @@ yarn setup:space --space <space-id> --yes
 ```
 
 This pushes the committed baseline from `.storyblok/components/baseline/` and
-`.storyblok/stories/baseline/`: a `page` content type with an SEO tab, a
-`text_section` blok, and the `data/redirects` global with one example entry.
+`.storyblok/stories/baseline/`: a `page` content type with an SEO tab, the
+section bloks (`hero_section`, `text_section`, `faq_section`, `gallery_section`),
+and the `data/redirects` global with one example entry.
+
+Stories land as **drafts**. A Development-plan space publishes three stories a
+day and the baseline holds four, so publishing by default would always fail the
+last one; `next dev` and preview hosts read drafts anyway. Add `--publish` on a
+space without that limit.
 
 Afterwards, delete the Storyblok starter bloks (`feature`, `grid`, `teaser`) in
 the UI — `components push` creates and updates but cannot delete.
