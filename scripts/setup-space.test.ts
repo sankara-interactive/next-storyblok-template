@@ -64,6 +64,18 @@ describe('requireSession', () => {
     expect(exit).not.toHaveBeenCalled()
   })
 
+  it('accepts a session reported on stderr, as the CLI does without a TTY', () => {
+    const checkSession = () => ({
+      status: 0,
+      stdout: '',
+      stderr: '✔ Hi Jane, you are currently logged in with jane@example.ch on eu region',
+    })
+
+    requireSession({ checkSession })
+
+    expect(exit).not.toHaveBeenCalled()
+  })
+
   it('exits when there is no CLI session, without shelling out', () => {
     const checkSession = () => ({ status: 1, stdout: '', stderr: '' })
 
