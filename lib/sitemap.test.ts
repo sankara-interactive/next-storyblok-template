@@ -20,6 +20,11 @@ describe('sitemapPaths', () => {
     }
     expect(sitemapPaths(links).sort()).toEqual(['/', '/about', '/leistungen/seo'])
   })
+
+  it('drops the trailing slash of a folder start page', () => {
+    expect(sitemapPaths({ a: { slug: 'aktuell/', is_folder: false } })).toEqual(['/aktuell'])
+    expect(sitemapEntries({ a: { slug: 'aktuell/', is_folder: false } })[0].path).toBe('/aktuell')
+  })
 })
 
 describe('sitemapEntries', () => {

@@ -6,6 +6,7 @@ import { isPreview, OG_DEFAULTS, OG_LOCALE } from '@/lib/config'
 import { hreflangAlternates, localePath } from '@/lib/locale'
 import { findRedirect, getRedirects } from '@/lib/redirects'
 import { getAllLinks, getStory } from '@/lib/storyblok-api'
+import { routableSlugs } from '@/lib/sitemap'
 import { isDataRoute } from '@/lib/storyblok-routes'
 import { routing } from '@/i18n/routing'
 import { setRequestLocale } from 'next-intl/server'
@@ -25,13 +26,9 @@ function slugFromParams(slug?: string[]): string {
 
 // Generate params for this segment; the layout supplies the locale params.
 export async function generateStaticParams() {
-  const links = await getAllLinks()
-  const paths: { slug: string[] }[] = []
-  Object.values(links).forEach(link => {
-    if (link.is_folder || link.slug === 'home' || isDataRoute(link.slug)) return
-    paths.push({ slug: link.slug.split('/') })
-  })
-  return paths
+  return routableSlugs(await getAllLinks())
+    .filter(slug => slug !== 'home')
+    .map(slug => ({ slug: slug.split('/') }))
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
@@ -60,7 +57,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
       url: canonicalPath,
     },
     twitter: {
-      card: 'summary',
+      card: 'summary_large_image',
       title,
       description,
     },

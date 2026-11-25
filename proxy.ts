@@ -34,7 +34,7 @@ export default function proxy(request: NextRequest) {
 export const config = {
   // Match content routes; exclude API, Next internals, and file paths.
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|opengraph-image|.*\\..*).*)',
     // Legacy page URLs must reach the catch-all, where CMS redirects resolve.
     '/(.*\\.(?:html?|php|aspx?))',
   ],

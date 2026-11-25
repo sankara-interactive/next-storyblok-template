@@ -14,6 +14,14 @@ export const siteUrlSchema = (isProduction: boolean) =>
     })
     .transform(input => new URL(input).origin)
 
+/**
+ * A site on a plan that cannot sign webhooks opts into a URL secret instead and
+ * then has no signing secret at all — never a default one, which would be a
+ * known HMAC key on a real host.
+ */
+export const webhookSecretSchema = (isProduction: boolean, hasUrlSecret: boolean) =>
+  hasUrlSecret ? nonEmpty.optional() : devDefault(isProduction, 'local-dev-unsigned')
+
 const isProduction = process.env.NODE_ENV === 'production'
 
 export const env = createEnv({
@@ -28,7 +36,11 @@ export const env = createEnv({
     API_SECRET: nonEmpty,
     // The webhook URL does not exist until deployment, so local development
     // uses a placeholder while production requires an explicit secret.
-    STORYBLOK_WEBHOOK_SECRET: devDefault(isProduction, 'local-dev-unsigned'),
+    STORYBLOK_WEBHOOK_SECRET: webhookSecretSchema(
+      isProduction,
+      Boolean(process.env.STORYBLOK_WEBHOOK_URL_SECRET)
+    ),
+    STORYBLOK_WEBHOOK_URL_SECRET: nonEmpty.optional(),
     STORYBLOK_SKIP_FETCH: z.stringbool({ truthy: ['true'], falsy: ['false'] }).default(false),
   },
   client: {
@@ -45,6 +57,7 @@ export const env = createEnv({
     STORYBLOK_PREVIEW_TOKEN: process.env.STORYBLOK_PREVIEW_TOKEN,
     API_SECRET: process.env.API_SECRET,
     STORYBLOK_WEBHOOK_SECRET: process.env.STORYBLOK_WEBHOOK_SECRET,
+    STORYBLOK_WEBHOOK_URL_SECRET: process.env.STORYBLOK_WEBHOOK_URL_SECRET,
     STORYBLOK_SKIP_FETCH: process.env.STORYBLOK_SKIP_FETCH,
     NEXT_PUBLIC_STORYBLOK_TOKEN: process.env.NEXT_PUBLIC_STORYBLOK_TOKEN,
     NEXT_PUBLIC_PIRSCH_CODE: process.env.NEXT_PUBLIC_PIRSCH_CODE,
