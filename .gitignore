@@ -1,13 +1,11 @@
 # build output
-dist
 .next
-target
+*.tsbuildinfo
+# Managed by Next (next dev/build/typegen); its docs say not to track it.
+next-env.d.ts
 
 # dependencies
 node_modules
-package-lock.json
-yarn.lock
-!/yarn.lock
 .yarn/*
 !.yarn/cache
 !.yarn/patches
@@ -15,41 +13,19 @@ yarn.lock
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
-test/node_modules
 
-# logs & pids
+# logs
 *.log
-pids
-*.cpuprofile
-
-# coverage
-.nyc_output
-coverage
 
 # test output
-test/**/out*
-test/**/next-env.d.ts
+coverage
+
+# OS and editors
 .DS_Store
-/e2e-tests
-test/tmp/**
-
-# Editors
 **/.idea
-**/.#*
-
-# examples
-examples/**/out
-examples/**/.env*.local
-
-pr-stats.md
-test-timings.json
 
 # Vercel
 .vercel
-.now
-
-# Cache
-*.tsbuildinfo
 
 # Secrets
 .env
@@ -68,3 +44,6 @@ test-timings.json
 
 # Agent brainstorming/planning output — rationale goes in PR descriptions (see CLAUDE.md)
 docs/superpowers/
+
+# Claude Code: personal settings (permissions etc.) stay local
+.claude/settings.local.json

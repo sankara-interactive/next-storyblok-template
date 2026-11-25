@@ -35,7 +35,7 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   for the same reason as the sitemap. `Vary: Accept` is set on the Markdown response only: Next overwrites
   `vary` with its RSC list on every page response, so it cannot be set on the
   HTML variant — harmless, because the proxy runs before the CDN cache lookup.
-- **Bridge** is handled by the SDK: `<StoryblokStory>` (in `app/[[...slug]]/page.tsx`)
+- **Bridge** is handled by the SDK: `<StoryblokStory>` (in `app/[locale]/[[...slug]]/page.tsx`)
   renders `StoryblokLiveEditing`, which self-gates on `isVisualEditor()` and
   dynamically loads the bridge only inside the Storyblok editor iframe — so it
   never ships in the production bundle. There is no `StoryblokProvider`; the SDK
@@ -88,7 +88,7 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   Zod), never `process.env` — one access pattern, `env.X`, always typed, so nothing
   needs narrowing at the call site. Build-time config that loads outside the Next
   bundle is the exception and must use `process.env` directly:
-  `next.config.mjs`, `storyblok.config.mjs`, `lib/redirects.mjs`, `scripts/`. `NEXT_PUBLIC_STORYBLOK_TOKEN`,
+  `next.config.mjs`, `storyblok.config.mjs`, `scripts/`. `NEXT_PUBLIC_STORYBLOK_TOKEN`,
   `STORYBLOK_PREVIEW_TOKEN` and `API_SECRET` are required everywhere: a missing one
   fails at boot naming the variable. `SITE_URL`, `SITE_NAME` and
   `STORYBLOK_WEBHOOK_SECRET` default outside production and are mandatory in it —
@@ -103,8 +103,8 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   from `https://www.privacybee.ch/widget.js`; it is placed in page content, not the
   layout. Its `website_id` comes from the blok field — there is no global env var for it.
 - **SEO**: structured data (Organization + WebSite JSON-LD) is emitted sitewide from
-  `components/seo/JsonLd.tsx`; root `metadata` in `app/layout.tsx` provides the
-  title-template and OG defaults; per-page metadata in `app/[[...slug]]/page.tsx`
+  `components/seo/JsonLd.tsx`; root `metadata` in `app/[locale]/layout.tsx` provides the
+  title-template and OG defaults; per-page metadata in `app/[locale]/[[...slug]]/page.tsx`
   overrides title/description/canonical/images. Next _replaces_ `openGraph` rather
   than merging it, so every override spreads `OG_DEFAULTS` (`lib/config.ts`).
 
@@ -125,6 +125,25 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
 
 - `yarn check` — the gate CI runs: formatting, ESLint, TypeScript, tests, and
   Storyblok type drift. Run it before opening a PR.
+- `.mcp.json` runs Next's `next-devtools-mcp` (version pinned — bump it
+  deliberately): with `yarn dev` running, it gives agents the dev server's
+  build/runtime errors, routes, and the version-matched docs.
+- `yarn smoke` — boots `next dev` on a free port, runs `scripts/smoke.sh`
+  against it and stops only that server. Use it to verify a change; never
+  `pkill` a dev server, other projects' servers run on this machine too.
+- Hooks in `.claude/hooks/`: `guard-push.sh` asks before pushes to `main`,
+  force-pushes and remote-branch deletes; `guard-storyblok.sh` asks before any
+  Storyblok push; `guard-commit.sh` refuses a commit on `main` in whichever repo
+  the commit targets.
+- **Storyblok dev spaces publish three stories a day.** Push stories as drafts
+  (`next dev` and preview hosts read them); pass `--publish` only when asked. A
+  generic 422 on a publishing push means the quota, and that story was not
+  updated.
+- **Descendant sites** receive template changes by `git merge` (forks with a
+  `template` remote) or by hand-porting (copies without shared history). Check
+  that a change lands on them before merging it here — the `sync-template`
+  skill has the procedure. Site specifics belong in each site's repo, not this
+  public one.
 - `yarn sync` — pull schemas + regenerate types. Commit `components.json`.
 - `yarn scaffold` — generate stubs for missing components (deliberate, separate).
 - `yarn setup:space --space <id> --yes` — bootstrap a **new** space from the
@@ -143,7 +162,7 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   only with `STORYBLOK_LOGIN` and `STORYBLOK_REGION` set too.
 - Agents: prefer the CLI for schema and content writes (it uses the session);
   use the Management API for read-back verification and for deletes, which the
-  CLI cannot do — `components push` creates and updates only. Not the MCP.
+  CLI cannot do — `components push` creates and updates only. Not the Storyblok MCP.
 - Verify server-side, not by exit status: the Storyblok CLI does not set a
   non-zero exit code on failure, and reports "Updated" for components it just
   created. Read the CLI's `reports/<space>/*.json` `status`, or pull and inspect.
