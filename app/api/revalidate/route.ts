@@ -8,9 +8,11 @@ export async function POST(req: Request) {
   const signature = req.headers.get('webhook-signature')
   const urlSecret = new URL(req.url).searchParams.get('secret')
 
+  // The URL secret is opt-in and its own value: a site that signs never accepts
+  // it, and a leaked URL never reveals the signing key.
   if (
-    !verifyWebhookSignature(raw, signature, env.STORYBLOK_WEBHOOK_SECRET) &&
-    !verifyUrlSecret(urlSecret, env.STORYBLOK_WEBHOOK_SECRET)
+    !verifyWebhookSignature(raw, signature, env.STORYBLOK_WEBHOOK_SECRET ?? '') &&
+    !verifyUrlSecret(urlSecret, env.STORYBLOK_WEBHOOK_URL_SECRET ?? '')
   ) {
     return new Response('Invalid signature', { status: 401 })
   }

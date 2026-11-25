@@ -15,7 +15,7 @@ export function verifyWebhookSignature(
   return safeEqual(createHmac('sha1', secret).update(rawBody).digest('hex'), signature)
 }
 
-/** Fallback for Storyblok plans that cannot sign webhooks: `?secret=` on the webhook URL. */
+/** For Storyblok plans that cannot sign webhooks: `?secret=` on the webhook URL. */
 export function verifyUrlSecret(provided: string | null, secret: string): boolean {
   if (!provided || !secret) return false
   return safeEqual(provided, secret)

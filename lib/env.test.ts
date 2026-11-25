@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { devDefault, siteUrlSchema } from './env'
+import { devDefault, siteUrlSchema, webhookSecretSchema } from './env'
 
 describe('required secrets', () => {
   // Suppress expected validation output during these tests.
@@ -33,6 +33,11 @@ describe('environment validation', () => {
     expect(devDefault(false, 'Site').parse(undefined)).toBe('Site')
     expect(() => devDefault(true, 'Site').parse(undefined)).toThrow()
     expect(devDefault(true, 'Site').parse('a-real-secret')).toBe('a-real-secret')
+  })
+
+  it('demands a signing secret in production unless the site opted into a URL secret', () => {
+    expect(() => webhookSecretSchema(true, false).parse(undefined)).toThrow()
+    expect(webhookSecretSchema(true, true).parse(undefined)).toBeUndefined()
   })
 
   it('uses a localhost site URL outside production', () => {

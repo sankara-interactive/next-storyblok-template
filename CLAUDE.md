@@ -8,7 +8,7 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
   reads carry the global `STORYBLOK_CACHE_TAG`; each published story also carries a
   per-story tag (`storyTag(slug)` → `storyblok:<slug>`). Never call the SDK directly
   from a component.
-- **Revalidation**: `/api/revalidate` verifies the webhook signature (or a `?secret=` URL fallback for plans that cannot sign), then flushes
+- **Revalidation**: `/api/revalidate` verifies the webhook signature (or, only when `STORYBLOK_WEBHOOK_URL_SECRET` is set, a `?secret=` URL parameter for plans that cannot sign), then flushes
   surgically (`revalidationTags` in `lib/storyblok-routes.ts`): a plain content
   `published` busts `storyblok:<full_slug>` plus the links inventory
   (`storyblok:links` — a first publish adds a route only that tag can surface); a
