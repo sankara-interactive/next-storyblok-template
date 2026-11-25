@@ -1,6 +1,6 @@
 import { createHmac } from 'node:crypto'
 import { describe, expect, it } from 'vitest'
-import { verifyWebhookSignature } from './webhook'
+import { verifyUrlSecret, verifyWebhookSignature } from './webhook'
 
 const secret = 'topsecret'
 const body = JSON.stringify({ story_id: 42, action: 'published' })
@@ -18,5 +18,18 @@ describe('verifyWebhookSignature', () => {
   })
   it('rejects when body is tampered', () => {
     expect(verifyWebhookSignature(body + ' ', sign(body, secret), secret)).toBe(false)
+  })
+})
+
+describe('verifyUrlSecret', () => {
+  it('accepts the matching secret', () => {
+    expect(verifyUrlSecret(secret, secret)).toBe(true)
+  })
+  it('rejects a wrong or missing secret', () => {
+    expect(verifyUrlSecret('wrong', secret)).toBe(false)
+    expect(verifyUrlSecret(null, secret)).toBe(false)
+  })
+  it('rejects anything when no secret is configured', () => {
+    expect(verifyUrlSecret('', '')).toBe(false)
   })
 })

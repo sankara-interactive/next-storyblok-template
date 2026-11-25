@@ -29,6 +29,8 @@ export const OG_DEFAULTS = {
   siteName: SITE_NAME,
   locale: OG_LOCALE[DEFAULT_LOCALE] ?? DEFAULT_LOCALE,
   type: 'website',
+  // Served by app/opengraph-image.tsx; page-level openGraph overrides would drop it otherwise.
+  images: { url: '/opengraph-image', width: 1200, height: 630, alt: SITE_NAME },
 } as const
 
 /** Global cache tag on every Storyblok read; flushed for globals/structural changes. */

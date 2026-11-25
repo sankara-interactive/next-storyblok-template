@@ -1,13 +1,17 @@
 import { revalidateTag } from 'next/cache'
 import { env } from '@/lib/env'
 import { revalidationTags } from '@/lib/storyblok-routes'
-import { verifyWebhookSignature } from '@/lib/webhook'
+import { verifyUrlSecret, verifyWebhookSignature } from '@/lib/webhook'
 
 export async function POST(req: Request) {
   const raw = await req.text()
   const signature = req.headers.get('webhook-signature')
+  const urlSecret = new URL(req.url).searchParams.get('secret')
 
-  if (!verifyWebhookSignature(raw, signature, env.STORYBLOK_WEBHOOK_SECRET)) {
+  if (
+    !verifyWebhookSignature(raw, signature, env.STORYBLOK_WEBHOOK_SECRET) &&
+    !verifyUrlSecret(urlSecret, env.STORYBLOK_WEBHOOK_SECRET)
+  ) {
     return new Response('Invalid signature', { status: 401 })
   }
 

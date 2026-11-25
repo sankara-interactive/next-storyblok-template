@@ -129,8 +129,9 @@ To revalidate pages after publishing in Storyblok, set up a Webhook pointing to:
 
 The endpoint verifies Storyblok's `webhook-signature` header (HMAC-SHA1). In the
 Storyblok webhook settings, set the webhook secret to the same value as
-`STORYBLOK_WEBHOOK_SECRET` in your env. Requests without a valid signature are
-rejected. On a valid webhook the cache is flushed surgically: a content publish
+`STORYBLOK_WEBHOOK_SECRET` in your env. Plans without webhook secrets can append
+it to the URL instead (`/api/revalidate?secret=<STORYBLOK_WEBHOOK_SECRET>`).
+Requests with neither a valid signature nor the matching `secret` are rejected. On a valid webhook the cache is flushed surgically: a content publish
 busts that story's tag plus the links inventory (so a first publish shows up in
 nav and sitemap), while a `data/` global, a structural change
 (move/delete/unpublish), or a missing slug flushes the whole `storyblok` tag.
