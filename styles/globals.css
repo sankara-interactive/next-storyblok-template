@@ -20,8 +20,8 @@
   --color-alert: #b42318;
 
   /* Keep the generic family unquoted so it remains a fallback keyword. */
-  --font-sans: Roboto, sans-serif;
-  --font-display: Roboto, sans-serif;
+  --font-sans: var(--font-roboto), sans-serif;
+  --font-display: var(--font-roboto), sans-serif;
 
   /* Roles. Ink, not paper, on brand: white on #09b3af is ~2.6:1 and fails
      WCAG AA for text. */

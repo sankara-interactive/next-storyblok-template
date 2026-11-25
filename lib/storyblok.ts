@@ -4,6 +4,7 @@ import page from '@/components/content_types/Page'
 import faq_item from '@/components/nestables/FaqItem'
 import faq_section from '@/components/nestables/FaqSection'
 import gallery_section from '@/components/nestables/GallerySection'
+import hero_section from '@/components/nestables/HeroSection'
 import privacy_bee from '@/components/nestables/PrivacyBee'
 import text_section from '@/components/nestables/TextSection'
 
@@ -12,6 +13,7 @@ export const components = {
   faq_item,
   faq_section,
   gallery_section,
+  hero_section,
   privacy_bee,
   text_section,
 }

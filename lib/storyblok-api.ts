@@ -11,6 +11,10 @@ export type SbLink = { slug: string; is_folder: boolean }
 
 const isDev = env.NODE_ENV === 'development'
 
+// The webhook is the primary invalidation; this bounds staleness when one is
+// missed (Management API publishes send none).
+const DATA_REVALIDATE = 3600
+
 export function resolveVersion(isDraft: boolean): 'draft' | 'published' {
   return isDev || isPreview || isDraft ? 'draft' : 'published'
 }
@@ -81,11 +85,11 @@ export async function withTransientRetry<T>(fn: () => Promise<T>): Promise<T> {
   }
 }
 
-// Built per-slug so the webhook can bust one story without flushing the rest.
-// The key carries the language, the tag doesn't: one story holds all translations.
+// Per-slug wrap for per-story tags. `slug` and `language` stay arguments so they're
+// in the cache key; the tag omits the language: one story holds all translations.
 function fetchPublishedStory(slug: string, language?: string) {
   return unstable_cache(
-    async () => {
+    async (slug: string, language?: string) => {
       const api = getStoryblokApi()
       const { data } = await withTransientRetry(() =>
         api.get(`cdn/stories/${slug}`, {
@@ -96,9 +100,9 @@ function fetchPublishedStory(slug: string, language?: string) {
       )
       return data.story
     },
-    ['storyblok-story', slug, language ?? 'default'],
-    { tags: [STORYBLOK_CACHE_TAG, storyTag(slug)] }
-  )()
+    undefined,
+    { tags: [STORYBLOK_CACHE_TAG, storyTag(slug)], revalidate: DATA_REVALIDATE }
+  )(slug, language)
 }
 
 export async function getStory<T>(slug: string, locale?: string): Promise<ISbStoryData<T> | null> {
@@ -140,8 +144,8 @@ const fetchLinks = unstable_cache(
     const { data } = await withTransientRetry(() => api.get('cdn/links/', { version: 'published' }))
     return data.links as Record<string, SbLink>
   },
-  ['storyblok-links'],
-  { tags: [STORYBLOK_CACHE_TAG, LINKS_CACHE_TAG] }
+  undefined,
+  { tags: [STORYBLOK_CACHE_TAG, LINKS_CACHE_TAG], revalidate: DATA_REVALIDATE }
 )
 
 export async function getAllLinks(): Promise<Record<string, SbLink>> {

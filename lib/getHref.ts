@@ -6,6 +6,13 @@ function storyPath(slug: string): string {
   return normalized === 'home' ? '' : `/${normalized}`
 }
 
+/** A multilink an editor set and then cleared stays an object with empty fields. */
+export function hasLink(link?: StoryblokMultilink | null): link is StoryblokMultilink {
+  return Boolean(
+    link && (link.id || link.url || link.cached_url || ('email' in link && link.email))
+  )
+}
+
 export function getHref(link: StoryblokMultilink): string {
   const anchor = link.anchor ? `#${link.anchor}` : ''
 

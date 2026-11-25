@@ -2,6 +2,7 @@ import { TextSectionStoryblok } from '@storyblok-component-types'
 import { SbBlokData, storyblokEditable } from '@storyblok/react/rsc'
 import { RichTextRenderer } from '@/components/helpers/RichTextRenderer'
 import { SbLink } from '@/components/helpers/SbLink'
+import { hasLink } from '@/lib/getHref'
 
 export default function TextSection({ blok }: { blok: TextSectionStoryblok }) {
   const HeadingTag = blok.level === 'h3' ? 'h3' : 'h2'
@@ -13,7 +14,7 @@ export default function TextSection({ blok }: { blok: TextSectionStoryblok }) {
       {blok.eyebrow && <p className="text-sm uppercase tracking-wide mb-2">{blok.eyebrow}</p>}
       {blok.headline && <HeadingTag className="mb-4">{blok.headline}</HeadingTag>}
       {blok.lead && <RichTextRenderer text={blok.lead} className="sankara-richtext mb-6" />}
-      {blok.link && (
+      {hasLink(blok.link) && (
         <SbLink link={blok.link} className="rounded-card inline-block border px-4 py-2">
           {blok.label || 'Mehr erfahren'}
         </SbLink>

@@ -18,6 +18,7 @@ describe('setup:space arguments', () => {
       space: '12345',
       yes: true,
       force: false,
+      publish: false,
     })
   })
 
@@ -36,6 +37,10 @@ describe('setup:space arguments', () => {
 
   it('defaults --force to false', () => {
     expect(parseArgs(['--space', '12345', '--yes']).force).toBe(false)
+  })
+
+  it('publishes only when asked', () => {
+    expect(parseArgs(['--space', '12345', '--yes', '--publish']).publish).toBe(true)
   })
 
   it('parses --force when present', () => {
@@ -58,6 +63,18 @@ describe('requireSession', () => {
 
   it('passes through when the CLI reports a logged-in session', () => {
     const checkSession = () => ({ status: 0, stdout: 'you are currently logged in', stderr: '' })
+
+    requireSession({ checkSession })
+
+    expect(exit).not.toHaveBeenCalled()
+  })
+
+  it('accepts a session reported on stderr, as the CLI does without a TTY', () => {
+    const checkSession = () => ({
+      status: 0,
+      stdout: '',
+      stderr: '✔ Hi Jane, you are currently logged in with jane@example.ch on eu region',
+    })
 
     requireSession({ checkSession })
 

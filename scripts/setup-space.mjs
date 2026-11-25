@@ -27,7 +27,12 @@ export function parseArgs(argv) {
   if (!SPACE_ID_PATTERN.test(space)) {
     throw new Error(`Space id must be numeric, got "${space}"`)
   }
-  return { space, yes: argv.includes('--yes'), force: argv.includes('--force') }
+  return {
+    space,
+    yes: argv.includes('--yes'),
+    force: argv.includes('--force'),
+    publish: argv.includes('--publish'),
+  }
 }
 
 function reportsDirFor(basePath, space) {
@@ -90,13 +95,11 @@ const PUBLISH_QUOTA_ERROR_PATTERN =
   /well-formed but was unable to be followed due to semantic errors/i
 
 /**
- * `stories push --publish` on a space whose Development-plan daily publish
- * quota is exhausted fails every story's publish step with the same generic
- * 422 ("well-formed ... semantic errors"), while story content itself is
- * created/updated successfully — that is the only failure signature the
- * CLI's report distinguishes from a real content problem. Content still
- * lands (as drafts); only publishing needs a retry once the quota resets, so
- * this is treated as a soft failure rather than a hard bootstrap failure.
+ * `stories push --publish` on a Development-plan space past its daily publish
+ * quota fails the affected stories with a generic 422 ("well-formed ...
+ * semantic errors"). The push and the publish are one request, so those
+ * stories are not updated at all — a soft failure the caller fixes by
+ * re-running without `--publish`.
  */
 export function isLikelyPublishQuotaFailure(report) {
   if (!report || report.status !== 'PARTIAL_SUCCESS') return false
@@ -156,7 +159,7 @@ function defaultCheckSession() {
  */
 export function requireSession({ checkSession = defaultCheckSession } = {}) {
   const result = checkSession()
-  if (result.status !== 0 || !/logged in/i.test(result.stdout ?? '')) {
+  if (result.status !== 0 || !/logged in/i.test(`${result.stdout ?? ''}${result.stderr ?? ''}`)) {
     console.error(
       'No Storyblok CLI session.\n' +
         'Run `storyblok login -r eu` and choose "With email".\n' +
@@ -308,7 +311,7 @@ export function requireComponentsPushed(
 }
 
 function main() {
-  const { space, yes, force } = parseArgs(process.argv.slice(2))
+  const { space, yes, force, publish } = parseArgs(process.argv.slice(2))
   console.log(`Target space: ${space}`)
   if (!yes) {
     console.log('This overwrites components and stories in that space. Re-run with --yes.')
@@ -336,8 +339,10 @@ function main() {
   ])
   requireComponentsPushed(space)
 
+  // Drafts by default: a Development-plan space publishes three stories a day
+  // and the baseline holds four, and `next dev` and preview hosts read drafts.
   const storiesReport = run(
-    ['stories', 'push', '--from', 'baseline', '--space', space, '--publish'],
+    ['stories', 'push', '--from', 'baseline', '--space', space, ...(publish ? ['--publish'] : [])],
     'stories-push',
     space
   )
@@ -349,11 +354,10 @@ function main() {
 
   if (isLikelyPublishQuotaFailure(storiesReport)) {
     console.warn(
-      '\nStory content pushed, but publishing failed for every story with the\n' +
-        'generic error Storyblok returns when a Development-plan space has hit\n' +
-        'its daily publish quota. Content landed as drafts — this is NOT treated\n' +
-        'as a bootstrap failure. Publish manually once the quota resets\n' +
-        `(Storyblok UI, or \`yarn storyblok stories publish --space ${space}\`).`
+      '\nSome stories failed with the generic error Storyblok returns when a\n' +
+        'Development-plan space has hit its daily publish quota. Those stories\n' +
+        'were NOT updated — the push and the publish are one request. Re-run\n' +
+        `without --publish to land them as drafts: yarn setup:space --space ${space} --yes --force`
     )
     console.log(`\n${MANUAL_STEP_REMINDER}`)
     return

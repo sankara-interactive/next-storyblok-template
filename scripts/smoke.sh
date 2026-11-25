@@ -18,6 +18,7 @@ echo "Home page"
 HOME_HTML=$(curl -s "$BASE/")
 HOME_CODE=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/")
 chk "/ returns 200 (got $HOME_CODE)"                 "$([ "$HOME_CODE" = 200 ] && echo 1)"
+chk "hero renders the page's only <h1>"              "$([ "$(grep -o '<h1' <<<"$HOME_HTML" | wc -l | tr -d ' ')" = 1 ] && echo 1)"
 chk "renders headline 'Template-Demoseite'"          "$(grep -qF 'Template-Demoseite' <<<"$HOME_HTML" && echo 1)"
 chk "renders eyebrow 'Willkommen'"                   "$(grep -qF 'Willkommen' <<<"$HOME_HTML" && echo 1)"
 
@@ -45,6 +46,7 @@ echo
 echo "Negative cases"
 NF=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/definitely-not-a-page")
 chk "unknown path 404s (got $NF)"                    "$([ "$NF" = 404 ] && echo 1)"
+chk "legacy .html path reaches the site 404"         "$(curl -s "$BASE/definitely-not-a-page.html" | grep -qF 'nicht gefunden' && echo 1)"
 DR=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/data/redirects")
 chk "data/ route not routable (got $DR)"             "$([ "$DR" = 404 ] && echo 1)"
 

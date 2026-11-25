@@ -200,7 +200,9 @@ Tasks:
       personal token used for Management API reads and deletes. See
       `docs/superpowers/specs/2026-07-31-storyblok-space-bootstrap-design.md`.
       The `yarn setup:space` baseline now creates both on any target space.
-- [x] Implement, preserving query strings and never trusting the Host header.
+- [x] Implement without trusting the Host header. Query strings were
+      preserved at first and are dropped since the miss moved to on-demand static
+      generation, where reading `searchParams` throws (see README, section 9).
       Destinations come from the CMS as a path or absolute URL, so no origin is
       ever derived from a request header.
 - [x] Keep developer-authored pattern redirects in `next.config.mjs`; the CMS
@@ -293,8 +295,9 @@ Status: `[ ]`
 
 Tasks:
 
-- [ ] Define locale routing, Storyblok language selection, `hreflang`, and
-      localized sitemap behavior.
+- [x] Define locale routing, Storyblok language selection, `hreflang`, and
+      localized sitemap behavior — `next-intl`, PR #50. Translated slugs are
+      not implemented (see `CLAUDE.md`).
 - [ ] Add a `yarn setup` initializer for site identity, locale, Storyblok region,
       analytics, consent integration, environment configuration, and starter bloks.
 - [ ] Add security headers and a CSP compatible with preview and integrations.
