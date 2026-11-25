@@ -10,7 +10,12 @@
         "pos": 0,
         "restrict_components": true,
         "restrict_type": "",
-        "component_whitelist": ["text_section", "faq_section", "gallery_section"]
+        "component_whitelist": [
+          "hero_section",
+          "text_section",
+          "faq_section",
+          "gallery_section"
+        ]
       },
       "tab-seo": {
         "type": "tab",
@@ -24,6 +29,22 @@
         "pos": 2,
         "options": []
       }
+    },
+    "internal_tags_list": [],
+    "internal_tag_ids": []
+  },
+  {
+    "name": "hero_section",
+    "display_name": "Hero Section",
+    "is_root": false,
+    "is_nestable": true,
+    "schema": {
+      "eyebrow": { "type": "text", "pos": 0 },
+      "headline": { "type": "text", "pos": 1, "required": true },
+      "lead": { "type": "richtext", "pos": 2 },
+      "image": { "type": "asset", "pos": 3, "filetypes": ["images"] },
+      "link": { "type": "multilink", "pos": 4 },
+      "label": { "type": "text", "pos": 5 }
     },
     "internal_tags_list": [],
     "internal_tag_ids": []

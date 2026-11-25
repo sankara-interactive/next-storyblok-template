@@ -13,6 +13,26 @@
     "component": "page",
     "body": [
       {
+        "_uid": "aaaaaaaa-0000-4000-8000-aaaaaaaaaaaa",
+        "component": "hero_section",
+        "eyebrow": "Next + Storyblok",
+        "headline": "Starter für Marketing-Websites",
+        "lead": {
+          "type": "doc",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Diese Demoseite zeigt die Bloks, die das Template mitbringt."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
         "_uid": "aaaaaaaa-2222-4222-8222-aaaaaaaaaaaa",
         "component": "text_section",
         "eyebrow": "Willkommen",

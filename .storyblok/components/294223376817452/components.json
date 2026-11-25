@@ -171,11 +171,70 @@
     "metadata": {}
   },
   {
+    "name": "hero_section",
+    "display_name": "Hero Section",
+    "description": null,
+    "created_at": "2026-11-25T09:42:12.511Z",
+    "updated_at": "2026-11-25T09:42:12.511Z",
+    "id": 245391902773075,
+    "schema": {
+      "eyebrow": {
+        "type": "text",
+        "pos": 0,
+        "id": "prhKp5f_RNuelbwMJJeX7A"
+      },
+      "headline": {
+        "type": "text",
+        "pos": 1,
+        "required": true,
+        "id": "ZGIsQD_SSiS5wN1hv2qBBg"
+      },
+      "lead": {
+        "type": "richtext",
+        "pos": 2,
+        "id": "hxkAtZW9T5qES8xB40SZCA"
+      },
+      "image": {
+        "type": "asset",
+        "pos": 3,
+        "filetypes": [
+          "images"
+        ],
+        "id": "AAZ0U-tBRwadPCBYxb1X7Q"
+      },
+      "link": {
+        "type": "multilink",
+        "pos": 4,
+        "id": "WI-dklWrRCOLO4Xni5SuKA"
+      },
+      "label": {
+        "type": "text",
+        "pos": 5,
+        "id": "6_yN3GNnTLWmHcAPmMZLqQ"
+      }
+    },
+    "image": null,
+    "preview_field": null,
+    "is_root": false,
+    "preview_tmpl": null,
+    "is_nestable": true,
+    "all_presets": [],
+    "preset_id": null,
+    "real_name": "Hero Section",
+    "component_group_uuid": null,
+    "color": null,
+    "icon": null,
+    "internal_tags_list": [],
+    "internal_tag_ids": [],
+    "content_type_asset_preview": null,
+    "metadata": {}
+  },
+  {
     "name": "page",
     "display_name": "Page",
     "description": null,
     "created_at": "2026-07-31T08:53:57.933Z",
-    "updated_at": "2026-08-05T13:32:52.060Z",
+    "updated_at": "2026-11-25T09:42:22.807Z",
     "id": 203974401781428,
     "schema": {
       "body": {
@@ -184,6 +243,7 @@
         "restrict_components": true,
         "restrict_type": "",
         "component_whitelist": [
+          "hero_section",
           "text_section",
           "faq_section",
           "gallery_section"
