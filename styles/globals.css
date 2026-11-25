@@ -9,7 +9,7 @@
 
 @theme {
   /* Keep the generic family unquoted so it remains a fallback keyword. */
-  --font-sans: Roboto, sans-serif;
+  --font-sans: var(--font-roboto), sans-serif;
 
   --color-primary: #09b3af;
 }
