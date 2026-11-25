@@ -45,10 +45,8 @@ function isBuildPhase(): boolean {
 /** Exported for tests. */
 export const buildMemoCache = new Map<string, Promise<unknown>>()
 
-/**
- * Draft reads can't change mid-build, so share one fetch per key per worker —
- * per-request otherwise, since the visual editor needs live drafts.
- */
+// Draft reads can't change mid-build, so share one fetch per key per worker;
+// per-request otherwise, since the visual editor needs live drafts.
 export function memoizeDuringBuild<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
   if (!isBuildPhase()) return fetcher()
   const cached = buildMemoCache.get(key)
@@ -64,14 +62,8 @@ function httpStatus(error: unknown): number | undefined {
   return e?.status ?? e?.response?.status
 }
 
-/**
- * Retry reads that die below HTTP (fetch failed, socket reset) or after the
- * SDK exhausts its 429 retries. The SDK absorbs rate limits itself, but a
- * single network-level failure rethrows immediately — and during a static
- * export that one throw kills the whole build. 404 and other client errors
- * pass through untouched (a 404 misread as transient would retry real misses).
- * Exported for tests.
- */
+// Retry network-level failures and exhausted 429s: one such throw kills a static
+// build. 404s and other client errors pass through. Exported for tests.
 export async function withTransientRetry<T>(fn: () => Promise<T>): Promise<T> {
   for (let attempt = 1; ; attempt++) {
     try {

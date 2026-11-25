@@ -1,13 +1,10 @@
-/**
- * Storyblok story → markdown for agents. Walks the blok tree by the field-name
- * vocabulary in CLAUDE.md, so a blok that follows it needs no code here.
- */
+// Storyblok story → markdown for agents. Walks the blok tree by the field-name
+// vocabulary in CLAUDE.md, so a blok that follows it needs no code here.
 import { SITE_NAME } from './config'
 
 type Json = unknown
 type Blok = Record<string, Json>
 
-/** Fields excluded from prose output. */
 const SKIP_FIELDS = new Set([
   '_uid',
   '_editable',
@@ -34,7 +31,6 @@ const HEADING_FIELDS = ['headline', 'title', 'question', 'name']
 /** Prose fields in render order; anything left over follows alphabetically. */
 const TEXT_ORDER = ['eyebrow', 'lead', 'text', 'description', 'answer', 'quote']
 
-/** Display flags are not prose fields. */
 const isFlag = (field: string) => /^(is|has)_/.test(field)
 
 const isBlok = (v: Json): v is Blok =>
@@ -64,7 +60,6 @@ function linkHref(link: Blok, baseUrl: string): string {
   return `${absolute(String(link.url || link.cached_url || ''), baseUrl)}${anchor}`
 }
 
-/** Convert multiline text to a Markdown list. */
 function plainText(value: string): string {
   const lines = value
     .split('\n')

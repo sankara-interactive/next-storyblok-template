@@ -50,9 +50,8 @@ describe('isTranslatedSlug', () => {
   })
 })
 
-// The guard is dormant at LOCALES = ['de'], so the behaviour that matters —
-// what happens once a project adds a locale — is exercised against a config
-// that has one. Without this a French publish flushes nothing at all.
+// The guard is dormant at LOCALES = ['de'], so it is exercised against a config
+// with a second locale. Without it a French publish flushes nothing at all.
 describe('with a second locale configured', () => {
   afterEach(() => {
     vi.resetModules()

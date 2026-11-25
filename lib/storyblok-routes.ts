@@ -7,7 +7,6 @@ import {
   storyTag,
 } from './config'
 
-/** True if a slug is the data/ globals folder or a story inside it. */
 export function isDataRoute(slug: string): boolean {
   return slug === DATA_PREFIX || slug.startsWith(`${DATA_PREFIX}/`)
 }
@@ -18,15 +17,8 @@ export function isTranslatedSlug(slug: string): boolean {
   return first !== DEFAULT_LOCALE && (LOCALES as readonly string[]).includes(first)
 }
 
-/**
- * Cache tags to flush for a Storyblok webhook. A content publish busts that
- * story plus the links inventory — a first publish adds a route only the links
- * tag can surface. Anything else (data/ global, unpublish/move/delete, missing
- * slug, non-default-locale publish) flushes the global tag.
- *
- * Folder startpages arrive with a trailing slash but are read without one, so
- * the slug is normalized or the flush silently no-ops.
- */
+// A content publish busts that story plus the links inventory; anything else
+// flushes the global tag. Folder startpages arrive with a trailing slash.
 export function revalidationTags(action?: string, fullSlug?: string): string[] {
   const slug = fullSlug?.replace(/\/+$/, '')
   if (action === 'published' && slug && !isDataRoute(slug) && !isTranslatedSlug(slug)) {

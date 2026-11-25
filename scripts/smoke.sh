@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
-# Phase 0 smoke test against a running dev server.
-# Usage: ./scripts/smoke.sh [base-url]   (default http://localhost:3000)
-#
-# Requires a dev server running against a space bootstrapped by `yarn setup:space`.
-# Baseline stories may be unpublished drafts; `next dev` reads drafts, so that is fine.
+# Smoke test against a running dev server: ./scripts/smoke.sh [base-url]
+# Needs a space bootstrapped by `yarn setup:space`; drafts are enough, `next dev` reads them.
 BASE="${1:-http://localhost:3000}"
 pass=0; fail=0
 

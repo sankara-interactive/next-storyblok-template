@@ -3,7 +3,6 @@ import { z } from 'zod'
 
 const nonEmpty = z.string().trim().min(1)
 
-/** Require a value in production and use a fallback in other environments. */
 export const devDefault = (isProduction: boolean, fallback: string) =>
   isProduction ? nonEmpty : nonEmpty.default(fallback)
 
@@ -14,11 +13,8 @@ export const siteUrlSchema = (isProduction: boolean) =>
     })
     .transform(input => new URL(input).origin)
 
-/**
- * A site on a plan that cannot sign webhooks opts into a URL secret instead and
- * then has no signing secret at all — never a default one, which would be a
- * known HMAC key on a real host.
- */
+// With a URL secret a site has no signing secret at all: a default one would be
+// a known HMAC key on a real host.
 export const webhookSecretSchema = (isProduction: boolean, hasUrlSecret: boolean) =>
   hasUrlSecret ? nonEmpty.optional() : devDefault(isProduction, 'local-dev-unsigned')
 
@@ -31,7 +27,6 @@ export const env = createEnv({
     SITE_NAME: devDefault(isProduction, 'Site'),
     MODE: z.enum(['preview', 'live']).optional(),
     VERCEL_ENV: z.enum(['production', 'preview', 'development']).optional(),
-    // The editor and local draft mode use the preview token.
     STORYBLOK_PREVIEW_TOKEN: nonEmpty,
     API_SECRET: nonEmpty,
     // The webhook URL does not exist until deployment, so local development

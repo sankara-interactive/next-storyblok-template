@@ -2,17 +2,8 @@ import StoryblokClient from 'storyblok-js-client'
 import { createInterface } from 'node:readline/promises'
 import { stdin, stdout } from 'node:process'
 
-/**
- * Lists assets that no story references — neither in published nor in draft
- * content. Prompts before deleting anything.
- *
- * Usage: set -a; source .env; set +a; node scripts/find-unused-assets.mjs
- * Needs STORYBLOK_SPACE_ID, STORYBLOK_MANAGEMENT_TOKEN, STORYBLOK_PREVIEW_TOKEN.
- *
- * Blind spots: only story content is scanned. References in datasources,
- * component presets, hardcoded URLs in app code, or older story versions
- * (restorable from history) are not seen. Double-check before deleting.
- */
+// Usage: set -a; source .env; set +a; node scripts/find-unused-assets.mjs
+// Blind spots: datasources, presets, hardcoded URLs and older story versions.
 
 const space = process.env.STORYBLOK_SPACE_ID
 const managementToken = process.env.STORYBLOK_MANAGEMENT_TOKEN

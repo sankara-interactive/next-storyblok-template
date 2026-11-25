@@ -29,7 +29,6 @@ function splitLocale(segments: string[]): { locale: string; slug: string } {
   }
 }
 
-/** Return a Markdown 404 response with site navigation. */
 async function notFoundBody(): Promise<string> {
   const paths = sitemapPaths(await getAllLinks()).sort()
   return [
@@ -47,7 +46,6 @@ export async function GET(_req: Request, props: { params: Promise<{ slug?: strin
   const { slug: segments } = await props.params
   const { locale, slug } = splitLocale(segments ?? [])
 
-  // `data/` globals are not routable.
   if (isDataRoute(slug)) return markdown(await notFoundBody(), 404)
 
   const story = await getStory<ContentType>(slug, locale)

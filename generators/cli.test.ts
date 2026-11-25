@@ -4,9 +4,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { afterAll, expect, test } from 'vitest'
 
-// Smoke test: the scaffold CLI must emit a stub that wires every field type
-// correctly. Full compile-safety was verified once by hand (tsc --noEmit);
-// this guards the template against silent regressions.
+// Guards the scaffold stub against silent regressions across every field type.
 
 const repoRoot = process.cwd()
 const outFile = path.join(repoRoot, 'components/nestables/ScaffoldSmokeSection.tsx')

@@ -5,7 +5,6 @@ import path from 'node:path'
 
 const repoRoot = path.resolve(import.meta.dirname, '..')
 
-// Convert Storyblok's snake_case names to the generated PascalCase type names.
 const toPascalCase = name =>
   name
     .split(/[_-]/)
@@ -13,7 +12,6 @@ const toPascalCase = name =>
     .map(part => part.charAt(0).toUpperCase() + part.slice(1))
     .join('')
 
-// Prefer an explicit schema path; otherwise use the single pulled component set.
 function resolveSchemaPath() {
   const arg = process.argv[2]
   if (arg) return path.resolve(repoRoot, arg)
@@ -41,7 +39,6 @@ const schema = JSON.parse(fs.readFileSync(resolveSchemaPath(), 'utf8'))
 // Treat assets as videos only when Storyblok explicitly marks them as video files.
 const isImageAsset = field => field.type === 'asset' && !field.filetypes?.includes('videos')
 
-// Use the template's heading convention for text fields named `headline`.
 const isHeadline = field =>
   field.name === 'headline' && (field.type === 'text' || field.type === 'textarea')
 
@@ -62,7 +59,6 @@ const generateContent = componentSchema => {
           return field.required ? element : `{${f} && ${element}}`
         }
         case 'richtext':
-          // Use the package's rich-text flow styles.
           return `{${f} && <RichTextRenderer text={${f}} className="sankara-richtext" />}`
         case 'asset':
           if (!isImageAsset(field)) {

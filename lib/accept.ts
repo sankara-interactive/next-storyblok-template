@@ -22,7 +22,6 @@ function parseRanges(header: string): Range[] {
     .filter(r => r.range.includes('/'))
 }
 
-/** Return the quality for a media type using the most specific matching range. */
 function qualityOf(ranges: Range[], mime: string): number {
   const type = mime.split('/')[0]
   let bestSpecificity = 0
@@ -39,7 +38,6 @@ function qualityOf(ranges: Range[], mime: string): number {
   return bestQ
 }
 
-/** Use HTML when the Accept header is absent or invalid. */
 export function negotiate(header: string | null | undefined): Negotiated {
   if (!header?.trim()) return 'html'
   const ranges = parseRanges(header)
