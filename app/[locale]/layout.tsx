@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Roboto } from 'next/font/google'
 import { notFound } from 'next/navigation'
 import { ReactNode } from 'react'
 import { hasLocale, NextIntlClientProvider } from 'next-intl'
@@ -8,6 +9,8 @@ import JsonLd from '@/components/seo/JsonLd'
 import { HTML_LANG, OG_DEFAULTS, OG_LOCALE, SITE_NAME, SITE_URL } from '@/lib/config'
 import { routing } from '@/i18n/routing'
 import '@/styles/globals.css'
+
+const roboto = Roboto({ subsets: ['latin'], variable: '--font-roboto' })
 
 // This layout owns <html lang>; route handlers are outside the layout tree.
 export function generateStaticParams() {
@@ -40,7 +43,7 @@ export default async function RootLayout({
 
   // The SDK handles the Storyblok bridge; no provider is required.
   return (
-    <html lang={HTML_LANG[locale] ?? locale}>
+    <html lang={HTML_LANG[locale] ?? locale} className={roboto.variable}>
       <body>
         <a
           href="#content"

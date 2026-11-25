@@ -11,6 +11,10 @@ export type SbLink = { slug: string; is_folder: boolean }
 
 const isDev = env.NODE_ENV === 'development'
 
+// The webhook is the primary invalidation; this bounds staleness when one is
+// missed (Management API publishes send none).
+const DATA_REVALIDATE = 3600
+
 export function resolveVersion(isDraft: boolean): 'draft' | 'published' {
   return isDev || isPreview || isDraft ? 'draft' : 'published'
 }
@@ -97,7 +101,7 @@ function fetchPublishedStory(slug: string, language?: string) {
       return data.story
     },
     undefined,
-    { tags: [STORYBLOK_CACHE_TAG, storyTag(slug)] }
+    { tags: [STORYBLOK_CACHE_TAG, storyTag(slug)], revalidate: DATA_REVALIDATE }
   )(slug, language)
 }
 
@@ -141,7 +145,7 @@ const fetchLinks = unstable_cache(
     return data.links as Record<string, SbLink>
   },
   undefined,
-  { tags: [STORYBLOK_CACHE_TAG, LINKS_CACHE_TAG] }
+  { tags: [STORYBLOK_CACHE_TAG, LINKS_CACHE_TAG], revalidate: DATA_REVALIDATE }
 )
 
 export async function getAllLinks(): Promise<Record<string, SbLink>> {
