@@ -5,7 +5,7 @@ import { getTranslations } from 'next-intl/server'
 export default async function NotFound() {
   const t = await getTranslations('NotFound')
   return (
-    <main className="container mx-auto p-8 text-center">
+    <main id="content" className="container mx-auto p-8 text-center">
       <h1>{t('title')}</h1>
       <p className="mt-2">{t('message')}</p>
       <ul className="mt-4 flex flex-wrap justify-center gap-4">
