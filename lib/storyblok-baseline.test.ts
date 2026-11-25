@@ -11,6 +11,7 @@ describe('baseline schema', () => {
       'faq_item',
       'faq_section',
       'gallery_section',
+      'hero_section',
       'page',
       'redirect',
       'redirects',

@@ -18,6 +18,7 @@ describe('setup:space arguments', () => {
       space: '12345',
       yes: true,
       force: false,
+      publish: false,
     })
   })
 
@@ -36,6 +37,10 @@ describe('setup:space arguments', () => {
 
   it('defaults --force to false', () => {
     expect(parseArgs(['--space', '12345', '--yes']).force).toBe(false)
+  })
+
+  it('publishes only when asked', () => {
+    expect(parseArgs(['--space', '12345', '--yes', '--publish']).publish).toBe(true)
   })
 
   it('parses --force when present', () => {

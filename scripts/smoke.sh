@@ -18,6 +18,7 @@ echo "Home page"
 HOME_HTML=$(curl -s "$BASE/")
 HOME_CODE=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/")
 chk "/ returns 200 (got $HOME_CODE)"                 "$([ "$HOME_CODE" = 200 ] && echo 1)"
+chk "hero renders the page's only <h1>"              "$([ "$(grep -o '<h1' <<<"$HOME_HTML" | wc -l | tr -d ' ')" = 1 ] && echo 1)"
 chk "renders headline 'Template-Demoseite'"          "$(grep -qF 'Template-Demoseite' <<<"$HOME_HTML" && echo 1)"
 chk "renders eyebrow 'Willkommen'"                   "$(grep -qF 'Willkommen' <<<"$HOME_HTML" && echo 1)"
 
