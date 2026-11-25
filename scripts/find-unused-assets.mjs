@@ -23,19 +23,6 @@ if (!space || !managementToken || !previewToken) {
   process.exit(1)
 }
 
-async function fetchJson(url, headers = {}) {
-  for (let attempt = 0; attempt < 6; attempt++) {
-    const response = await fetch(url, { headers })
-    if (response.status === 429) {
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      continue
-    }
-    if (!response.ok) throw new Error(`${response.status} ${url}`)
-    return response.json()
-  }
-  throw new Error(`Rate limited after retries: ${url}`)
-}
-
 async function allAssets() {
   const assets = []
   for (let page = 1; ; page++) {

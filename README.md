@@ -1,14 +1,15 @@
-# Next.js Storyblok Boilerplate
+# next-storyblok-template
 
-This repository is a Next.js [Storyblok](https://www.storyblok.com) starter template.
+The sankara:interactive starter for marketing sites: Next 16 (App Router, server
+components) with [Storyblok](https://www.storyblok.com) as the CMS,
+`@sankara-ui/core` for UI, `next-intl` for locales and Tailwind v4.
 
 ## Requirements
 
-To use this project you have to have a Storyblok account. If you don't have one yet you can register at [Storyblok](https://www.storyblok.com), it's free.
+A Storyblok space, Node 22 (see `.tool-versions`) and Yarn 4 through Corepack
+(`corepack enable`).
 
 ## How to get started?
-
-Read the [Next.js 13 tutorial](https://www.storyblok.com/tp/add-a-headless-cms-to-next-js-13-in-5-minutes) about connecting Storyblok and Next.js
 
 ### 1. Use this template
 
@@ -17,7 +18,7 @@ Create a new repository from this template by clicking the **Use this template**
 ### 2. Install all dependencies
 
 ```sh
-yarn # or npm install
+yarn
 ```
 
 ### 3. Adding the Access token
@@ -25,7 +26,7 @@ yarn # or npm install
 Create a new empty space and copy the preview token. Create your `.env` from `.env.example`:
 
 ```sh
-mv .env.example .env
+cp .env.example .env
 ```
 
 Add the tokens and space ID from Storyblok, plus the two secrets, as environment variables:
@@ -63,12 +64,12 @@ Set the preview domain in <strong>Storyblok</strong> to `http://localhost:3000/`
 
 ```sh
 # to run in developer mode
-yarn dev # or npm run dev
+yarn dev
 ```
 
 ```sh
 # to build your project
-yarn build # or npm run build
+yarn build
 ```
 
 ### 5. Storyblok sync
@@ -150,7 +151,7 @@ deploy needed. Create a nestable `redirect` blok with three fields and a
 | `destination` | text    | Path (`/impressum`) or absolute URL.           |
 | `permanent`   | boolean | Unset/true → 308. False → 307.                 |
 
-Resolution happens at the 404 boundary in `app/[[...slug]]/page.tsx`: when a
+Resolution happens at the 404 boundary in `app/[locale]/[[...slug]]/page.tsx`: when a
 story is missing, `lib/redirects.ts` looks the path up and redirects. Live pages
 never pay for the lookup, and the list rides the normal cache tags — publishing
 `data/redirects` flushes the global `storyblok` tag like any other `data/` global.
@@ -163,6 +164,10 @@ Two consequences worth knowing:
 - **Query strings are dropped.** `/alt?utm_source=mail` → `/neu`. A miss is rendered as an
   on-demand static generation, where reading `searchParams` throws `DYNAMIC_SERVER_USAGE`
   and would turn the redirect into a 500.
+
+- **Only page-like file extensions reach the lookup.** `proxy.ts` lets `.html`,
+  `.htm`, `.php`, `.asp` and `.aspx` paths through; any other dotted path
+  (`/flyer.pdf`) is treated as a static file and cannot be redirected from the CMS.
 
 Pattern redirects (`/blog/:slug*`) are developer territory — add a standard Next
 `redirects()` to `next.config.mjs`. The CMS story is for exact-path retirement.
@@ -194,7 +199,7 @@ that, and should not be habitual.
 
 `scripts/smoke.sh` checks a running dev server end to end — the page renders, rich
 text produces a bold mark, an internal link, a `mailto:` link and an embedded blok,
-and the CMS redirects fire with the query string preserved:
+and the CMS redirects fire, dropping the query string:
 
 ```sh
 yarn dev
@@ -270,10 +275,23 @@ Use these field names consistently across bloks:
 
 **SEO**
 
-- Root `metadata` in `app/layout.tsx` sets the title template (`%s · Site`) and OpenGraph defaults (`OG_DEFAULTS` in `lib/config.ts`, spread into every override because Next replaces `openGraph` rather than merging it); per-page `generateMetadata` in `app/[[...slug]]/page.tsx` overrides title, description, canonical, and images per story. `JsonLd` (`components/seo/JsonLd.tsx`) emits Organization + WebSite structured data sitewide.
+- Root `metadata` in `app/[locale]/layout.tsx` sets the title template (`%s · Site`) and OpenGraph defaults (`OG_DEFAULTS` in `lib/config.ts`, spread into every override because Next replaces `openGraph` rather than merging it); per-page `generateMetadata` in `app/[locale]/[[...slug]]/page.tsx` overrides title, description and canonical per story (no page sets an OG image yet). `JsonLd` (`components/seo/JsonLd.tsx`) emits Organization + WebSite structured data sitewide.
+
+## Starting a site from this template
+
+What still carries the template's identity after cloning:
+
+- `tsconfig.json` — the `@storyblok-component-types` path holds the template's
+  space id. Point it at your space after the first `yarn sync`, then delete
+  `.storyblok/components/294223376817452/` and `.storyblok/types/294223376817452/`.
+- `lib/config.ts` — `LOCALES` and `DEFAULT_LOCALE`; add a `messages/<locale>.json`
+  per locale.
+- `components/layout/Logo.tsx` and `public/favicon.ico` — placeholders.
+- `styles/globals.css` — the `@theme` palette and font.
+- `package.json` — `name`.
 
 ## Resources
 
-- [Next.js docs](https://nextjs.org/docs/#setup)
-- [Storyblok Tutorial](https://www.storyblok.com/tp/add-a-headless-cms-to-next-js-in-5-minutes)
-- [Preview Mode](https://nextjs.org/docs/advanced-features/preview-mode)
+- [Next.js docs](https://nextjs.org/docs) — the version-matched copy ships in `node_modules/next/dist/docs/`
+- [Storyblok docs](https://www.storyblok.com/docs)
+- [Draft Mode](https://nextjs.org/docs/app/guides/draft-mode)
