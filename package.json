@@ -12,6 +12,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,mts,mjs,js,css}\" \"messages/*.json\"",
     "test": "vitest run",
     "test:watch": "vitest",
+    "smoke": "scripts/smoke-dev.sh",
     "check": "yarn format:check && yarn lint && yarn typecheck && yarn test && yarn types:check",
     "sync": "storyblok components pull && storyblok types generate",
     "types:check": "node scripts/check-storyblok-types.mjs",

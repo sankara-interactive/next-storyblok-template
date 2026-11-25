@@ -128,8 +128,17 @@ Next 16 (App Router, RSC) + Storyblok marketing-site template.
 - `.mcp.json` runs Next's `next-devtools-mcp` (version pinned — bump it
   deliberately): with `yarn dev` running, it gives agents the dev server's
   build/runtime errors, routes, and the version-matched docs.
-- Pushes to `main`, force-pushes and remote-branch deletes go through
-  `.claude/hooks/guard-push.sh`, which makes Claude Code ask for approval.
+- `yarn smoke` — boots `next dev` on a free port, runs `scripts/smoke.sh`
+  against it and stops only that server. Use it to verify a change; never
+  `pkill` a dev server, other projects' servers run on this machine too.
+- Hooks in `.claude/hooks/`: `guard-push.sh` asks before pushes to `main`,
+  force-pushes and remote-branch deletes; `guard-storyblok.sh` asks before any
+  Storyblok push; `guard-commit.sh` refuses a commit on `main` in whichever repo
+  the commit targets.
+- **Storyblok dev spaces publish three stories a day.** Push stories as drafts
+  (`next dev` and preview hosts read them); pass `--publish` only when asked. A
+  generic 422 on a publishing push means the quota, and that story was not
+  updated.
 - **Descendant sites** receive template changes by `git merge` (forks with a
   `template` remote) or by hand-porting (copies without shared history). Check
   that a change lands on them before merging it here — the `sync-template`
