@@ -8,7 +8,6 @@ const handleI18nRouting = createMiddleware(routing)
 // Accept negotiation runs before next-intl routing and rewrites Markdown
 // requests to /api/md.
 export default function proxy(request: NextRequest) {
-  // Only GET and HEAD requests without RSC headers are negotiable.
   const negotiable =
     (request.method === 'GET' || request.method === 'HEAD') && !request.headers.get('RSC')
 

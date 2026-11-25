@@ -4,7 +4,6 @@ import { DEFAULT_LOCALE, LOCALES } from '@/lib/config'
 export const routing = defineRouting({
   locales: LOCALES,
   defaultLocale: DEFAULT_LOCALE,
-  // The default locale uses unprefixed paths.
   localePrefix: 'as-needed',
   // Page metadata supplies alternate links.
   alternateLinks: false,

@@ -24,7 +24,6 @@ export function loadBaseline(): BaselineComponent[] {
   return JSON.parse(fs.readFileSync(BASELINE_PATH, 'utf8'))
 }
 
-/** Return all child bloks allowed by a component's fields. */
 export function whitelistedBloks(component: BaselineComponent): string[] {
   return Object.values(component.schema).flatMap(field => field.component_whitelist ?? [])
 }

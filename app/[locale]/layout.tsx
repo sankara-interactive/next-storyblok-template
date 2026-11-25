@@ -41,7 +41,6 @@ export default async function RootLayout({
   setRequestLocale(locale)
   const t = await getTranslations('SkipLink')
 
-  // The SDK handles the Storyblok bridge; no provider is required.
   return (
     <html lang={HTML_LANG[locale] ?? locale} className={roboto.variable}>
       <body>

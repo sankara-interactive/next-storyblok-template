@@ -40,15 +40,8 @@ function reportsDirFor(basePath, space) {
 }
 
 /**
- * The Storyblok CLI never sets a non-zero process exit code on failure — its
- * error path (`handleError` in storyblok/dist/index.mjs) logs and returns
- * without touching `process.exitCode`, and the root program has no global
- * exit handling. `result.status` from `spawnSync` is therefore never a
- * reliable signal. What IS reliable is the report the CLI writes to
- * `<path>/reports/<space>/storyblok-<command>-<runId>.json`, containing a
- * `status` field (`SUCCESS` | `PARTIAL_SUCCESS` | `FAILURE` | ...). This
- * reads the newest report matching a command+space, or null if none exists
- * or it can't be parsed.
+ * The Storyblok CLI never sets a non-zero exit code, so success is read from the
+ * `status` of the report it writes. Returns the newest matching report, or null.
  * @param {string} dir
  * @param {string} commandSuffix e.g. "stories-pull", "components-push"
  */
@@ -62,7 +55,6 @@ export function readLatestReport(dir, commandSuffix) {
   }
 }
 
-/** Return matching reports in newest-first order. */
 function matchingReports(dir, commandSuffix) {
   let files
   try {
@@ -78,7 +70,6 @@ function matchingReports(dir, commandSuffix) {
     .sort((a, b) => b.runId - a.runId)
 }
 
-/** Format a failed CLI report, including per-story errors when available. */
 function describeReportFailure(report) {
   if (!report) return 'no report was written'
   const failedStories = report.meta?.failedStories
@@ -94,13 +85,8 @@ function describeReportFailure(report) {
 const PUBLISH_QUOTA_ERROR_PATTERN =
   /well-formed but was unable to be followed due to semantic errors/i
 
-/**
- * `stories push --publish` on a Development-plan space past its daily publish
- * quota fails the affected stories with a generic 422 ("well-formed ...
- * semantic errors"). The push and the publish are one request, so those
- * stories are not updated at all — a soft failure the caller fixes by
- * re-running without `--publish`.
- */
+// Past the daily publish quota a Development-plan space answers a generic 422 and
+// does not update the story at all; re-running without `--publish` fixes it.
 export function isLikelyPublishQuotaFailure(report) {
   if (!report || report.status !== 'PARTIAL_SUCCESS') return false
   const summary = report.summary ?? {}
@@ -114,15 +100,13 @@ export function isLikelyPublishQuotaFailure(report) {
   )
 }
 
-/** Return the newest report run ID, or null when no report exists. */
 function latestRunId(dir, commandSuffix) {
   const [latest] = matchingReports(dir, commandSuffix)
   return latest ? latest.runId : null
 }
 
 /**
- * Require a report newer than the one recorded before the command started.
- * This prevents a missing report from being mistaken for a previous success.
+ * A missing report must not be mistaken for a previous run's success.
  * @param {string} dir
  * @param {string} commandSuffix
  * @param {number | null} beforeRunId
@@ -171,11 +155,8 @@ export function requireSession({ checkSession = defaultCheckSession } = {}) {
   }
 }
 
-/**
- * Pull stories with the authenticated CLI session and return their identifiers.
- * A missing or unsuccessful report means the safety check failed, not that the
- * space is empty.
- */
+// A missing or unsuccessful report means the safety check failed, not that the
+// space is empty.
 function defaultListStories(space) {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'setup-space-check-'))
   try {
@@ -201,7 +182,6 @@ function defaultListStories(space) {
   }
 }
 
-/** Return the story slugs included in the committed baseline. */
 function defaultBaselineSlugs() {
   return fs
     .readdirSync(BASELINE_STORIES_DIR)
@@ -212,9 +192,8 @@ function defaultBaselineSlugs() {
 }
 
 /**
- * Refuse to push into a space containing stories outside the baseline set.
- * `--force` can override the check, but a failed pre-check is still reported
- * as an error rather than being treated as an empty space.
+ * Refuse a space holding stories outside the baseline. `--force` overrides the
+ * refusal, but a failed pre-check is still an error, never an empty space.
  * @param {string} space
  * @param {boolean} force
  * @param {{ listStories?: (space: string) => Array<{ full_slug: string, id: number }>, baselineSlugs?: () => string[] }} [options]
@@ -261,14 +240,8 @@ export function requireEmptySpace(
   console.error('Continuing anyway because --force was passed.')
 }
 
-/**
- * `components push` writes no report to gate on (see the comment above the
- * `components push` call in `main`), so success is verified positively:
- * pull the space's components back into a fresh temp dir and confirm every
- * baseline component name is present. Reuses the CLI session `requireSession`
- * already established, the same way `defaultListStories` does -- no second
- * auth mechanism to document.
- */
+// `components push` writes no report, so success is verified by pulling the
+// components back and checking every baseline name is present.
 function defaultPulledComponentNames(space) {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'setup-space-components-check-'))
   try {
@@ -321,12 +294,7 @@ function main() {
   requireSession()
   requireEmptySpace(space, force)
 
-  // `components push` never writes a report -- pushCmd$3.action in
-  // storyblok/dist/index.mjs never calls getReporter()/reporter.finalize()
-  // (unlike stories push/pull, assets pull/push/transfer, migrations run,
-  // and schema push/init/rollback, which all do). Gating on a report here
-  // would always fail closed, so this pushes directly and verifies the
-  // result positively instead -- see requireComponentsPushed.
+  // No report to gate on here: see requireComponentsPushed.
   spawnStoryblok([
     'components',
     'push',

@@ -16,5 +16,4 @@ export function hreflangAlternates(slug: string): Record<string, string> | undef
   return alternates
 }
 
-/** Absolute URL, for the sitemap and markdown output. */
 export const absoluteUrl = (path: string) => new URL(path, SITE_URL).toString()

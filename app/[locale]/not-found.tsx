@@ -1,7 +1,6 @@
 import { Link } from '@/i18n/navigation'
 import { getTranslations } from 'next-intl/server'
 
-// Provide recovery links for crawlers and users.
 export default async function NotFound() {
   const t = await getTranslations('NotFound')
   return (

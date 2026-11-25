@@ -21,7 +21,6 @@ export const components = {
 export const getStoryblokApi = storyblokInit({
   accessToken: env.NEXT_PUBLIC_STORYBLOK_TOKEN,
   use: [apiPlugin],
-  // Throttle API requests and retry residual rate-limit failures.
   apiOptions: { rateLimit: 4, maxRetries: 10 },
   components,
 })
