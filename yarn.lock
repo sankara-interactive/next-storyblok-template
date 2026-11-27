@@ -5378,7 +5378,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"icu-minify@npm:^4.15.1, icu-minify@npm:^4.15.2":
+"icu-minify@npm:^4.15.1, icu-minify@npm:^4.15.3":
   version: 4.15.3
   resolution: "icu-minify@npm:4.15.3"
   dependencies:
@@ -6444,9 +6444,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"next-intl@npm:^4.15.3":
-  version: 4.15.3
-  resolution: "next-intl@npm:4.15.3"
+"next-intl@npm:^4.16.1":
+  version: 4.16.1
+  resolution: "next-intl@npm:4.16.1"
   dependencies:
     "@eloqnt/config": "npm:~0.1.2"
     "@eloqnt/extractor": "npm:~0.1.0"
@@ -6456,7 +6456,7 @@ __metadata:
     "@formatjs/intl-localematcher": "npm:^0.8.1"
     "@parcel/watcher": "npm:^2.6.0"
     "@swc/core": "npm:~1.16.0"
-    icu-minify: "npm:^4.15.2"
+    icu-minify: "npm:^4.15.3"
     negotiator: "npm:^1.0.0"
     next-intl-swc-plugin-extractor: "npm:4.15.1"
     use-intl: "npm:^4.15.1"
@@ -6467,7 +6467,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/bc1aac65bf88a5115b5d1bf8f07bebe7b0d6056c782fad2e8667c439dc4da0fe9e945743ead04c7bb43f09645f2afa1a94dcc8b1e8cac8f02c694b89c37cf21a
+  checksum: 10c0/812f4108bb7716e46fa1781ae2cdd423868cba03b9e4623cc801375604e430df4762ad7500a7c8e4f17a93659ea70ca70d8cb72282143ed46ef16cc912e27fa0
   languageName: node
   linkType: hard
 
@@ -6485,7 +6485,7 @@ __metadata:
     eslint: "npm:^9"
     eslint-config-next: "npm:^16.4.6"
     next: "npm:^16.4.6"
-    next-intl: "npm:^4.15.3"
+    next-intl: "npm:^4.16.1"
     postcss: "npm:^8.5.33"
     prettier: "npm:3.10.1"
     react: "npm:^19.3.1"
